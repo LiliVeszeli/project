@@ -44,11 +44,13 @@ namespace Project
                 bitmap.BeginInit();
                 bitmap.UriSource = new Uri(selectedFileName);
 
+                //checks if the file selected is an image
                 if(selectedFileName.Contains(".jpg") || selectedFileName.Contains(".png"))
                 {
                     bitmap.EndInit();
                     image.Source = bitmap;
                 }
+                //if it isn't an image it displays an error message, the program doens't crash
                 else
                 {
                     MessageBox.Show("Error: Select a file with .jpg or .png extension.", "ERROR");
