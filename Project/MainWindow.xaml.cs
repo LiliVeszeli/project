@@ -14,6 +14,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+
+
+
+
 namespace Project
 {
     /// <summary>
@@ -21,6 +25,12 @@ namespace Project
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        public void pixel()
+        {
+
+        }
+            
         public MainWindow()
         {
             InitializeComponent();
@@ -28,10 +38,18 @@ namespace Project
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
+
+            //Class1 class1 = new Class1();
+            // class1.pixelate();
+            // class1.i = 2;
+           
+
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.InitialDirectory = "c:\\";
             //filters files, so only images can be selected
-            dlg.Filter = "Image files (*.jpg)|*.jpg";
+            dlg.Filter = "All supported graphics|*.jpg;*.jpeg;*.png|" +
+             "JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
+             "Portable Network Graphic (*.png)|*.png";
             dlg.RestoreDirectory = true;
             Nullable<bool> result = dlg.ShowDialog();
 
@@ -45,7 +63,7 @@ namespace Project
                 bitmap.UriSource = new Uri(selectedFileName);
 
                 //checks if the file selected is an image
-                if(selectedFileName.Contains(".jpg") || selectedFileName.Contains(".png"))
+                if(selectedFileName.Contains(".jpg") || selectedFileName.Contains(".png") || selectedFileName.Contains(".PNG") || selectedFileName.Contains(".jpeg"))
                 {
                     bitmap.EndInit();
                     image.Source = bitmap;
