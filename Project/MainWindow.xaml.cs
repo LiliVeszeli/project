@@ -25,12 +25,7 @@ namespace Project
     /// </summary>
     public partial class MainWindow : Window
     {
-
-        public void pixel()
-        {
-
-        }
-            
+         
         public MainWindow()
         {
             InitializeComponent();
@@ -74,6 +69,11 @@ namespace Project
                     MessageBox.Show("Error: Select a file with .jpg or .png extension.", "ERROR");
                 }
             }
+        }
+
+        private void button2_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

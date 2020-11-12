@@ -7,8 +7,9 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Button x:Name="button" Content="New Picture" HorizontalAlignment="Left" Margin="649,26,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
+        <Button x:Name="newPicture" Content="New Picture" HorizontalAlignment="Left" Margin="649,26,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
         <Image x:Name="image" HorizontalAlignment="Left" Height="265" Margin="97,105,0,0" VerticalAlignment="Top" Width="562"/>
+        <Button x:Name="Pattern" Content="Create Pattern" HorizontalAlignment="Left" Margin="464,26,0,0" VerticalAlignment="Top" Width="93" Click="button2_Click"/>
 
     </Grid>
 </Window>
