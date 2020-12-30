@@ -42,7 +42,7 @@ namespace PaintTest
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // Create a writable bitmap and load a file into it
-            BitmapImage loadImage = new BitmapImage(new Uri(@"../../Shiba.jpg", UriKind.RelativeOrAbsolute));
+            BitmapImage loadImage = new BitmapImage(new Uri(@"../../john.png", UriKind.RelativeOrAbsolute));
             pixelsBitmap = new WriteableBitmap(loadImage);
             width = pixelsBitmap.PixelWidth;
             height = pixelsBitmap.PixelHeight;
