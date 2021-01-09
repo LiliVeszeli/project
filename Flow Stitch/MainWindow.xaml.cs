@@ -21,7 +21,7 @@ using System.Windows.Interop;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 using System.Windows.Media.Media3D;
-
+using AForge.Imaging.ColorReduction;
 
 namespace Flow_Stitch
 {
@@ -181,7 +181,7 @@ namespace Flow_Stitch
         }
 
 
-        static System.Drawing.Bitmap ScaleByPercent(System.Drawing.Image imgPhoto, int Percent)
+        static System.Drawing.Bitmap ScaleByPercent(System.Drawing.Image imgPhoto, float Percent)
         {
             float nPercent = ((float)Percent / 100);
 
@@ -252,6 +252,93 @@ namespace Flow_Stitch
             image.Source = wBitmap;
         }
 
+        private void Palette_Click(object sender, RoutedEventArgs e)
+        {
 
+            ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+
+            //making it into a bitmap
+            MemoryStream outStream = new MemoryStream();
+
+            BitmapEncoder enc = new BmpBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(wBitmap));
+            enc.Save(outStream);
+            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+            Bitmap newImage = quantizer.ReduceColors(img, 8);
+
+            //    var list = new Dictionary<int, int>();
+
+          
+
+
+            //    //getting the colours in the image
+            //    for (int x = 0; x < img.Width; x++)
+            //    {
+            //        for (int y = 0; y < img.Height; y++)
+            //        {
+            //            int rgb = img.GetPixel(x, y).ToArgb();
+
+
+            //            var added = false;
+            //            for (int i = 0; i < 10; i++)
+            //            {
+            //                if (list.ContainsKey(rgb + i))
+            //                {
+            //                    list[rgb + i]++;
+            //                    added = true;
+            //                    break;
+            //                }
+            //                if (list.ContainsKey(rgb - i))
+            //                {
+            //                    list[rgb - i]++;
+            //                    added = true;
+            //                    break;
+            //                }
+            //            }
+            //            //adding new colours to the list, using a value to see how many times they have been added.
+            //            if (!added)
+            //                list.Add(rgb, 1);
+            //        }
+            //    }
+
+            //    //sort the list of colours in descending order. Most common on top.
+            //    var mySortedList = list.OrderByDescending(d => d.Value).ToList();
+            //    var commonColour = mySortedList.Select(kvp => kvp.Key).ToList();
+
+
+            //    int difference;
+            //    int closestColour = 0;
+            //    int closestColourDifference = 10000000;
+
+            //    for (int i = 0; i < img.Width; i++)
+            //    {
+            //        for (int j = 0; j < img.Height; j++)
+            //        {
+            //            int pixelColor = img.GetPixel(i, j).ToArgb();
+            //            closestColourDifference = 10000000;
+
+            //            for (int k = 0; k < commonColour.Count(); k++)
+            //            {
+            //                difference = pixelColor - commonColour[k];
+
+            //                if(Math.Abs(difference) < closestColourDifference)
+            //                {
+            //                    closestColour = commonColour[k];
+            //                    closestColourDifference = difference;
+            //                }
+            //            }
+
+            //            System.Drawing.Color c = System.Drawing.Color.FromArgb(closestColour);
+
+            //            img.SetPixel(i, j, c);
+            //        }
+            //    }
+
+            //    //difference = sqrt(sqr(red1 - red2) + sqr(green1 - green2) + sqr(blue1 - blue2))
+
+                wBitmap = BitmapToImageSource(newImage);
+               image.Source = wBitmap;
+        }
     }
 }

@@ -59,5 +59,6 @@
         </Canvas>
         <Button x:Name="ChangeColour" Content="Change Colour" Grid.Column="1" HorizontalAlignment="Left" Margin="202,39,0,0" VerticalAlignment="Top" Width="98" Click="ChangeColour_Click"/>
         <Button x:Name="Resize" Content="Resize" Grid.Column="1" HorizontalAlignment="Left" Margin="406,39,0,0" VerticalAlignment="Top" Width="75" Click="Resize_Click"/>
+        <Button x:Name="Palette" Content="Reduce Colour" Grid.Column="1" HorizontalAlignment="Left" Margin="566,39,0,0" VerticalAlignment="Top" Width="88" Click="Palette_Click"/>
     </Grid>
 </Window>
