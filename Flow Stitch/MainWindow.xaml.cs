@@ -62,38 +62,87 @@ namespace Flow_Stitch
         //loads image
         private void ItemOpen_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.InitialDirectory = "c:\\";
-            //filters files, so only images can be selected
-            dlg.Filter = "All supported graphics|*.jpg;*.jpeg;*.png|" +
-             "JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
-             "Portable Network Graphic (*.png)|*.png";
-            dlg.RestoreDirectory = true;
-            Nullable<bool> result = dlg.ShowDialog();
 
-            //if OK is presssed
-            if (result == true)
+            int numberOfColours = 0;
+            int heightOfPattern = 0;
+
+            //opening other window for setup
+            NewPicture window = new NewPicture();
+            window.ShowDialog();
+
+            //parsing input strings
+            if (!(int.TryParse(window.ColourtextBox.Text, out numberOfColours)))
             {
-                string selectedFileName = dlg.FileName;
-                //create a bitmap and load the image
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(selectedFileName);
-
-                //checks if the file selected is an image
-                if (selectedFileName.Contains(".jpg") || selectedFileName.Contains(".png") || selectedFileName.Contains(".PNG") || selectedFileName.Contains(".jpeg"))
-                {
-                    bitmap.EndInit();
-                    //pubBitmapImage = bitmap;
-                    wBitmap = new WriteableBitmap(bitmap);
-                    image.Source = wBitmap;
-                }
-                //if it isn't an image it displays an error message, the program doens't crash
-                else
-                {
-                    MessageBox.Show("Error: Select a file with .jpg or .png extension.", "ERROR");
-                }
+                numberOfColours = 0;
             }
+            if (!(int.TryParse(window.HeighttextBox.Text, out heightOfPattern)))
+            {
+                heightOfPattern = 0;
+            }
+           
+            //only opening a picture if input is not empty/invalid
+            if(numberOfColours != 0 && heightOfPattern != 0)
+            {
+                //opening files
+                OpenFileDialog dlg = new OpenFileDialog();
+                dlg.InitialDirectory = "c:\\";
+                //filters files, so only images can be selected
+                dlg.Filter = "All supported graphics|*.jpg;*.jpeg;*.png|" +
+                 "JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
+                 "Portable Network Graphic (*.png)|*.png";
+                dlg.RestoreDirectory = true;
+                Nullable<bool> result = dlg.ShowDialog();
+
+                //if OK is presssed
+                if (result == true)
+                {
+                    string selectedFileName = dlg.FileName;
+                    //create a bitmap and load the image
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(selectedFileName);
+
+                    //checks if the file selected is an image
+                    if (selectedFileName.Contains(".jpg") || selectedFileName.Contains(".png") || selectedFileName.Contains(".PNG") || selectedFileName.Contains(".jpeg"))
+                    {
+                        bitmap.EndInit();
+                        //pubBitmapImage = bitmap;
+                        wBitmap = new WriteableBitmap(bitmap);
+                        image.Source = wBitmap;
+                    }
+                    //if it isn't an image it displays an error message, the program doens't crash
+                    else
+                    {
+                        MessageBox.Show("Error: Select a file with .jpg or .png extension.", "ERROR");
+                    }
+                }
+
+           
+                //convert to bitmap
+                MemoryStream outStream = new MemoryStream();
+
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(wBitmap));
+                enc.Save(outStream);
+                System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+                //calculating new size in percentage
+                float newSizePercentage = (float)heightOfPattern / (float)img.Height;
+                newSizePercentage *= 100;
+
+                //reduce colour palette
+                ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+
+                Bitmap quantizedImage = quantizer.ReduceColors(img, 8);
+
+                //resize image
+                System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage);
+
+                //putting it back into the image and the writable bitmap
+                wBitmap = BitmapToImageSource(scaledImage);
+                image.Source = wBitmap;
+
+            }         
         }
 
 
@@ -216,21 +265,21 @@ namespace Flow_Stitch
 
 
 
-        private void Resize_Click(object sender, RoutedEventArgs e)
-        {
-            MemoryStream outStream = new MemoryStream();
+        //private void Resize_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MemoryStream outStream = new MemoryStream();
 
-            BitmapEncoder enc = new BmpBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(wBitmap));
-            enc.Save(outStream);
-            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+        //    BitmapEncoder enc = new BmpBitmapEncoder();
+        //    enc.Frames.Add(BitmapFrame.Create(wBitmap));
+        //    enc.Save(outStream);
+        //    System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
 
-            System.Drawing.Bitmap newImage = ScaleByPercent(img, 50);
+        //    System.Drawing.Bitmap newImage = ScaleByPercent(img, 50);
 
-            wBitmap = BitmapToImageSource(newImage);
-            image.Source = wBitmap;
-        }
+        //    wBitmap = BitmapToImageSource(newImage);
+        //    image.Source = wBitmap;
+        //}
 
         private void image_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -252,93 +301,93 @@ namespace Flow_Stitch
             image.Source = wBitmap;
         }
 
-        private void Palette_Click(object sender, RoutedEventArgs e)
-        {
+        //private void Palette_Click(object sender, RoutedEventArgs e)
+        //{
 
-            ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+        //    ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
 
-            //making it into a bitmap
-            MemoryStream outStream = new MemoryStream();
+        //    //making it into a bitmap
+        //    MemoryStream outStream = new MemoryStream();
 
-            BitmapEncoder enc = new BmpBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(wBitmap));
-            enc.Save(outStream);
-            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+        //    BitmapEncoder enc = new BmpBitmapEncoder();
+        //    enc.Frames.Add(BitmapFrame.Create(wBitmap));
+        //    enc.Save(outStream);
+        //    System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
-            Bitmap newImage = quantizer.ReduceColors(img, 8);
+        //    Bitmap newImage = quantizer.ReduceColors(img, 8);
 
-            //    var list = new Dictionary<int, int>();
+        //    //    var list = new Dictionary<int, int>();
 
           
 
 
-            //    //getting the colours in the image
-            //    for (int x = 0; x < img.Width; x++)
-            //    {
-            //        for (int y = 0; y < img.Height; y++)
-            //        {
-            //            int rgb = img.GetPixel(x, y).ToArgb();
+        //    //    //getting the colours in the image
+        //    //    for (int x = 0; x < img.Width; x++)
+        //    //    {
+        //    //        for (int y = 0; y < img.Height; y++)
+        //    //        {
+        //    //            int rgb = img.GetPixel(x, y).ToArgb();
 
 
-            //            var added = false;
-            //            for (int i = 0; i < 10; i++)
-            //            {
-            //                if (list.ContainsKey(rgb + i))
-            //                {
-            //                    list[rgb + i]++;
-            //                    added = true;
-            //                    break;
-            //                }
-            //                if (list.ContainsKey(rgb - i))
-            //                {
-            //                    list[rgb - i]++;
-            //                    added = true;
-            //                    break;
-            //                }
-            //            }
-            //            //adding new colours to the list, using a value to see how many times they have been added.
-            //            if (!added)
-            //                list.Add(rgb, 1);
-            //        }
-            //    }
+        //    //            var added = false;
+        //    //            for (int i = 0; i < 10; i++)
+        //    //            {
+        //    //                if (list.ContainsKey(rgb + i))
+        //    //                {
+        //    //                    list[rgb + i]++;
+        //    //                    added = true;
+        //    //                    break;
+        //    //                }
+        //    //                if (list.ContainsKey(rgb - i))
+        //    //                {
+        //    //                    list[rgb - i]++;
+        //    //                    added = true;
+        //    //                    break;
+        //    //                }
+        //    //            }
+        //    //            //adding new colours to the list, using a value to see how many times they have been added.
+        //    //            if (!added)
+        //    //                list.Add(rgb, 1);
+        //    //        }
+        //    //    }
 
-            //    //sort the list of colours in descending order. Most common on top.
-            //    var mySortedList = list.OrderByDescending(d => d.Value).ToList();
-            //    var commonColour = mySortedList.Select(kvp => kvp.Key).ToList();
+        //    //    //sort the list of colours in descending order. Most common on top.
+        //    //    var mySortedList = list.OrderByDescending(d => d.Value).ToList();
+        //    //    var commonColour = mySortedList.Select(kvp => kvp.Key).ToList();
 
 
-            //    int difference;
-            //    int closestColour = 0;
-            //    int closestColourDifference = 10000000;
+        //    //    int difference;
+        //    //    int closestColour = 0;
+        //    //    int closestColourDifference = 10000000;
 
-            //    for (int i = 0; i < img.Width; i++)
-            //    {
-            //        for (int j = 0; j < img.Height; j++)
-            //        {
-            //            int pixelColor = img.GetPixel(i, j).ToArgb();
-            //            closestColourDifference = 10000000;
+        //    //    for (int i = 0; i < img.Width; i++)
+        //    //    {
+        //    //        for (int j = 0; j < img.Height; j++)
+        //    //        {
+        //    //            int pixelColor = img.GetPixel(i, j).ToArgb();
+        //    //            closestColourDifference = 10000000;
 
-            //            for (int k = 0; k < commonColour.Count(); k++)
-            //            {
-            //                difference = pixelColor - commonColour[k];
+        //    //            for (int k = 0; k < commonColour.Count(); k++)
+        //    //            {
+        //    //                difference = pixelColor - commonColour[k];
 
-            //                if(Math.Abs(difference) < closestColourDifference)
-            //                {
-            //                    closestColour = commonColour[k];
-            //                    closestColourDifference = difference;
-            //                }
-            //            }
+        //    //                if(Math.Abs(difference) < closestColourDifference)
+        //    //                {
+        //    //                    closestColour = commonColour[k];
+        //    //                    closestColourDifference = difference;
+        //    //                }
+        //    //            }
 
-            //            System.Drawing.Color c = System.Drawing.Color.FromArgb(closestColour);
+        //    //            System.Drawing.Color c = System.Drawing.Color.FromArgb(closestColour);
 
-            //            img.SetPixel(i, j, c);
-            //        }
-            //    }
+        //    //            img.SetPixel(i, j, c);
+        //    //        }
+        //    //    }
 
-            //    //difference = sqrt(sqr(red1 - red2) + sqr(green1 - green2) + sqr(blue1 - blue2))
+        //    //    //difference = sqrt(sqr(red1 - red2) + sqr(green1 - green2) + sqr(blue1 - blue2))
 
-                wBitmap = BitmapToImageSource(newImage);
-               image.Source = wBitmap;
-        }
+        //        wBitmap = BitmapToImageSource(newImage);
+        //       image.Source = wBitmap;
+        //}
     }
 }
