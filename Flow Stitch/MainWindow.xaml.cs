@@ -29,24 +29,35 @@ namespace Flow_Stitch
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-   
+    public class ListItemColour
+    {
+        public string Name { get; set; }
+        public System.Windows.Media.Color color { get; set; }
+    }
 
     public partial class MainWindow : Window
     {
-        //public BitmapImage pubBitmapImage = new BitmapImage();
-        //public Bitmap pubBitmap;
+        
+     
         WriteableBitmap wBitmap;
-        
-        
+
+        // Working array of colours - we will edit pixels in this
+        System.Windows.Media.Color[,] pixels;
+        private int width, height;
+
+        bool isDrawing = false;
+        System.Windows.Media.Color currentColour = System.Windows.Media.Color.FromRgb(0, 0, 0);
+        System.Drawing.Color[] palette;
 
         public MainWindow()
         {
             InitializeComponent();
+           
         }
 
    
         //opens colour picker
-        private void button_Click_1(object sender, RoutedEventArgs e)
+        private void OpenColourPicker()
         {
             var initialColor = Colors.Blue;
             var dialog = new ColorPickerDialog(initialColor);
@@ -54,8 +65,9 @@ namespace Flow_Stitch
 
             if (result.HasValue && result.Value)
             {
-                var newColor = dialog.Color;
+                currentColour = dialog.Color;
             }
+            
         }
 
 
@@ -108,6 +120,7 @@ namespace Flow_Stitch
                         bitmap.EndInit();
                         //pubBitmapImage = bitmap;
                         wBitmap = new WriteableBitmap(bitmap);
+                        
                         image.Source = wBitmap;
                     }
                     //if it isn't an image it displays an error message, the program doens't crash
@@ -131,17 +144,41 @@ namespace Flow_Stitch
                 newSizePercentage *= 100;
 
                 //reduce colour palette
-                ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+               ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+               System.Drawing.Bitmap quantizedImage = quantizer.ReduceColors(img, numberOfColours);
 
-                Bitmap quantizedImage = quantizer.ReduceColors(img, 8);
+               
 
                 //resize image
-                System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage);
+                System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
+                
+                //requantize
+                System.Drawing.Bitmap requantizedImage = quantizer.ReduceColors(scaledImage, numberOfColours);
 
+                //getting the colours in the pattern
+                palette = quantizer.CalculatePalette(scaledImage, numberOfColours);
+
+                //data binding
+                List<ListItemColour> items = new List<ListItemColour>();
+
+                for (int i = 0; i < palette.Count(); i++)
+                {
+                    items.Add(new ListItemColour() { Name = "   " + palette[i].Name, color = System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
+                }
+                listBox.ItemsSource = items;
+
+
+                Bitmap newBitmap = new Bitmap(requantizedImage);
                 //putting it back into the image and the writable bitmap
-                wBitmap = BitmapToImageSource(scaledImage);
+                wBitmap = BitmapToImageSource(newBitmap);
                 image.Source = wBitmap;
 
+                width = wBitmap.PixelWidth;
+                height = wBitmap.PixelHeight;
+
+                // New array of pixels to match the bitmap, one for each pixel
+                pixels = new System.Windows.Media.Color[height, width];
+                GetPixelsFromBitmap();
             }         
         }
 
@@ -179,6 +216,56 @@ namespace Flow_Stitch
         //        return bitmapImage;
         //    }
         //}
+
+
+        // Update writable bitmap with our own array of pixel colours
+        private void UpdatePixelsBitmap()
+        {
+            // Copy the data into a one-dimensional array.
+            byte[] pixels1d = new byte[height * width * 4];
+            int index = 0;
+            for (int row = 0; row < height; row++)
+            {
+                for (int col = 0; col < width; col++)
+                {
+                    pixels1d[index++] = pixels[row, col].R;
+                    pixels1d[index++] = pixels[row, col].G;
+                    pixels1d[index++] = pixels[row, col].B;
+                    pixels1d[index++] = pixels[row, col].A;
+                }
+            }
+
+            // Copy pixels over to writeable bitmap
+            Int32Rect rect = new Int32Rect(0, 0, width, height);
+            int stride = 4 * width;
+            wBitmap.WritePixels(rect, pixels1d, stride, 0);
+        }
+
+
+        // Get pixels array from writable bitmap (opposite of above method), used when we load an image into a bitmap
+        private void GetPixelsFromBitmap()
+        {
+            // One dimensional array to get pixel data
+            byte[] pixels1d = new byte[height * width * 4];
+
+            // Copy pixels from writeable bitmap
+            Int32Rect rect = new Int32Rect(0, 0, width, height);
+            int stride = 4 * width;
+            wBitmap.CopyPixels(rect, pixels1d, stride, 0);
+
+            // Copy the data from one-dimensional array into our pixels array
+            int index = 0;
+            for (int row = 0; row < height; row++)
+            {
+                for (int col = 0; col < width; col++)
+                {
+                    pixels[row, col].R = pixels1d[index++];
+                    pixels[row, col].G = pixels1d[index++];
+                    pixels[row, col].B = pixels1d[index++];
+                    pixels[row, col].A = pixels1d[index++];
+                }
+            }
+        }
 
 
         private void ChangeColour_Click(object sender, RoutedEventArgs e)
@@ -230,7 +317,7 @@ namespace Flow_Stitch
         }
 
 
-        static System.Drawing.Bitmap ScaleByPercent(System.Drawing.Image imgPhoto, float Percent)
+        static System.Drawing.Bitmap ScaleByPercent(System.Drawing.Image imgPhoto, float Percent, int Height)
         {
             float nPercent = ((float)Percent / 100);
 
@@ -242,7 +329,7 @@ namespace Flow_Stitch
             int destX = 0;
             int destY = 0;
             int destWidth = (int)(sourceWidth * nPercent);
-            int destHeight = (int)(sourceHeight * nPercent);
+            int destHeight = Height;
 
             Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
                                      System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -261,32 +348,35 @@ namespace Flow_Stitch
             return bmPhoto;
         }
 
+        //clicking on the draw button
+        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            isDrawing = true;
+        }
+
+        //clicking on the colour picker button
+        private void Image_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
+        {
+            var initialColor = Colors.Blue;
+            var dialog = new ColorPickerDialog(initialColor);
+            var result = dialog.ShowDialog();
+
+            if (result.HasValue && result.Value)
+            {
+                currentColour = dialog.Color;
+            }
+        }
 
 
-
-
-        //private void Resize_Click(object sender, RoutedEventArgs e)
-        //{
-        //    MemoryStream outStream = new MemoryStream();
-
-        //    BitmapEncoder enc = new BmpBitmapEncoder();
-        //    enc.Frames.Add(BitmapFrame.Create(wBitmap));
-        //    enc.Save(outStream);
-        //    System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
-
-
-        //    System.Drawing.Bitmap newImage = ScaleByPercent(img, 50);
-
-        //    wBitmap = BitmapToImageSource(newImage);
-        //    image.Source = wBitmap;
-        //}
-
+        //if image pixel is clicked
         private void image_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            var clickedPoint = e.GetPosition((System.Windows.Controls.Image)sender);
-            // coordinates are now available in clickedPoint.X and clickedPoint.Y
-            System.Drawing.Color red = System.Drawing.Color.FromArgb(255, 0, 0);
+            // coordinates are now available in p.X and p.Y
+            var p = e.GetPosition(image);
 
+            System.Drawing.Color bitmapColour = System.Drawing.Color.FromArgb(currentColour.R, currentColour.G, currentColour.B);
+
+            //converting to bitmap
             MemoryStream outStream = new MemoryStream();
 
             BitmapEncoder enc = new BmpBitmapEncoder();
@@ -294,8 +384,31 @@ namespace Flow_Stitch
             enc.Save(outStream);
             System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
-            img.SetPixel((int)clickedPoint.X, (int)clickedPoint.Y, red);
+            
+            var source = (BitmapSource)image.Source;
 
+            //calculating pixel position
+            double pixelWidth = source.PixelWidth;
+            double pixelHeight = source.PixelHeight;
+            double dx = pixelWidth * p.X / image.ActualWidth;
+            double dy = pixelHeight * p.Y / image.ActualHeight;
+
+            //converting to int
+            int x = (int)dx;
+            int y = (int)dy;
+           
+            img.SetPixel(x, y, bitmapColour);
+
+            //System.Windows.Point p = e.GetPosition(image);
+            //var pix = img.GetPixel((int)clickedPoint.X, (int)clickedPoint.Y);
+
+            //double pixelWidth = image.Source.Width;
+            //double pixelHeight = image.Source.Height;
+            //double x = pixelWidth * p.X / image.ActualWidth;
+            //double y = pixelHeight * p.Y / image.ActualHeight;
+
+            //pixels[(int)y, (int)x] = System.Windows.Media.Color.FromRgb(0, 0, 0);
+            //UpdatePixelsBitmap();
 
             wBitmap = BitmapToImageSource(img);
             image.Source = wBitmap;
@@ -304,7 +417,7 @@ namespace Flow_Stitch
         //private void Palette_Click(object sender, RoutedEventArgs e)
         //{
 
-        //    ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+      
 
         //    //making it into a bitmap
         //    MemoryStream outStream = new MemoryStream();
@@ -314,7 +427,7 @@ namespace Flow_Stitch
         //    enc.Save(outStream);
         //    System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
-        //    Bitmap newImage = quantizer.ReduceColors(img, 8);
+        
 
         //    //    var list = new Dictionary<int, int>();
 

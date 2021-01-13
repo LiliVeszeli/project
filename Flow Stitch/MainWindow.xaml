@@ -7,37 +7,46 @@
         xmlns:local="clr-namespace:Flow_Stitch"
         mc:Ignorable="d"
         Title="Flow Stitch" Height="450" Width="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="395*"/>
-        </Grid.ColumnDefinitions>
-        <DockPanel HorizontalAlignment="Left" Height="Auto" Margin="0,26,0,-504" VerticalAlignment="Stretch" Width="141" RenderTransformOrigin="0.411,0.501" Background="#FFD4D4FF" LastChildFill="False" Grid.ColumnSpan="2">
-            <StackPanel Height="394" VerticalAlignment="Top" Width="135" Background="#FFD4D4FF">
-                <ListBox Margin="0,0,0.2,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
-                    <ListBoxItem>
-                        <StackPanel Orientation="Horizontal" Height="43" Margin="0,0,0.2,0">
-                            <Image x:Name="image1" Height="30" Margin="0,7,0,6.2" Width="49"/>
-                            <TextBlock x:Name="textBox" Height="37" TextWrapping="Wrap" Text="Thread colour" Margin="0,3,0,3.2" Width="84" Background="White" LineHeight="6" />
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type local:ListItemColour}">
+            <StackPanel Orientation="Horizontal" Height="43">
+                
+                <Rectangle Width="30" Height="30">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{Binding color}" />
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Border BorderBrush="{x:Null}" Height="50">
+                    <TextBlock Text="{Binding Name}"  TextWrapping="Wrap" VerticalAlignment="Center"/>
+                </Border>
+                
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
 
-                        </StackPanel>
-                    </ListBoxItem>
-                    <ListBoxItem>
-                        <StackPanel Orientation="Horizontal" Height="43" Margin="0,0,0.2,0">
-                            <Image x:Name="image2" Height="30" Margin="0,7,0,6.2" Width="49" Stretch="Uniform"/>
-                            <TextBlock x:Name="textBox1" Height="37" TextWrapping="Wrap" Text="Thread colour" Margin="0,3,0,3.2" Width="84" Background="White" />
-                        </StackPanel>
-                    </ListBoxItem>
-                    <ListBoxItem>
-                        <StackPanel Orientation="Horizontal" Height="43" Margin="0,0,0.2,0">
-                            <Image x:Name="image3" Height="30" Margin="0,7,0,6.2" Width="49"/>
-                            <TextBlock x:Name="textBox2" Height="37" TextWrapping="Wrap" Text="Thread colour" Margin="0,3,0,3.2" Width="84" Background="White" />
-                        </StackPanel>
-                    </ListBoxItem>
+    <Grid>
+      
+        <DockPanel HorizontalAlignment="Left" Height="Auto" Margin="0,26,0,-504" VerticalAlignment="Stretch" Width="136" RenderTransformOrigin="0.411,0.501" Background="#FFD4D4FF" LastChildFill="False" Grid.ColumnSpan="2">
+            <StackPanel Height="394" VerticalAlignment="Top" Width="135" Background="#FFD4D4FF">
+                <TextBlock x:Name="textBlock" TextWrapping="Wrap" Background="#FFEEEEEE" Height="20"><Run FontWeight="Bold" Text=" "/><Run FontWeight="Bold" Text="Thread "/><Run FontWeight="Bold" Text="Colours"/></TextBlock>
+                <ListBox Margin="0,0,0.2,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Name="listBox" Height="250">
                 </ListBox>
+                <TextBlock x:Name="ToolTextBlock" TextWrapping="Wrap" Background="#FFEEEEEE" Height="20"><Run FontWeight="Bold" Text=" "/><Run FontWeight="Bold" Text="Tools"/></TextBlock>
+                <StackPanel Height="58" Margin="0,0,0.2,0" Orientation="Horizontal">
+                    <Button x:Name="drawButton"  Width="40" Height="40" Margin="0,2,0,15.6">
+                        <Image Source="draw.png" MouseLeftButtonDown="Image_MouseLeftButtonDown" />
+                    </Button>
+                    <Button x:Name="eraserButton"  Width="40" Height="40" Margin="0,2,0,15.6">
+                        <Image Source="eraser.png" />
+                    </Button>
+                    <Button x:Name="pickerButton"  Width="40" Height="40" Margin="0,2,0,15.6">
+                        <Image Source="picker.png" />
+                    </Button>
+
+                </StackPanel>
             </StackPanel>
         </DockPanel>
-        <Button x:Name="button" Content="Add Color" HorizontalAlignment="Left" Margin="10,347,0,0" VerticalAlignment="Top" Width="75" Click="button_Click_1" Grid.Column="1" Height="19" RenderTransformOrigin="-1.312,3.458"/>
+        
         <Menu x:Name="menu" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Top" Width="Auto" Grid.ColumnSpan="2" Margin="0,0,-0.4,0">
             <MenuItem Header="File" Width="35" Height="25">
                 <MenuItem Header="New" Name="ItemOpen" Background="White" Click="ItemOpen_Click">

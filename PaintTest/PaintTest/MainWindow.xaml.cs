@@ -42,7 +42,7 @@ namespace PaintTest
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // Create a writable bitmap and load a file into it
-            BitmapImage loadImage = new BitmapImage(new Uri(@"../../john.png", UriKind.RelativeOrAbsolute));
+            BitmapImage loadImage = new BitmapImage(new Uri(@"../../Shiba.jpg", UriKind.RelativeOrAbsolute));
             pixelsBitmap = new WriteableBitmap(loadImage);
             width = pixelsBitmap.PixelWidth;
             height = pixelsBitmap.PixelHeight;
@@ -147,7 +147,13 @@ namespace PaintTest
         private void ImageDraw_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition(ImageDraw);
-            pixels[(int)p.Y, (int)p.X] = Color.FromRgb(0,0,0);
+
+            double pixelWidth = ImageDraw.Source.Width;
+            double pixelHeight = ImageDraw.Source.Height;
+            double x = pixelWidth * p.X / ImageDraw.ActualWidth;
+            double y = pixelHeight * p.Y / ImageDraw.ActualHeight;
+
+            pixels[(int)y, (int)x] = Color.FromRgb(0,0,0);
             UpdatePixelsBitmap();
         }
     }
