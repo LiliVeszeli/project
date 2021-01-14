@@ -22,6 +22,9 @@ using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 using System.Windows.Media.Media3D;
 using AForge.Imaging.ColorReduction;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Flow_Stitch
 {
@@ -29,10 +32,57 @@ namespace Flow_Stitch
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-    public class ListItemColour
+    //public class ListItemColour
+    //{
+    //    public string Name { get; set; }
+    //    public System.Windows.Media.Color color { get; set; }
+
+    //}
+
+    public class ListItemColour : INotifyPropertyChanged
     {
-        public string Name { get; set; }
-        public System.Windows.Media.Color color { get; set; }
+        public string _Name { get; set; }
+        public System.Windows.Media.Color _Color { get; set; }
+        // Declare the event
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public ListItemColour()
+        {
+        }
+
+        //public ListItemColour(System.Windows.Media.Color value, string name)
+        //{
+        //    this.color = value;
+        //    this.Name = name;
+        //}
+
+        public System.Windows.Media.Color color
+        {
+            get { return _Color; }
+            set
+            {
+                _Color = value;
+                // Call OnPropertyChanged whenever the property is updated
+                OnPropertyChanged();
+            }
+        }
+        public string Name
+        {
+            get { return _Name; }
+            set
+            {
+                _Name = value;
+                // Call OnPropertyChanged whenever the property is updated
+                OnPropertyChanged();
+            }
+        }
+
+        // Create the OnPropertyChanged method to raise the event
+        // The calling member's name will be used as the parameter.
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 
     public partial class MainWindow : Window
@@ -48,6 +98,7 @@ namespace Flow_Stitch
         bool isDrawing = false;
         System.Windows.Media.Color currentColour = System.Windows.Media.Color.FromRgb(0, 0, 0);
         System.Drawing.Color[] palette;
+        ObservableCollection<ListItemColour> items = new ObservableCollection<ListItemColour>();
 
         public MainWindow()
         {
@@ -159,11 +210,15 @@ namespace Flow_Stitch
                 palette = quantizer.CalculatePalette(scaledImage, numberOfColours);
 
                 //data binding
-                List<ListItemColour> items = new List<ListItemColour>();
+               
+
 
                 for (int i = 0; i < palette.Count(); i++)
                 {
-                    items.Add(new ListItemColour() { Name = "   " + palette[i].Name, color = System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
+                    //string val = "   " + palette[i].Name;
+                    //System.Windows.Media.Color col = System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B);
+
+                    items.Add(new ListItemColour() { Name= "   " + palette[i].Name , color= System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
                 }
                 listBox.ItemsSource = items;
 
@@ -317,6 +372,7 @@ namespace Flow_Stitch
         }
 
 
+        //scaling down image
         static System.Drawing.Bitmap ScaleByPercent(System.Drawing.Image imgPhoto, float Percent, int Height)
         {
             float nPercent = ((float)Percent / 100);
@@ -367,6 +423,65 @@ namespace Flow_Stitch
             }
         }
 
+
+        //change existing palette colour
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Media.Color existingColor;
+            System.Windows.Media.Color nextColor;
+            string currentName;
+            string nextName;
+            var initialColor = Colors.Blue;
+            var dialog = new ColorPickerDialog(initialColor);
+            var result = dialog.ShowDialog();
+
+            if (result.HasValue && result.Value)
+            {
+                //the colour it will change to
+                nextColor = dialog.Color;
+
+                //getting the selected listbox item
+                ListItemColour selectedItem = (ListItemColour)listBox.SelectedItem;
+
+                //getting current color in palette that will be changed
+                existingColor = selectedItem.color;
+                currentName = selectedItem.Name;
+
+                //making color variables for setting the pixels
+                System.Drawing.Color previous = System.Drawing.Color.FromArgb(existingColor.R, existingColor.G, existingColor.B);
+                System.Drawing.Color next = System.Drawing.Color.FromArgb(nextColor.R, nextColor.G, nextColor.B);
+                nextName = next.R.ToString("X2") + next.G.ToString("X2") + next.B.ToString("X2");
+
+                //converting to bitmap
+                MemoryStream outStream = new MemoryStream();
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(wBitmap));
+                enc.Save(outStream);
+                System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+
+                for (int i = 0; i < img.Width; i++)
+                {
+                    for (int j = 0; j < img.Height; j++)
+                    {
+                        System.Drawing.Color pixelColor = img.GetPixel(i, j);
+                        if (pixelColor == previous)
+                            img.SetPixel(i, j, next);
+                    }
+                }
+
+         
+                (listBox.SelectedItem as ListItemColour).color = nextColor;
+                (listBox.SelectedItem as ListItemColour).Name = "   " + nextName.ToLower();
+
+
+                wBitmap = BitmapToImageSource(img);
+                image.Source = wBitmap;
+            }
+        }
+
+
+        
 
         //if image pixel is clicked
         private void image_MouseDown(object sender, MouseButtonEventArgs e)

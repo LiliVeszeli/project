@@ -13,13 +13,18 @@
                 
                 <Rectangle Width="30" Height="30">
                     <Rectangle.Fill>
-                        <SolidColorBrush Color="{Binding color}" />
+                        <SolidColorBrush x:Name="brush" Color="{Binding color, UpdateSourceTrigger=PropertyChanged}"/>
                     </Rectangle.Fill>
                 </Rectangle>
                 <Border BorderBrush="{x:Null}" Height="50">
-                    <TextBlock Text="{Binding Name}"  TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"  TextWrapping="Wrap" VerticalAlignment="Center"/>
                 </Border>
-                
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Change colour" Click="MenuItem_Click" Name="ListColourChange"/>
+                        <MenuItem Header="Delete" />
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
             </StackPanel>
         </DataTemplate>
     </Window.Resources>
