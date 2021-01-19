@@ -32,13 +32,9 @@ namespace Flow_Stitch
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-    //public class ListItemColour
-    //{
-    //    public string Name { get; set; }
-    //    public System.Windows.Media.Color color { get; set; }
+   
 
-    //}
-
+    //class for the listbox item
     public class ListItemColour : INotifyPropertyChanged
     {
         public string _Name { get; set; }
@@ -48,13 +44,7 @@ namespace Flow_Stitch
 
         public ListItemColour()
         {
-        }
-
-        //public ListItemColour(System.Windows.Media.Color value, string name)
-        //{
-        //    this.color = value;
-        //    this.Name = name;
-        //}
+        }        
 
         public System.Windows.Media.Color color
         {
@@ -88,7 +78,7 @@ namespace Flow_Stitch
     public partial class MainWindow : Window
     {
         
-     
+        //stores the image 
         WriteableBitmap wBitmap;
 
         // Working array of colours - we will edit pixels in this
@@ -96,9 +86,10 @@ namespace Flow_Stitch
         private int width, height;
 
         bool isDrawing = false;
-        System.Windows.Media.Color currentColour = System.Windows.Media.Color.FromRgb(0, 0, 0);
-        System.Drawing.Color[] palette;
-        ObservableCollection<ListItemColour> items = new ObservableCollection<ListItemColour>();
+        bool isEraser = false;
+        System.Windows.Media.Color currentColour = System.Windows.Media.Color.FromRgb(0, 0, 0); //stores the color that is currently used
+        System.Drawing.Color[] palette; //stores the colours in the pattern
+        ObservableCollection<ListItemColour> items = new ObservableCollection<ListItemColour>(); //stores listbox items
 
         public MainWindow()
         {
@@ -184,7 +175,6 @@ namespace Flow_Stitch
            
                 //convert to bitmap
                 MemoryStream outStream = new MemoryStream();
-
                 BitmapEncoder enc = new BmpBitmapEncoder();
                 enc.Frames.Add(BitmapFrame.Create(wBitmap));
                 enc.Save(outStream);
@@ -195,49 +185,47 @@ namespace Flow_Stitch
                 newSizePercentage *= 100;
 
                 //reduce colour palette
-               ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
-               System.Drawing.Bitmap quantizedImage = quantizer.ReduceColors(img, numberOfColours);
+                ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+                System.Drawing.Bitmap quantizedImage = quantizer.ReduceColors(img, numberOfColours);
 
                
-
                 //resize image
                 System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
                 
                 //requantize
-                System.Drawing.Bitmap requantizedImage = quantizer.ReduceColors(scaledImage, numberOfColours);
+                System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours));
 
                 //getting the colours in the pattern
-                palette = quantizer.CalculatePalette(scaledImage, numberOfColours);
+                palette = quantizer.CalculatePalette(requantizedImage, numberOfColours);
+
+                items.Clear();
 
                 //data binding
-               
-
-
+                //making listbox items dynamically
                 for (int i = 0; i < palette.Count(); i++)
-                {
-                    //string val = "   " + palette[i].Name;
-                    //System.Windows.Media.Color col = System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B);
-
+                {                      
                     items.Add(new ListItemColour() { Name= "   " + palette[i].Name , color= System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
                 }
                 listBox.ItemsSource = items;
 
 
                 Bitmap newBitmap = new Bitmap(requantizedImage);
+
                 //putting it back into the image and the writable bitmap
                 wBitmap = BitmapToImageSource(newBitmap);
                 image.Source = wBitmap;
 
-                width = wBitmap.PixelWidth;
-                height = wBitmap.PixelHeight;
+                //width = wBitmap.PixelWidth;
+                //height = wBitmap.PixelHeight;
 
-                // New array of pixels to match the bitmap, one for each pixel
-                pixels = new System.Windows.Media.Color[height, width];
-                GetPixelsFromBitmap();
+                //// New array of pixels to match the bitmap, one for each pixel
+                //pixels = new System.Windows.Media.Color[height, width];
+                //GetPixelsFromBitmap();
             }         
         }
 
 
+        //convering bitmap to writeable bitmap
         WriteableBitmap BitmapToImageSource(Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
@@ -254,106 +242,10 @@ namespace Flow_Stitch
             }
         }
 
-        //public static BitmapImage ToBitmapImage(this Bitmap bitmap)
-        //{
-        //    using (var memory = new MemoryStream())
-        //    {
-        //        bitmap.Save(memory, ImageFormat.Png);
-        //        memory.Position = 0;
-
-        //        var bitmapImage = new BitmapImage();
-        //        bitmapImage.BeginInit();
-        //        bitmapImage.StreamSource = memory;
-        //        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-        //        bitmapImage.EndInit();
-        //        bitmapImage.Freeze();
-
-        //        return bitmapImage;
-        //    }
-        //}
+       
 
 
-        // Update writable bitmap with our own array of pixel colours
-        private void UpdatePixelsBitmap()
-        {
-            // Copy the data into a one-dimensional array.
-            byte[] pixels1d = new byte[height * width * 4];
-            int index = 0;
-            for (int row = 0; row < height; row++)
-            {
-                for (int col = 0; col < width; col++)
-                {
-                    pixels1d[index++] = pixels[row, col].R;
-                    pixels1d[index++] = pixels[row, col].G;
-                    pixels1d[index++] = pixels[row, col].B;
-                    pixels1d[index++] = pixels[row, col].A;
-                }
-            }
-
-            // Copy pixels over to writeable bitmap
-            Int32Rect rect = new Int32Rect(0, 0, width, height);
-            int stride = 4 * width;
-            wBitmap.WritePixels(rect, pixels1d, stride, 0);
-        }
-
-
-        // Get pixels array from writable bitmap (opposite of above method), used when we load an image into a bitmap
-        private void GetPixelsFromBitmap()
-        {
-            // One dimensional array to get pixel data
-            byte[] pixels1d = new byte[height * width * 4];
-
-            // Copy pixels from writeable bitmap
-            Int32Rect rect = new Int32Rect(0, 0, width, height);
-            int stride = 4 * width;
-            wBitmap.CopyPixels(rect, pixels1d, stride, 0);
-
-            // Copy the data from one-dimensional array into our pixels array
-            int index = 0;
-            for (int row = 0; row < height; row++)
-            {
-                for (int col = 0; col < width; col++)
-                {
-                    pixels[row, col].R = pixels1d[index++];
-                    pixels[row, col].G = pixels1d[index++];
-                    pixels[row, col].B = pixels1d[index++];
-                    pixels[row, col].A = pixels1d[index++];
-                }
-            }
-        }
-
-
-        private void ChangeColour_Click(object sender, RoutedEventArgs e)
-        {
-            System.Drawing.Color red = System.Drawing.Color.FromArgb(255, 0, 0);
-            System.Drawing.Color white = System.Drawing.Color.FromArgb(255, 255, 255);
-
-            
-            MemoryStream outStream = new MemoryStream();
-
-            BitmapEncoder enc = new BmpBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(wBitmap));
-            enc.Save(outStream);
-            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
-
-           
-
-            for (int i = 0; i < img.Width; i++)
-            {
-                for (int j = 0; j < img.Height; j++)
-                {
-                    System.Drawing.Color pixelColor = img.GetPixel(i, j);
-                    if (pixelColor == white)
-                        img.SetPixel(i, j, red);
-                }
-            }
-
-            wBitmap = BitmapToImageSource(img);
-            image.Source = wBitmap;
-            
-        }
-
-
+        //save image
         private void ItemSave_Click(object sender, RoutedEventArgs e)
         {
 
@@ -405,13 +297,14 @@ namespace Flow_Stitch
         }
 
         //clicking on the draw button
-        private void Image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void drawButtonImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             isDrawing = true;
+            isEraser = false;
         }
 
         //clicking on the colour picker button
-        private void Image_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
+        private void Image_colorPicker(object sender, MouseButtonEventArgs e)
         {
             var initialColor = Colors.Blue;
             var dialog = new ColorPickerDialog(initialColor);
@@ -421,6 +314,8 @@ namespace Flow_Stitch
             {
                 currentColour = dialog.Color;
             }
+
+            isEraser = false;
         }
 
 
@@ -480,8 +375,68 @@ namespace Flow_Stitch
             }
         }
 
+        //clicking a colour in the palette - you can draw with that color
+        private void StackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            //getting the selected listbox item
+            ListItemColour selectedItem = (ListItemColour)listBox.SelectedItem;
 
-        
+            //setting current color from the palette that was clicked
+            currentColour = selectedItem.color;
+        }
+
+        //deleting a colour from the palette
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            //getting the selected listbox item
+            ListItemColour selectedItem = (ListItemColour)listBox.SelectedItem;
+
+            //getting current color in palette that will be deleted
+            System.Windows.Media.Color deleteColor = selectedItem.color;           
+
+            //remove selected colour from palette list
+            for (int i = 0; i < items.Count(); i++)
+            {
+                if (items[i].color == deleteColor)
+                {
+                    items.RemoveAt(i);
+                }
+            }
+
+            System.Drawing.Color[] palette = new System.Drawing.Color[items.Count];
+
+            //getting new palette
+            for (int i = 0; i < items.Count(); i++)
+            {
+                palette[i] = System.Drawing.Color.FromArgb(items[i].color.R, items[i].color.G, items[i].color.B);
+            }
+
+
+            //converting to bitmap
+            MemoryStream outStream = new MemoryStream();
+            BitmapEncoder enc = new BmpBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(wBitmap));
+            enc.Save(outStream);
+            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+            //reduce colour palette
+            ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+            System.Drawing.Bitmap quantizedImage = quantizer.ReduceColors(img, palette);
+
+            Bitmap newBitmap = new Bitmap(quantizedImage);
+
+            //putting it back into the image and the writable bitmap
+            wBitmap = BitmapToImageSource(newBitmap);
+            image.Source = wBitmap;
+        }
+
+
+        private void eraserImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            currentColour = System.Windows.Media.Color.FromRgb(255, 255, 255);
+            isEraser = true;
+        }
+
 
         //if image pixel is clicked
         private void image_MouseDown(object sender, MouseButtonEventArgs e)
@@ -527,12 +482,38 @@ namespace Flow_Stitch
 
             wBitmap = BitmapToImageSource(img);
             image.Source = wBitmap;
+
+
+            if (!isEraser)
+            {
+                //adding new color to palette
+                string nextName = "   " + "ff" + (bitmapColour.R.ToString("X2") + bitmapColour.G.ToString("X2") + bitmapColour.B.ToString("X2")).ToLower();
+
+                int count = 0;
+                for (int i = 0; i < items.Count(); i++)
+                {
+                    if (items[i].Name == nextName)
+                    {
+                        count++;
+                    }
+                }
+
+                if (count == 0)
+                {
+                    items.Add(new ListItemColour() { Name = nextName, color = System.Windows.Media.Color.FromRgb(bitmapColour.R, bitmapColour.G, bitmapColour.B) });
+                }
+            }
+
         }
+
+
+
+
+
+
 
         //private void Palette_Click(object sender, RoutedEventArgs e)
         //{
-
-      
 
         //    //making it into a bitmap
         //    MemoryStream outStream = new MemoryStream();
@@ -542,11 +523,11 @@ namespace Flow_Stitch
         //    enc.Save(outStream);
         //    System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
-        
+
 
         //    //    var list = new Dictionary<int, int>();
 
-          
+
 
 
         //    //    //getting the colours in the image
@@ -616,6 +597,106 @@ namespace Flow_Stitch
 
         //        wBitmap = BitmapToImageSource(newImage);
         //       image.Source = wBitmap;
+        //}
+
+
+        //public static BitmapImage ToBitmapImage(this Bitmap bitmap)
+        //{
+        //    using (var memory = new MemoryStream())
+        //    {
+        //        bitmap.Save(memory, ImageFormat.Png);
+        //        memory.Position = 0;
+
+        //        var bitmapImage = new BitmapImage();
+        //        bitmapImage.BeginInit();
+        //        bitmapImage.StreamSource = memory;
+        //        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+        //        bitmapImage.EndInit();
+        //        bitmapImage.Freeze();
+
+        //        return bitmapImage;
+        //    }
+        //}
+
+
+        // Update writable bitmap with our own array of pixel colours
+        //private void UpdatePixelsBitmap()
+        //{
+        //    // Copy the data into a one-dimensional array.
+        //    byte[] pixels1d = new byte[height * width * 4];
+        //    int index = 0;
+        //    for (int row = 0; row < height; row++)
+        //    {
+        //        for (int col = 0; col < width; col++)
+        //        {
+        //            pixels1d[index++] = pixels[row, col].R;
+        //            pixels1d[index++] = pixels[row, col].G;
+        //            pixels1d[index++] = pixels[row, col].B;
+        //            pixels1d[index++] = pixels[row, col].A;
+        //        }
+        //    }
+
+        //    // Copy pixels over to writeable bitmap
+        //    Int32Rect rect = new Int32Rect(0, 0, width, height);
+        //    int stride = 4 * width;
+        //    wBitmap.WritePixels(rect, pixels1d, stride, 0);
+        //}
+
+
+        // Get pixels array from writable bitmap (opposite of above method), used when we load an image into a bitmap
+        //private void GetPixelsFromBitmap()
+        //{
+        //    // One dimensional array to get pixel data
+        //    byte[] pixels1d = new byte[height * width * 4];
+
+        //    // Copy pixels from writeable bitmap
+        //    Int32Rect rect = new Int32Rect(0, 0, width, height);
+        //    int stride = 4 * width;
+        //    wBitmap.CopyPixels(rect, pixels1d, stride, 0);
+
+        //    // Copy the data from one-dimensional array into our pixels array
+        //    int index = 0;
+        //    for (int row = 0; row < height; row++)
+        //    {
+        //        for (int col = 0; col < width; col++)
+        //        {
+        //            pixels[row, col].R = pixels1d[index++];
+        //            pixels[row, col].G = pixels1d[index++];
+        //            pixels[row, col].B = pixels1d[index++];
+        //            pixels[row, col].A = pixels1d[index++];
+        //        }
+        //    }
+        //}
+
+
+        //private void ChangeColour_Click(object sender, RoutedEventArgs e)
+        //{
+        //    System.Drawing.Color red = System.Drawing.Color.FromArgb(255, 0, 0);
+        //    System.Drawing.Color white = System.Drawing.Color.FromArgb(255, 255, 255);
+
+
+        //    MemoryStream outStream = new MemoryStream();
+
+        //    BitmapEncoder enc = new BmpBitmapEncoder();
+        //    enc.Frames.Add(BitmapFrame.Create(wBitmap));
+        //    enc.Save(outStream);
+        //    System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+
+
+        //    for (int i = 0; i < img.Width; i++)
+        //    {
+        //        for (int j = 0; j < img.Height; j++)
+        //        {
+        //            System.Drawing.Color pixelColor = img.GetPixel(i, j);
+        //            if (pixelColor == white)
+        //                img.SetPixel(i, j, red);
+        //        }
+        //    }
+
+        //    wBitmap = BitmapToImageSource(img);
+        //    image.Source = wBitmap;
+
         //}
     }
 }
