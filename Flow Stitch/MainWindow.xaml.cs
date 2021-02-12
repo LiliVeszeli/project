@@ -176,7 +176,9 @@ namespace Flow_Stitch
                     }
                 }
 
-           
+                patternStates.Clear();
+                currentIndex = -1;
+
                 //convert to bitmap
                 MemoryStream outStream = new MemoryStream();
                 BitmapEncoder enc = new BmpBitmapEncoder();
@@ -208,8 +210,10 @@ namespace Flow_Stitch
                 //making listbox items dynamically
                 for (int i = 0; i < palette.Count(); i++)
                 {                      
-                    items.Add(new ListItemColour() { Name= "   " + palette[i].Name , color= System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
+                    items.Add(new ListItemColour() { Name= "   #" + palette[i].Name , color= System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
                 }
+               // items = new HashSet<T>(items).ToList();
+
                 listBox.ItemsSource = items;
 
 
@@ -233,6 +237,13 @@ namespace Flow_Stitch
 
         void patternStatesAdd()
         {
+            if(currentIndex >= 0 && currentIndex != patternStates.Count() - 1)
+            {
+                int range = patternStates.Count() - (currentIndex + 1);
+
+                patternStates.RemoveRange(currentIndex + 1, range);
+            }
+        
             //store state of image
             patternStates.Add(wBitmap);
             currentIndex++;
@@ -380,7 +391,7 @@ namespace Flow_Stitch
 
          
                 (listBox.SelectedItem as ListItemColour).color = nextColor;
-                (listBox.SelectedItem as ListItemColour).Name = "   " + nextName.ToLower();
+                (listBox.SelectedItem as ListItemColour).Name = "   #ff" + nextName.ToLower();
 
 
                 wBitmap = BitmapToImageSource(img);
@@ -463,73 +474,38 @@ namespace Flow_Stitch
                 currentIndex--;
                 wBitmap = patternStates[currentIndex];
                 image.Source = wBitmap;
-                
+
+               
+
+                //store state of image
+                //patternStatesAdd();
+
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
 
                 //converting to bitmap
-                MemoryStream outStream = new MemoryStream();
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(wBitmap));
-                enc.Save(outStream);
-                System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+                //MemoryStream outStream = new MemoryStream();
+                //BitmapEncoder enc = new BmpBitmapEncoder();
+                //enc.Frames.Add(BitmapFrame.Create(wBitmap));
+                //enc.Save(outStream);
+                //System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
 
-                ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
-                palette = quantizer.CalculatePalette(img, myPalette.Colors.Count());
+                //ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+                //palette = quantizer.CalculatePalette(img, myPalette.Colors.Count());
 
                 items.Clear();
 
-                //data binding
                 //making listbox items dynamically
-                for (int i = 0; i < palette.Count(); i++)
+                for (int i = 0; i < myPalette.Colors.Count(); i++)
                 {
-                    items.Add(new ListItemColour() { Name = "   " + palette[i].Name, color = System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
+                    if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+                        items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
                 }
 
-
-             
-
-
-                //    bool colourExist = false;
-                //    List<ListItemColour> colourNames = new List<ListItemColour>();
-
-
-                //    for (int k = 0; k < items.Count(); k++)
-                //    {
-                //        for (int i = 0; i < img.Width; i++)
-                //        {
-                //            for (int j = 0; j < img.Height; j++)
-                //            {
-                //                System.Drawing.Color pixelColor = img.GetPixel(i, j);                    
-
-                //                System.Drawing.Color paletteColour = System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B);
-
-                //                if (pixelColor.ToArgb() == paletteColour.ToArgb())
-                //                {
-                //                    colourExist = true;
-                //                }
-                //            }
-                //        }
-
-                //        //if a colour was removed by undoing something, then it is removed from the palette too
-                //        if (colourExist == false)
-                //        {
-                //            colourNames.Add(items[k]);
-                //        }
-
-                //        colourExist = false;
-                //    }
-
-                //    for (int i = 0; i < colourNames.Count(); i++)
-                //    {
-                //        if (items.Contains(colourNames[i]))
-                //        {
-                //            items.Remove(colourNames[i]);
-                //        }
-                //    }
-                }
-
+                
             }
+
+        }
 
         private void Redo_Click(object sender, RoutedEventArgs e)
         {
@@ -538,6 +514,19 @@ namespace Flow_Stitch
                 currentIndex++;
                 wBitmap = patternStates[currentIndex];
                 image.Source = wBitmap;
+
+               
+
+                BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
+
+                items.Clear();
+
+                //making listbox items dynamically
+                for (int i = 0; i < myPalette.Colors.Count(); i++)
+                {
+                    if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+                        items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+                }
             }        
         }
 
@@ -593,7 +582,7 @@ namespace Flow_Stitch
             if (!isEraser)
             {
                 //adding new color to palette
-                string nextName = "   " + "ff" + (bitmapColour.R.ToString("X2") + bitmapColour.G.ToString("X2") + bitmapColour.B.ToString("X2")).ToLower();
+                string nextName = "   #" + "ff" + (bitmapColour.R.ToString("X2") + bitmapColour.G.ToString("X2") + bitmapColour.B.ToString("X2")).ToLower();
 
                 int count = 0;
                 for (int i = 0; i < items.Count(); i++)
@@ -609,13 +598,22 @@ namespace Flow_Stitch
                     items.Add(new ListItemColour() { Name = nextName, color = System.Windows.Media.Color.FromRgb(bitmapColour.R, bitmapColour.G, bitmapColour.B) });
                 }
             }
+            else
+            {
+                BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
+
+                items.Clear();
+
+                //making listbox items dynamically
+                for (int i = 0; i < myPalette.Colors.Count(); i++)
+                {
+                    if(!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+                    items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+                }
+
+            }
 
         }
-
-
-
-
-
 
 
         //private void Palette_Click(object sender, RoutedEventArgs e)
@@ -804,5 +802,56 @@ namespace Flow_Stitch
         //    image.Source = wBitmap;
 
         //}
+
+
+        ////data binding
+        ////making listbox items dynamically
+        //for (int i = 0; i < palette.Count(); i++)
+        //{[]
+        //    items.Add(new ListItemColour() { Name = "   " + palette[i].Name, color = System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
+        //}
+
+
+
+
+        //remove colour
+
+        //    bool colourExist = false;
+        //    List<ListItemColour> colourNames = new List<ListItemColour>();
+
+
+        //    for (int k = 0; k < items.Count(); k++)
+        //    {
+        //        for (int i = 0; i < img.Width; i++)
+        //        {
+        //            for (int j = 0; j < img.Height; j++)
+        //            {
+        //                System.Drawing.Color pixelColor = img.GetPixel(i, j);                    
+
+        //                System.Drawing.Color paletteColour = System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B);
+
+        //                if (pixelColor.ToArgb() == paletteColour.ToArgb())
+        //                {
+        //                    colourExist = true;
+        //                }
+        //            }
+        //        }
+
+        //        //if a colour was removed by undoing something, then it is removed from the palette too
+        //        if (colourExist == false)
+        //        {
+        //            colourNames.Add(items[k]);
+        //        }
+
+        //        colourExist = false;
+        //    }
+
+        //    for (int i = 0; i < colourNames.Count(); i++)
+        //    {
+        //        if (items.Contains(colourNames[i]))
+        //        {
+        //            items.Remove(colourNames[i]);
+        //        }
+        //    }
     }
 }
