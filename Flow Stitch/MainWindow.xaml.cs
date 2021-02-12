@@ -91,6 +91,10 @@ namespace Flow_Stitch
         System.Drawing.Color[] palette; //stores the colours in the pattern
         ObservableCollection<ListItemColour> items = new ObservableCollection<ListItemColour>(); //stores listbox items
 
+        //stores image for undo and redo functionality
+        List<WriteableBitmap> patternStates = new List<WriteableBitmap>();
+        int currentIndex = -1; //stores which image stored is the current state
+
         public MainWindow()
         {
             InitializeComponent();
@@ -215,6 +219,9 @@ namespace Flow_Stitch
                 wBitmap = BitmapToImageSource(newBitmap);
                 image.Source = wBitmap;
 
+                //store state of image
+                patternStatesAdd();
+
                 //width = wBitmap.PixelWidth;
                 //height = wBitmap.PixelHeight;
 
@@ -224,6 +231,12 @@ namespace Flow_Stitch
             }         
         }
 
+        void patternStatesAdd()
+        {
+            //store state of image
+            patternStates.Add(wBitmap);
+            currentIndex++;
+        }
 
         //convering bitmap to writeable bitmap
         WriteableBitmap BitmapToImageSource(Bitmap bitmap)
@@ -372,6 +385,9 @@ namespace Flow_Stitch
 
                 wBitmap = BitmapToImageSource(img);
                 image.Source = wBitmap;
+
+                //store state of image
+                patternStatesAdd();
             }
         }
 
@@ -428,6 +444,9 @@ namespace Flow_Stitch
             //putting it back into the image and the writable bitmap
             wBitmap = BitmapToImageSource(newBitmap);
             image.Source = wBitmap;
+
+            //store state of image
+            patternStatesAdd();
         }
 
 
@@ -435,6 +454,91 @@ namespace Flow_Stitch
         {
             currentColour = System.Windows.Media.Color.FromRgb(255, 255, 255);
             isEraser = true;
+        }
+
+        private void Undo_Click(object sender, RoutedEventArgs e)
+        {
+            if(currentIndex > 0)
+            {
+                currentIndex--;
+                wBitmap = patternStates[currentIndex];
+                image.Source = wBitmap;
+                
+                BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
+
+                //converting to bitmap
+                MemoryStream outStream = new MemoryStream();
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(wBitmap));
+                enc.Save(outStream);
+                System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+
+                ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+                palette = quantizer.CalculatePalette(img, myPalette.Colors.Count());
+
+                items.Clear();
+
+                //data binding
+                //making listbox items dynamically
+                for (int i = 0; i < palette.Count(); i++)
+                {
+                    items.Add(new ListItemColour() { Name = "   " + palette[i].Name, color = System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
+                }
+
+
+             
+
+
+                //    bool colourExist = false;
+                //    List<ListItemColour> colourNames = new List<ListItemColour>();
+
+
+                //    for (int k = 0; k < items.Count(); k++)
+                //    {
+                //        for (int i = 0; i < img.Width; i++)
+                //        {
+                //            for (int j = 0; j < img.Height; j++)
+                //            {
+                //                System.Drawing.Color pixelColor = img.GetPixel(i, j);                    
+
+                //                System.Drawing.Color paletteColour = System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B);
+
+                //                if (pixelColor.ToArgb() == paletteColour.ToArgb())
+                //                {
+                //                    colourExist = true;
+                //                }
+                //            }
+                //        }
+
+                //        //if a colour was removed by undoing something, then it is removed from the palette too
+                //        if (colourExist == false)
+                //        {
+                //            colourNames.Add(items[k]);
+                //        }
+
+                //        colourExist = false;
+                //    }
+
+                //    for (int i = 0; i < colourNames.Count(); i++)
+                //    {
+                //        if (items.Contains(colourNames[i]))
+                //        {
+                //            items.Remove(colourNames[i]);
+                //        }
+                //    }
+                }
+
+            }
+
+        private void Redo_Click(object sender, RoutedEventArgs e)
+        {
+            if(currentIndex != patternStates.Count() -1)
+            {
+                currentIndex++;
+                wBitmap = patternStates[currentIndex];
+                image.Source = wBitmap;
+            }        
         }
 
 
@@ -483,6 +587,8 @@ namespace Flow_Stitch
             wBitmap = BitmapToImageSource(img);
             image.Source = wBitmap;
 
+            //store state of image
+            patternStatesAdd();
 
             if (!isEraser)
             {

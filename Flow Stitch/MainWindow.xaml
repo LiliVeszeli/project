@@ -62,9 +62,9 @@
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="Edit" Width="35" Height="25">
-                <MenuItem Header="Undo" Name="Undo" Background="White" >
+                <MenuItem Header="Undo" Name="Undo" Background="White" Click="Undo_Click" >
                 </MenuItem>
-                <MenuItem Header="Redo" Name="Redo" Background="White" >
+                <MenuItem Header="Redo" Name="Redo" Background="White" Click="Redo_Click" >
                 </MenuItem>
             </MenuItem>
         </Menu>
