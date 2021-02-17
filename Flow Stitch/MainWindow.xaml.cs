@@ -25,6 +25,8 @@ using AForge.Imaging.ColorReduction;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using CsvHelper;
+using System.Globalization;
 
 namespace Flow_Stitch
 {
@@ -32,13 +34,25 @@ namespace Flow_Stitch
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-   
+    public class DMC
+    {
+        public string Floss { get; set; }
+        public string Description { get; set; }
+        public int Red { get; set; }
+        public int Green { get; set; }
+        public int Blue { get; set; }
+
+       // public System.Windows.Media.Color color { get; set; }
+
+    }
 
     //class for the listbox item
     public class ListItemColour : INotifyPropertyChanged
     {
-        public string _Name { get; set; }
-        public System.Windows.Media.Color _Color { get; set; }
+        public string _Name { get; set; } //description
+
+        public string _Number { get; set; } //floss
+        public System.Windows.Media.Color _Color { get; set; } //rgb
         // Declare the event
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -62,6 +76,17 @@ namespace Flow_Stitch
             set
             {
                 _Name = value;
+                // Call OnPropertyChanged whenever the property is updated
+                OnPropertyChanged();
+            }
+        }
+
+        public string Number
+        {
+            get { return _Number; }
+            set
+            {
+                _Number = value;
                 // Call OnPropertyChanged whenever the property is updated
                 OnPropertyChanged();
             }
@@ -91,6 +116,9 @@ namespace Flow_Stitch
         System.Drawing.Color[] palette; //stores the colours in the pattern
         ObservableCollection<ListItemColour> items = new ObservableCollection<ListItemColour>(); //stores listbox items
 
+        ObservableCollection<DMC> DMCitems = new ObservableCollection<DMC>(); //stores lisbox items, but DMC colors
+        List<DMC> DMCColors = new List<DMC>(); //stores all DMC colours
+
         //stores image for undo and redo functionality
         List<WriteableBitmap> patternStates = new List<WriteableBitmap>();
         int currentIndex = -1; //stores which image stored is the current state
@@ -98,8 +126,30 @@ namespace Flow_Stitch
         public MainWindow()
         {
             InitializeComponent();
-           
+
+            //reading in DMC colors
+            using (var reader = new StreamReader("dmc.csv"))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+
+                csv.Read();
+                csv.ReadHeader();
+                while (csv.Read())
+                {
+                    var record = new DMC
+                    {
+                        Floss = csv.GetField("Floss"),
+                        Description = csv.GetField("Description"),
+                        Red = csv.GetField<int>("Red"),
+                        Green = csv.GetField<int>("Green"),
+                        Blue = csv.GetField<int>("Blue"),
+                    };
+                    DMCColors.Add(record);
+                }
+            }
         }
+
+    
 
    
         //opens colour picker
@@ -202,22 +252,60 @@ namespace Flow_Stitch
                 System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours));
 
                 //getting the colours in the pattern
-                palette = quantizer.CalculatePalette(requantizedImage, numberOfColours);
+               // palette = quantizer.CalculatePalette(requantizedImage, numberOfColours);
 
+                wBitmap = BitmapToImageSource(requantizedImage);
+                image.Source = wBitmap;
+
+                //getting color palette of quantized image
+                BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
+
+                DMC closestColor = new DMC();
+                double distance = 1000;
+                List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
+
+                //getting closest DMC colours to RGB
+                for (int i = 0; i < myPalette.Colors.Count(); i++)
+                {
+                    for(int j = 0; j < DMCColors.Count(); j++)
+                    {
+                        double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
+                            +((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
+                            +((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
+
+                        if(d < distance)
+                        {
+                            closestColor = DMCColors[j];
+                            distance = d;
+                        }
+                    }
+                    DMCitems.Add(closestColor);
+                    distance = 1000;
+                    paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
+                }
+
+                //making the list into a simple array so that it can be passed to the quantizer
+                palette = paletteList.ToArray();
+  
                 items.Clear();
 
                 //data binding
                 //making listbox items dynamically
-                for (int i = 0; i < palette.Count(); i++)
-                {                      
-                    items.Add(new ListItemColour() { Name= "   #" + palette[i].Name , color= System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
+                //for (int i = 0; i < palette.Count(); i++)
+                //{                      
+                //    items.Add(new ListItemColour() { Name= "   #" + palette[i].Name , color= System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
+                //}
+                // items = new HashSet<T>(items).ToList();
+
+                for (int i = 0; i < DMCitems.Count(); i++)
+                {
+                    items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
                 }
-               // items = new HashSet<T>(items).ToList();
 
                 listBox.ItemsSource = items;
 
-
-                Bitmap newBitmap = new Bitmap(requantizedImage);
+                System.Drawing.Bitmap requantizedImage2 = new Bitmap(quantizer.ReduceColors(requantizedImage, palette));
+                Bitmap newBitmap = new Bitmap(requantizedImage2);
 
                 //putting it back into the image and the writable bitmap
                 wBitmap = BitmapToImageSource(newBitmap);
