@@ -304,6 +304,7 @@ namespace Flow_Stitch
 
                 listBox.ItemsSource = items;
 
+                //changing the colours in the pattern to the DMC colours
                 System.Drawing.Bitmap requantizedImage2 = new Bitmap(quantizer.ReduceColors(requantizedImage, palette));
                 Bitmap newBitmap = new Bitmap(requantizedImage2);
 
@@ -424,7 +425,25 @@ namespace Flow_Stitch
 
             if (result.HasValue && result.Value)
             {
-                currentColour = dialog.Color;
+                //currentColour = dialog.Color;
+
+                DMC closestColor = new DMC();
+                double distance = 1000;
+
+                for (int j = 0; j < DMCColors.Count(); j++)
+                {
+                    double d = ((dialog.Color.R - DMCColors[j].Red) * 0.30) * ((dialog.Color.R - DMCColors[j].Red) * 0.30)
+                        + ((dialog.Color.G - DMCColors[j].Green) * 0.59) * ((dialog.Color.G - DMCColors[j].Green) * 0.59)
+                        + ((dialog.Color.B - DMCColors[j].Blue) * 0.11) * ((dialog.Color.B - DMCColors[j].Blue) * 0.11);
+
+                    if (d < distance)
+                    {
+                        closestColor = DMCColors[j];
+                        distance = d;
+                    }
+                }
+
+                currentColour = System.Windows.Media.Color.FromRgb((byte)closestColor.Red, (byte)closestColor.Green, (byte)closestColor.Blue);
             }
 
             isEraser = false;
@@ -445,19 +464,37 @@ namespace Flow_Stitch
             if (result.HasValue && result.Value)
             {
                 //the colour it will change to
-                nextColor = dialog.Color;
+                //nextColor = dialog.Color;
+
+                DMC closestColor = new DMC();
+                double distance = 1000;
+
+                for (int j = 0; j < DMCColors.Count(); j++)
+                {
+                    double d = ((dialog.Color.R - DMCColors[j].Red) * 0.30) * ((dialog.Color.R - DMCColors[j].Red) * 0.30)
+                        + ((dialog.Color.G - DMCColors[j].Green) * 0.59) * ((dialog.Color.G - DMCColors[j].Green) * 0.59)
+                        + ((dialog.Color.B - DMCColors[j].Blue) * 0.11) * ((dialog.Color.B - DMCColors[j].Blue) * 0.11);
+
+                    if (d < distance)
+                    {
+                        closestColor = DMCColors[j];
+                        distance = d;
+                    }
+                }
+
+                nextColor = System.Windows.Media.Color.FromRgb((byte)closestColor.Red, (byte)closestColor.Green, (byte)closestColor.Blue);
 
                 //getting the selected listbox item
                 ListItemColour selectedItem = (ListItemColour)listBox.SelectedItem;
 
                 //getting current color in palette that will be changed
                 existingColor = selectedItem.color;
-                currentName = selectedItem.Name;
+                currentName = selectedItem.Name;              
 
                 //making color variables for setting the pixels
                 System.Drawing.Color previous = System.Drawing.Color.FromArgb(existingColor.R, existingColor.G, existingColor.B);
                 System.Drawing.Color next = System.Drawing.Color.FromArgb(nextColor.R, nextColor.G, nextColor.B);
-                nextName = next.R.ToString("X2") + next.G.ToString("X2") + next.B.ToString("X2");
+                //nextName = next.R.ToString("X2") + next.G.ToString("X2") + next.B.ToString("X2");
 
                 //converting to bitmap
                 MemoryStream outStream = new MemoryStream();
@@ -477,9 +514,10 @@ namespace Flow_Stitch
                     }
                 }
 
-         
+                //check that it is not an already existing color!!!        
                 (listBox.SelectedItem as ListItemColour).color = nextColor;
-                (listBox.SelectedItem as ListItemColour).Name = "   #ff" + nextName.ToLower();
+                (listBox.SelectedItem as ListItemColour).Name = "  " + closestColor.Description;
+                (listBox.SelectedItem as ListItemColour).Number = "  " + closestColor.Floss;
 
 
                 wBitmap = BitmapToImageSource(img);
@@ -557,30 +595,54 @@ namespace Flow_Stitch
 
         private void Undo_Click(object sender, RoutedEventArgs e)
         {
-            if(currentIndex > 0)
+            UndoFunction();
+            //if(currentIndex > 0)
+            //{
+            //    currentIndex--;
+            //    wBitmap = patternStates[currentIndex];
+            //    image.Source = wBitmap;
+
+               
+
+            //    //store state of image
+            //    //patternStatesAdd();
+
+            //    BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
+
+            //    //converting to bitmap
+            //    //MemoryStream outStream = new MemoryStream();
+            //    //BitmapEncoder enc = new BmpBitmapEncoder();
+            //    //enc.Frames.Add(BitmapFrame.Create(wBitmap));
+            //    //enc.Save(outStream);
+            //    //System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+
+            //    //ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+            //    //palette = quantizer.CalculatePalette(img, myPalette.Colors.Count());
+
+            //    items.Clear();
+
+            //    //making listbox items dynamically
+            //    for (int i = 0; i < myPalette.Colors.Count(); i++)
+            //    {
+            //        if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+            //            items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+            //    }
+
+                
+            //}
+
+        }
+
+        void UndoFunction()
+        {
+            if (currentIndex > 0)
             {
                 currentIndex--;
                 wBitmap = patternStates[currentIndex];
                 image.Source = wBitmap;
 
-               
-
-                //store state of image
-                //patternStatesAdd();
-
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
-
-                //converting to bitmap
-                //MemoryStream outStream = new MemoryStream();
-                //BitmapEncoder enc = new BmpBitmapEncoder();
-                //enc.Frames.Add(BitmapFrame.Create(wBitmap));
-                //enc.Save(outStream);
-                //System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
-
-
-                //ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
-                //palette = quantizer.CalculatePalette(img, myPalette.Colors.Count());
-
                 items.Clear();
 
                 //making listbox items dynamically
@@ -589,21 +651,42 @@ namespace Flow_Stitch
                     if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
                         items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
                 }
-
-                
             }
-
         }
 
         private void Redo_Click(object sender, RoutedEventArgs e)
         {
-            if(currentIndex != patternStates.Count() -1)
+            //if(currentIndex != patternStates.Count() -1)
+            //{
+            //    currentIndex++;
+            //    wBitmap = patternStates[currentIndex];
+            //    image.Source = wBitmap;
+
+
+
+            //    BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
+
+            //    items.Clear();
+
+            //    //making listbox items dynamically
+            //    for (int i = 0; i < myPalette.Colors.Count(); i++)
+            //    {
+            //        if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+            //            items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+            //    }
+            //} 
+            RedoFunction();
+        }
+
+        void RedoFunction()
+        {
+            if (currentIndex != patternStates.Count() - 1)
             {
                 currentIndex++;
                 wBitmap = patternStates[currentIndex];
                 image.Source = wBitmap;
 
-               
+
 
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
 
@@ -615,7 +698,22 @@ namespace Flow_Stitch
                     if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
                         items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
                 }
-            }        
+            }
+        }
+
+
+        //when ctrl + another key is pressed, event handler
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key != Key.LeftCtrl && e.Key != Key.RightCtrl)
+            {
+                switch (e.Key)
+                {
+                    case Key.Y: RedoFunction(); break;
+                    case Key.Z: UndoFunction(); break;
+                    default: break;
+                }
+            }
         }
 
 

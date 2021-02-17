@@ -6,7 +6,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:Flow_Stitch"
         mc:Ignorable="d"
-        Title="Flow Stitch" Height="450" Width="800">
+        Title="Flow Stitch" Height="450" Width="800" KeyDown="Window_KeyDown">
     <Window.Resources>
         <DataTemplate DataType="{x:Type local:ListItemColour}">
             <StackPanel Orientation="Horizontal" Height="43" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">
