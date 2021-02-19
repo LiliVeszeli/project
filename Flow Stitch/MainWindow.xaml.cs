@@ -166,6 +166,7 @@ namespace Flow_Stitch
             
         }
 
+        
 
         //loads image
         private void ItemOpen_Click(object sender, RoutedEventArgs e)
@@ -263,6 +264,7 @@ namespace Flow_Stitch
                 DMC closestColor = new DMC();
                 double distance = 1000;
                 List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
+                DMCitems.Clear();
 
                 //getting closest DMC colours to RGB
                 for (int i = 0; i < myPalette.Colors.Count(); i++)
@@ -643,13 +645,48 @@ namespace Flow_Stitch
                 image.Source = wBitmap;
 
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
-                items.Clear();
+                //items.Clear();
 
-                //making listbox items dynamically
+                ////making listbox items dynamically
+                //for (int i = 0; i < myPalette.Colors.Count(); i++)
+                //{
+                //    if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+                //        items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+                //}
+
+                DMC closestColor = new DMC();
+                double distance = 1000;
+                List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
+                DMCitems.Clear();
+
+                //getting closest DMC colours to RGB
                 for (int i = 0; i < myPalette.Colors.Count(); i++)
                 {
-                    if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
-                        items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+                    for (int j = 0; j < DMCColors.Count(); j++)
+                    {
+                        double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
+                            + ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
+                            + ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
+
+                        if (d < distance)
+                        {
+                            closestColor = DMCColors[j];
+                            distance = d;
+                        }
+                    }
+                    DMCitems.Add(closestColor);
+                    distance = 1000;
+                    paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
+                }
+
+                //making the list into a simple array so that it can be passed to the quantizer
+                palette = paletteList.ToArray();
+
+                items.Clear();
+
+                for (int i = 0; i < DMCitems.Count(); i++)
+                {
+                    items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
                 }
             }
         }
@@ -690,13 +727,48 @@ namespace Flow_Stitch
 
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
 
-                items.Clear();
+                //items.Clear();
 
-                //making listbox items dynamically
+                ////making listbox items dynamically
+                //for (int i = 0; i < myPalette.Colors.Count(); i++)
+                //{
+                //    if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+                //        items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+                //}
+
+                DMC closestColor = new DMC();
+                double distance = 1000;
+                List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
+                DMCitems.Clear();
+
+                //getting closest DMC colours to RGB
                 for (int i = 0; i < myPalette.Colors.Count(); i++)
                 {
-                    if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
-                        items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+                    for (int j = 0; j < DMCColors.Count(); j++)
+                    {
+                        double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
+                            + ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
+                            + ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
+
+                        if (d < distance)
+                        {
+                            closestColor = DMCColors[j];
+                            distance = d;
+                        }
+                    }
+                    DMCitems.Add(closestColor);
+                    distance = 1000;
+                    paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
+                }
+
+                //making the list into a simple array so that it can be passed to the quantizer
+                palette = paletteList.ToArray();
+
+                items.Clear();
+
+                for (int i = 0; i < DMCitems.Count(); i++)
+                {
+                    items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
                 }
             }
         }
@@ -788,13 +860,46 @@ namespace Flow_Stitch
             {
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
 
-                items.Clear();
+                //items.Clear();
 
-                //making listbox items dynamically
+                ////making listbox items dynamically
+                //for (int i = 0; i < myPalette.Colors.Count(); i++)
+                //{
+                //    if(!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+                //    items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+                //}
+
+
+                DMC closestColor = new DMC();
+                double distance = 1000;
+                List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
+                DMCitems.Clear();
+
+                //getting closest DMC colours to RGB
                 for (int i = 0; i < myPalette.Colors.Count(); i++)
                 {
-                    if(!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
-                    items.Add(new ListItemColour() { Name = "   " + myPalette.Colors[i].ToString().ToLower(), color = myPalette.Colors[i] });
+                    for (int j = 0; j < DMCColors.Count(); j++)
+                    {
+                        double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
+                            + ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
+                            + ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
+
+                        if (d < distance)
+                        {
+                            closestColor = DMCColors[j];
+                            distance = d;
+                        }
+                    }
+                    DMCitems.Add(closestColor);
+                    distance = 1000;
+                    paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
+                }
+
+                items.Clear();
+
+                for (int i = 0; i < DMCitems.Count(); i++)
+                {
+                    items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
                 }
 
             }
@@ -1039,5 +1144,30 @@ namespace Flow_Stitch
         //            items.Remove(colourNames[i]);
         //        }
         //    }
+
+        // color brightness as perceived:
+        //float getBrightness(System.Windows.Media.Color c)
+        //{ return (c.R * 0.299f + c.G * 0.587f + c.B * 0.114f) / 256f; }
+
+        //// distance between two hues:
+        //float getHueDistance(float hue1, float hue2)
+        //{
+        //    float d = Math.Abs(hue1 - hue2); return d > 180 ? 360 - d : d;
+        //}
+
+        ////  weighed only by saturation and brightness (from my trackbars)
+        //float ColorNum(System.Drawing.Color c)
+        //{
+        //    return c.GetSaturation() * factorSat +
+        //                getBrightness(c) * factorBri;
+        //}
+
+        //// distance in RGB space
+        //int ColorDiff(System.Windows.Media.Color c1, System.Windows.Media.Color c2)
+        //{
+        //    return (int)Math.Sqrt((c1.R - c2.R) * (c1.R - c2.R)
+        //                           + (c1.G - c2.G) * (c1.G - c2.G)
+        //                           + (c1.B - c2.B) * (c1.B - c2.B));
+        //}
     }
 }
