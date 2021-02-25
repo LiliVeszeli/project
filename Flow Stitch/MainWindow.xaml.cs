@@ -27,6 +27,8 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using CsvHelper;
 using System.Globalization;
+using ColorMine.ColorSpaces;
+using ColorMine.ColorSpaces.Comparisons;
 
 namespace Flow_Stitch
 {
@@ -278,14 +280,25 @@ namespace Flow_Stitch
                 {
                     for(int j = 0; j < DMCColors.Count(); j++)
                     {
-                        double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
-                            +((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
-                            +((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
+                    //    double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
+                    //        +((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
+                    //        +((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
 
-                        if(d < distance)
+                        var dialogRgb = new Rgb { R = myPalette.Colors[i].R, G = myPalette.Colors[i].G, B = myPalette.Colors[i].B};
+                        var lab1 = dialogRgb.To<Lab>();
+                        var lch1 = lab1.To<Lch>();
+
+                        var DMCRgb = new Rgb { R = DMCColors[j].Red, G = DMCColors[j].Green, B = DMCColors[j].Blue };
+                        var lab2 = DMCRgb.To<Lab>();
+                        var lch2 = lab2.To<Lch>();
+
+                        var deltaE = lch1.Compare(lch2, new CmcComparison(lightness: 2, chroma: 1));
+
+                        if (deltaE < distance)
                         {
                             closestColor = DMCColors[j];
-                            distance = d;
+                            //distance = d;
+                            distance = deltaE;
                         }
                     }
                     DMCitems.Add(closestColor);
@@ -441,14 +454,25 @@ namespace Flow_Stitch
 
                 for (int j = 0; j < DMCColors.Count(); j++)
                 {
-                    double d = ((dialog.Color.R - DMCColors[j].Red)) * ((dialog.Color.R - DMCColors[j].Red) )
-                        + ((dialog.Color.G - DMCColors[j].Green) ) * ((dialog.Color.G - DMCColors[j].Green) )
-                        + ((dialog.Color.B - DMCColors[j].Blue) ) * ((dialog.Color.B - DMCColors[j].Blue) );
+                    //double d = ((dialog.Color.R - DMCColors[j].Red)) * ((dialog.Color.R - DMCColors[j].Red) )
+                    //    + ((dialog.Color.G - DMCColors[j].Green) ) * ((dialog.Color.G - DMCColors[j].Green) )
+                    //    + ((dialog.Color.B - DMCColors[j].Blue) ) * ((dialog.Color.B - DMCColors[j].Blue) );
 
-                    if (d < distance)
+                    var dialogRgb = new Rgb { R = dialog.Color.R, G = dialog.Color.G, B = dialog.Color.B };
+                    var lab1 = dialogRgb.To<Lab>();
+                    var lch1 = lab1.To<Lch>();
+
+                    var DMCRgb = new Rgb { R = DMCColors[j].Red, G = DMCColors[j].Green, B = DMCColors[j].Blue };
+                    var lab2 = DMCRgb.To<Lab>();
+                    var lch2 = lab2.To<Lch>();
+
+                    var deltaE = lch1.Compare(lch2, new CmcComparison(lightness: 2, chroma: 1));
+
+                    if (deltaE < distance)
                     {
                         closestColor = DMCColors[j];
-                        distance = d;
+                        // distance = d;
+                        distance = deltaE;
                     }
                 }
 
