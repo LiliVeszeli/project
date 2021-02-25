@@ -120,6 +120,7 @@ namespace Flow_Stitch
         ObservableCollection<ListItemColour> items = new ObservableCollection<ListItemColour>(); //stores listbox items
 
         ObservableCollection<DMC> DMCitems = new ObservableCollection<DMC>(); //stores lisbox items, but DMC colors
+        ObservableCollection<ListItemColour> DMCColoursList = new ObservableCollection<ListItemColour>(); //stores all DMC colors but as ListItemColours
         List<DMC> DMCColors = new List<DMC>(); //stores all DMC colours
 
         //stores image for undo and redo functionality
@@ -280,9 +281,11 @@ namespace Flow_Stitch
                 {
                     for(int j = 0; j < DMCColors.Count(); j++)
                     {
-                    //    double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
-                    //        +((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
-                    //        +((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
+
+                        DMCColoursList.Add(new ListItemColour() { Number = "  " + DMCColors[j].Floss, Name = "  " + DMCColors[j].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCColors[j].Red, (byte)DMCColors[j].Green, (byte)DMCColors[j].Blue) });
+                        //    double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
+                        //        +((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
+                        //        +((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
 
                         var dialogRgb = new Rgb { R = myPalette.Colors[i].R, G = myPalette.Colors[i].G, B = myPalette.Colors[i].B};
                         var lab1 = dialogRgb.To<Lab>();
@@ -436,6 +439,11 @@ namespace Flow_Stitch
         {
             isDrawing = true;
             isEraser = false;
+
+            DMCWindow window = new DMCWindow(DMCColoursList);
+            window.ShowDialog();
+
+            currentColour = window.currentColourW;
         }
 
         //clicking on the colour picker button
