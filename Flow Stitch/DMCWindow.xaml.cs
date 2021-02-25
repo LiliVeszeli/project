@@ -29,7 +29,7 @@ namespace Flow_Stitch
         public DMCWindow(ObservableCollection<ListItemColour> list)
         {
             InitializeComponent();
-
+            DMCColoursList.Clear();
             DMCColoursList = list;
             listBox.ItemsSource = DMCColoursList;
         }
@@ -39,7 +39,10 @@ namespace Flow_Stitch
         {
             //getting the selected listbox item
             ListItemColour selectedItem = (ListItemColour)listBox.SelectedItem;
+
+            if(selectedItem != null)
             currentColourW = selectedItem.color;
+
             Close();
         }
     }
