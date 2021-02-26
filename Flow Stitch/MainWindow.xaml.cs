@@ -29,6 +29,7 @@ using CsvHelper;
 using System.Globalization;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
+using nQuant;
 
 namespace Flow_Stitch
 {
@@ -253,17 +254,19 @@ namespace Flow_Stitch
 
                 //reduce colour palette
                 ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+                var quantizer2 = new WuQuantizer();
                 System.Drawing.Bitmap quantizedImage = quantizer.ReduceColors(img, numberOfColours);
 
-               
+
                 //resize image
                 System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
-                
+
                 //requantize
-                System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours));
+                 System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours));
+                //System.Drawing.Bitmap requantizedImage = (Bitmap)quantizer2.QuantizeImage(scaledImage, numberOfColours);
 
                 //getting the colours in the pattern
-               // palette = quantizer.CalculatePalette(requantizedImage, numberOfColours);
+                // palette = quantizer.CalculatePalette(requantizedImage, numberOfColours);
 
                 wBitmap = BitmapToImageSource(requantizedImage);
                 image.Source = wBitmap;
@@ -295,7 +298,10 @@ namespace Flow_Stitch
                         var lab2 = DMCRgb.To<Lab>();
                         var lch2 = lab2.To<Lch>();
 
-                        var deltaE = lch1.Compare(lch2, new CmcComparison(lightness: 2, chroma: 1));
+                        //var deltaE = lch1.Compare(lch2, new CmcComparison(lightness: 5, chroma: 1));
+                        // dialogRgb.Compare(DMCRgb, CmcComparison());
+                        var comparison = new CmcComparison();
+                        var deltaE = comparison.Compare(dialogRgb, DMCRgb);
 
                         if (deltaE < distance)
                         {
@@ -443,6 +449,7 @@ namespace Flow_Stitch
             DMCWindow window = new DMCWindow(DMCColoursList);
             window.ShowDialog();
 
+            if(window.currentColourW != null)
             currentColour = window.currentColourW;
         }
 
@@ -464,9 +471,14 @@ namespace Flow_Stitch
                 {
                     //double d = ((dialog.Color.R - DMCColors[j].Red)) * ((dialog.Color.R - DMCColors[j].Red) )
                     //    + ((dialog.Color.G - DMCColors[j].Green) ) * ((dialog.Color.G - DMCColors[j].Green) )
-                    //    + ((dialog.Color.B - DMCColors[j].Blue) ) * ((dialog.Color.B - DMCColors[j].Blue) );
+                    //    + ((dialog.Color.B - DMCColors[j].Blue) ) * ((dialog.Color.B - DMCColors[j].Blue) 
+                    var b = dialog.Color.B;
+                    if (dialog.Color.B > 180 && dialog.Color.G < 100 && dialog.Color.R < 100)
+                    {
+                        b = (byte)(160 + (20*(b -160))/ (256 - 160));
+                    }
 
-                    var dialogRgb = new Rgb { R = dialog.Color.R, G = dialog.Color.G, B = dialog.Color.B };
+                    var dialogRgb = new Rgb { R = dialog.Color.R, G = dialog.Color.G, B = b };
                     var lab1 = dialogRgb.To<Lab>();
                     var lch1 = lab1.To<Lch>();
 
@@ -474,7 +486,9 @@ namespace Flow_Stitch
                     var lab2 = DMCRgb.To<Lab>();
                     var lch2 = lab2.To<Lch>();
 
-                    var deltaE = lch1.Compare(lch2, new CmcComparison(lightness: 2, chroma: 1));
+                   // var deltaE = lch1.Compare(lch2, new CmcComparison(lightness: 2, chroma: 1));
+                    var comparison = new CmcComparison();
+                    var deltaE = comparison.Compare(dialogRgb, DMCRgb);
 
                     if (deltaE < distance)
                     {
