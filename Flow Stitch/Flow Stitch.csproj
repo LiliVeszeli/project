@@ -151,6 +151,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Colour.cs" />
     <Compile Include="DMCWindow.xaml.cs">
       <DependentUpon>DMCWindow.xaml</DependentUpon>
     </Compile>

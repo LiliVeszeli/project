@@ -290,7 +290,14 @@ namespace Flow_Stitch
                         //        +((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
                         //        +((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
 
-                        var dialogRgb = new Rgb { R = myPalette.Colors[i].R, G = myPalette.Colors[i].G, B = myPalette.Colors[i].B};
+                        //getting a closer blue colour because of lack of bright blue threads
+                        var b = myPalette.Colors[i].B;
+                        if (myPalette.Colors[i].B > 180 && myPalette.Colors[i].G < 100 && myPalette.Colors[i].R < 100)
+                        {
+                            b = (byte)(160 + (20 * (b - 160)) / (256 - 160));
+                        }
+
+                        var dialogRgb = new Rgb { R = myPalette.Colors[i].R, G = myPalette.Colors[i].G, B = b};
                         var lab1 = dialogRgb.To<Lab>();
                         var lch1 = lab1.To<Lch>();
 
