@@ -128,6 +128,8 @@ namespace Flow_Stitch
         List<WriteableBitmap> patternStates = new List<WriteableBitmap>();
         int currentIndex = -1; //stores which image stored is the current state
 
+        float upscalePercentage;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -252,6 +254,8 @@ namespace Flow_Stitch
                 float newSizePercentage = (float)heightOfPattern / (float)img.Height;
                 newSizePercentage *= 100;
 
+                upscalePercentage = 100*((float)img.Height/ (float)heightOfPattern);
+
                 //reduce colour palette
                 ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
                 var quantizer2 = new WuQuantizer();
@@ -262,8 +266,8 @@ namespace Flow_Stitch
                 System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
 
                 //requantize
-                 System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours));
-                //System.Drawing.Bitmap requantizedImage = (Bitmap)quantizer2.QuantizeImage(scaledImage, numberOfColours);
+                 System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours)); //original
+                //System.Drawing.Bitmap requantizedImage = (Bitmap)quantizer2.QuantizeImage(scaledImage);
 
                 //getting the colours in the pattern
                 // palette = quantizer.CalculatePalette(requantizedImage, numberOfColours);
@@ -343,7 +347,7 @@ namespace Flow_Stitch
                 listBox.ItemsSource = items;
 
                 //changing the colours in the pattern to the DMC colours
-                System.Drawing.Bitmap requantizedImage2 = new Bitmap(quantizer.ReduceColors(requantizedImage, palette));
+                System.Drawing.Bitmap requantizedImage2 = new Bitmap(quantizer.ReduceColors(requantizedImage, palette)); //CHANGE BACK
                 Bitmap newBitmap = new Bitmap(requantizedImage2);
 
                 //putting it back into the image and the writable bitmap
@@ -437,6 +441,43 @@ namespace Flow_Stitch
 
             Graphics grPhoto = Graphics.FromImage(bmPhoto);
             grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            //grPhoto.PixelOffsetMode = PixelOffsetMode.Half;
+            //grPhoto.
+
+            grPhoto.DrawImage(imgPhoto,
+                new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
+                new System.Drawing.Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
+                GraphicsUnit.Pixel);
+
+            grPhoto.Dispose();
+            return bmPhoto;
+        }
+
+
+        //scaling up image
+        static System.Drawing.Bitmap ScaleByPercentUp(System.Drawing.Image imgPhoto, float Percent)
+        {
+            float nPercent = ((float)Percent / 100);
+
+            int sourceWidth = imgPhoto.Width;
+            int sourceHeight = imgPhoto.Height;
+            int sourceX = 0;
+            int sourceY = 0;
+
+            int destX = 0;
+            int destY = 0;
+            int destWidth = (int)(sourceWidth * nPercent);
+            int destHeight = (int)(sourceHeight * nPercent);
+
+            Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
+                                     System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
+                                    imgPhoto.VerticalResolution);
+
+            Graphics grPhoto = Graphics.FromImage(bmPhoto);
+            grPhoto.InterpolationMode = InterpolationMode.NearestNeighbor;
+            grPhoto.PixelOffsetMode = PixelOffsetMode.Half;
+
 
             grPhoto.DrawImage(imgPhoto,
                 new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
@@ -874,6 +915,21 @@ namespace Flow_Stitch
                     default: break;
                 }
             }
+        }
+
+        private void UpScale_Click(object sender, RoutedEventArgs e)
+        {
+            //convert to bitmap
+            MemoryStream outStream = new MemoryStream();
+            BitmapEncoder enc = new BmpBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(wBitmap));
+            enc.Save(outStream);
+            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+            System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(img, upscalePercentage);
+
+            wBitmap = BitmapToImageSource(upscaledImage);
+            image.Source = wBitmap;
         }
 
 

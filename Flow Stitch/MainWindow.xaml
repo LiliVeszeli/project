@@ -34,14 +34,14 @@
         </DataTemplate>
     </Window.Resources>
 
-    <Grid>
+    <Grid Background="#FFEEEEEE">
 
         <DockPanel HorizontalAlignment="Left" Height="Auto" Margin="0,26,0,-510" VerticalAlignment="Stretch" Width="183" RenderTransformOrigin="0.411,0.501" Background="#FFD4D4FF" LastChildFill="False">
             <StackPanel Height="395" VerticalAlignment="Top" Width="167" Background="#FFD4D4FF">
-                <TextBlock x:Name="textBlock" TextWrapping="Wrap" Background="#FFEEEEEE" Height="20" Margin="0,0,-15.8,0"><Run FontWeight="Bold" Text=" "/><Run FontWeight="Bold" Text="DMC "/><Run FontWeight="Bold" Text="Thread "/><Run FontWeight="Bold" Text="Colours"/></TextBlock>
+                <TextBlock x:Name="textBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" Background="#FFFAE8AF" TextDecorations="{x:Null}" FontFamily="Segoe UI Historic" FontWeight="Bold"><Run Text=" "/><Run Text="DMC "/><Run Text="Thread "/><Run Text="Colours"/></TextBlock>
                 <ListBox ItemsSource="{Binding items}" Margin="0,0,-15.8,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible" Name="listBox" Height="248">
                 </ListBox>
-                <TextBlock x:Name="ToolTextBlock" TextWrapping="Wrap" Background="#FFEEEEEE" Height="20" Margin="0,0,-15.8,0"><Run FontWeight="Bold" Text=" "/><Run FontWeight="Bold" Text="Tools"/></TextBlock>
+                <TextBlock x:Name="ToolTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" Background="#FFD2FDFA" FontFamily="Segoe UI Historic" FontWeight="Bold"><Run Text=" "/><Run Text="Tools"/></TextBlock>
                 <StackPanel Height="58" Margin="0,0,0.2,0" Orientation="Horizontal">
                     <Button x:Name="drawButton"  Width="40" Height="40" Margin="0,2,0,15.6">
                         <Image x:Name="drawButtonImage" Source="draw.png" MouseLeftButtonDown="drawButtonImage_MouseLeftButtonDown" />
@@ -54,10 +54,11 @@
                     </Button>
 
                 </StackPanel>
+                <Button x:Name="UpScale" Content="UpScale" Margin="0,0,94.2,0" Click="UpScale_Click"/>
             </StackPanel>
         </DockPanel>
 
-        <Menu x:Name="menu" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Top" Width="Auto" Grid.ColumnSpan="2" Margin="0,0,-0.4,0">
+        <Menu x:Name="menu" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Top" Width="Auto" Grid.ColumnSpan="2" Margin="0,0,-0.4,0" Background="#FFB6A8FC">
             <MenuItem Header="File" Width="35" Height="25">
                 <MenuItem Header="New" Name="ItemOpen" Background="White" Click="ItemOpen_Click">
                 </MenuItem>
@@ -73,7 +74,11 @@
                 </MenuItem>
             </MenuItem>
         </Menu>
-        <Image x:Name="image" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="184,47,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseDown="image_MouseDown"/>
+
+        
+            <Image x:Name="image" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="184,47,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseDown="image_MouseDown"/>
+       
+
         <Canvas HorizontalAlignment="Left" Height="335" Margin="188,75,0,0" VerticalAlignment="Top" Width="602"/>
         <!-- <Button x:Name="ChangeColour" Content="Change Colour" Grid.Column="1" HorizontalAlignment="Left" Margin="202,39,0,0" VerticalAlignment="Top" Width="98" Click="ChangeColour_Click" Visibility="Hidden"/>
         <Button x:Name="Resize" Content="Resize" Grid.Column="1" HorizontalAlignment="Left" Margin="406,39,0,0" VerticalAlignment="Top" Width="75" Click="Resize_Click" Visibility="Hidden"/>
