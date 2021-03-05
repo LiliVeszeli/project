@@ -129,6 +129,7 @@ namespace Flow_Stitch
         int currentIndex = -1; //stores which image stored is the current state
 
         float upscalePercentage;
+        Bitmap icon1 = new Bitmap("3.PNG");
 
         public MainWindow()
         {
@@ -160,6 +161,8 @@ namespace Flow_Stitch
             //currentDMCColour.Red = 0;
             //currentDMCColour.Green = 0;
             //currentDMCColour.Blue = 0;
+
+           
         }
 
     
@@ -444,10 +447,16 @@ namespace Flow_Stitch
             //grPhoto.PixelOffsetMode = PixelOffsetMode.Half;
             //grPhoto.
 
-            grPhoto.DrawImage(imgPhoto,
-                new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
-                new System.Drawing.Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
-                GraphicsUnit.Pixel);
+            using (ImageAttributes wrapMode = new ImageAttributes())
+            {
+                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                //grPhoto.DrawImage(imgPhoto, rect, 0, 0, input.Width, input.Height, GraphicsUnit.Pixel, wrapMode);
+
+                grPhoto.DrawImage(imgPhoto,
+                    new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
+                    sourceX, sourceY, sourceWidth, sourceHeight,
+                    GraphicsUnit.Pixel, wrapMode);
+            }
 
             grPhoto.Dispose();
             return bmPhoto;
@@ -927,6 +936,8 @@ namespace Flow_Stitch
             System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
             System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(img, upscalePercentage);
+
+
 
             wBitmap = BitmapToImageSource(upscaledImage);
             image.Source = wBitmap;

@@ -76,7 +76,7 @@
         </Menu>
 
         
-            <Image x:Name="image" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="184,47,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseDown="image_MouseDown"/>
+            <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="184,47,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseDown="image_MouseDown"/>
        
 
         <Canvas HorizontalAlignment="Left" Height="335" Margin="188,75,0,0" VerticalAlignment="Top" Width="602"/>
