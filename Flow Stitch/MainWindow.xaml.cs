@@ -120,7 +120,7 @@ namespace Flow_Stitch
         System.Drawing.Color[] palette; //stores the colours in the pattern
         ObservableCollection<ListItemColour> items = new ObservableCollection<ListItemColour>(); //stores listbox items
 
-        ObservableCollection<DMC> DMCitems = new ObservableCollection<DMC>(); //stores lisbox items, but DMC colors
+        List<DMC> DMCitems = new List<DMC>(); //stores lisbox items, but DMC colors
         ObservableCollection<ListItemColour> DMCColoursList = new ObservableCollection<ListItemColour>(); //stores all DMC colors but as ListItemColours
         List<DMC> DMCColors = new List<DMC>(); //stores all DMC colours
 
@@ -285,6 +285,8 @@ namespace Flow_Stitch
                 double distance = 1000;
                 List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
                 DMCitems.Clear();
+                List<DMC> DMCitemsDup = new List<DMC>();
+                DMCitemsDup.Clear();
 
                 //getting closest DMC colours to RGB
                 for (int i = 0; i < myPalette.Colors.Count(); i++)
@@ -324,13 +326,18 @@ namespace Flow_Stitch
                             distance = deltaE;
                         }
                     }
-                    DMCitems.Add(closestColor);
+                    DMCitemsDup.Add(closestColor);
                     distance = 1000;
                     paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
                 }
 
+                //
+                //removing duplicates
+                DMCitems = DMCitemsDup.Distinct().ToList();
+                List<System.Drawing.Color> uniquePL = paletteList.Distinct().ToList();
+
                 //making the list into a simple array so that it can be passed to the quantizer
-                palette = paletteList.ToArray();
+                palette = uniquePL.ToArray();
   
                 items.Clear();
 
