@@ -129,7 +129,7 @@ namespace Flow_Stitch
         int currentIndex = -1; //stores which image stored is the current state
 
         float upscalePercentage;
-        Bitmap icon1 = new Bitmap("3.PNG");
+        //Bitmap icon1 = new Bitmap("3.PNG");
 
         public MainWindow()
         {
@@ -495,10 +495,15 @@ namespace Flow_Stitch
             grPhoto.PixelOffsetMode = PixelOffsetMode.Half;
 
 
-            grPhoto.DrawImage(imgPhoto,
-                new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
-                new System.Drawing.Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
-                GraphicsUnit.Pixel);
+            using (ImageAttributes wrapMode = new ImageAttributes())
+            {
+                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+
+                grPhoto.DrawImage(imgPhoto,
+                    new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
+                    sourceX, sourceY, sourceWidth, sourceHeight,
+                    GraphicsUnit.Pixel, wrapMode);
+            }
 
             grPhoto.Dispose();
             return bmPhoto;
@@ -944,10 +949,39 @@ namespace Flow_Stitch
 
             System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(img, upscalePercentage);
 
-
-
             wBitmap = BitmapToImageSource(upscaledImage);
             image.Source = wBitmap;
+
+            //Drawing icon
+           // DrawingImage draw = new DrawingImage(image.Source);
+
+            // Create a DrawingGroup to combine the ImageDrawing objects.
+            DrawingGroup imageDrawings = new DrawingGroup();
+
+            // Create a 100 by 100 image with an upper-left point of (75,75).
+            ImageDrawing icon1 = new ImageDrawing();
+            icon1.Rect = new Rect(75, 75, 33, 31);
+            icon1.ImageSource = new BitmapImage(
+                new Uri("3.PNG", UriKind.Relative));
+
+            ImageDrawing pattern = new ImageDrawing();
+            pattern.Rect = new Rect(75, 75, upscaledImage.Width, upscaledImage.Height);
+            pattern.ImageSource = image.Source;
+
+            //trying to add pattern to it??
+            imageDrawings.Children.Add(pattern);
+            imageDrawings.Children.Add(icon1);
+            DrawingImage drawingImageSource = new DrawingImage(imageDrawings);
+
+            // Freeze the DrawingImage for performance benefits.
+            drawingImageSource.Freeze();
+
+            System.Windows.Controls.Image imageControl = new System.Windows.Controls.Image();
+            imageControl.Stretch = Stretch.None;
+            imageControl.Source = drawingImageSource;
+
+            image.Source = imageControl.Source;
+     
         }
 
 
