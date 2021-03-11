@@ -129,6 +129,8 @@ namespace Flow_Stitch
         int currentIndex = -1; //stores which image stored is the current state
 
         float upscalePercentage;
+        int patternWidth;
+        int patternHeight;
         //Bitmap icon1 = new Bitmap("3.PNG");
 
         public MainWindow()
@@ -257,6 +259,7 @@ namespace Flow_Stitch
                 float newSizePercentage = (float)heightOfPattern / (float)img.Height;
                 newSizePercentage *= 100;
 
+                //???????????????????????????????????????????????????????????????????????????????????????????????????????????????????
                 upscalePercentage = 100*((float)img.Height/ (float)heightOfPattern);
 
                 //reduce colour palette
@@ -267,7 +270,7 @@ namespace Flow_Stitch
 
                 //resize image
                 System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
-
+                patternHeight = heightOfPattern;
                 //requantize
                  System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours)); //original
                 //System.Drawing.Bitmap requantizedImage = (Bitmap)quantizer2.QuantizeImage(scaledImage);
@@ -366,6 +369,8 @@ namespace Flow_Stitch
 
                 //store state of image
                 patternStatesAdd();
+                //patternHeight = (int)wBitmap.Height;
+                patternWidth = (int)image.Source.Width;
 
                 //width = wBitmap.PixelWidth;
                 //height = wBitmap.PixelHeight;
@@ -443,7 +448,7 @@ namespace Flow_Stitch
             int destY = 0;
             int destWidth = (int)(sourceWidth * nPercent);
             int destHeight = Height;
-
+            
             Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
                                      System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
@@ -492,7 +497,7 @@ namespace Flow_Stitch
 
             Graphics grPhoto = Graphics.FromImage(bmPhoto);
             grPhoto.InterpolationMode = InterpolationMode.NearestNeighbor;
-            grPhoto.PixelOffsetMode = PixelOffsetMode.Half;
+            //grPhoto.PixelOffsetMode = PixelOffsetMode.Half;
 
 
             using (ImageAttributes wrapMode = new ImageAttributes())
@@ -940,6 +945,7 @@ namespace Flow_Stitch
 
         private void UpScale_Click(object sender, RoutedEventArgs e)
         {
+
             //convert to bitmap
             MemoryStream outStream = new MemoryStream();
             BitmapEncoder enc = new BmpBitmapEncoder();
@@ -948,29 +954,44 @@ namespace Flow_Stitch
             System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
             System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(img, upscalePercentage);
-
             wBitmap = BitmapToImageSource(upscaledImage);
-            image.Source = wBitmap;
+
 
             //Drawing icon
-           // DrawingImage draw = new DrawingImage(image.Source);
+            // DrawingImage draw = new DrawingImage(image.Source);
+
+            double iconHeight = (image.ActualHeight / patternHeight) * 0.6;
+            double stitchSize = image.ActualHeight / patternHeight;
+            double stitchStartPosition = (stitchSize / 2) - iconHeight /2;
+            double stitchPositionY = stitchStartPosition;
 
             // Create a DrawingGroup to combine the ImageDrawing objects.
             DrawingGroup imageDrawings = new DrawingGroup();
 
-            // Create a 100 by 100 image with an upper-left point of (75,75).
-            ImageDrawing icon1 = new ImageDrawing();
-            icon1.Rect = new Rect(75, 75, 33, 31);
-            icon1.ImageSource = new BitmapImage(
-                new Uri("3.PNG", UriKind.Relative));
-
             ImageDrawing pattern = new ImageDrawing();
-            pattern.Rect = new Rect(75, 75, upscaledImage.Width, upscaledImage.Height);
-            pattern.ImageSource = image.Source;
+            pattern.Rect = new Rect(0,0, upscaledImage.Width, upscaledImage.Height);
+            pattern.ImageSource = wBitmap;
 
-            //trying to add pattern to it??
+            patternWidth = (int)(image.ActualWidth / stitchSize);
+            //patternWidth = (int)image.Width;
+
             imageDrawings.Children.Add(pattern);
-            imageDrawings.Children.Add(icon1);
+
+            for (int j = 0; j <= patternHeight; j++)
+            {
+                for (int i = 0; i < patternWidth; i++)
+                {
+                    // Create a 100 by 100 image with an upper-left point of (75,75).
+                    ImageDrawing icon1 = new ImageDrawing();
+                    icon1.Rect = new Rect(stitchStartPosition + (stitchSize * i), stitchPositionY, iconHeight, iconHeight);
+                    icon1.ImageSource = new BitmapImage(
+                        new Uri("3.PNG", UriKind.Relative));
+
+                    imageDrawings.Children.Add(icon1);
+                }
+                stitchPositionY = stitchStartPosition + j * stitchSize;            
+            }
+            
             DrawingImage drawingImageSource = new DrawingImage(imageDrawings);
 
             // Freeze the DrawingImage for performance benefits.
@@ -981,7 +1002,12 @@ namespace Flow_Stitch
             imageControl.Source = drawingImageSource;
 
             image.Source = imageControl.Source;
-     
+
+            
+
+            //
+            //image.Source = wBitmap;
+
         }
 
 
