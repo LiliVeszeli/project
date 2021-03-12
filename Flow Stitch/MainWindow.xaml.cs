@@ -953,8 +953,8 @@ namespace Flow_Stitch
             enc.Save(outStream);
             System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
-            System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(img, upscalePercentage);
-            wBitmap = BitmapToImageSource(upscaledImage);
+            //System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(img, upscalePercentage);
+            //wBitmap = BitmapToImageSource(upscaledImage);
 
 
             //Drawing icon
@@ -962,14 +962,17 @@ namespace Flow_Stitch
 
             double iconHeight = (image.ActualHeight / patternHeight) * 0.6;
             double stitchSize = image.ActualHeight / patternHeight;
-            double stitchStartPosition = (stitchSize / 2) - iconHeight /2;
+            double stitchStartPosition = (stitchSize / 2) - (iconHeight / 2);
             double stitchPositionY = stitchStartPosition;
+
+            int numberOfColours = items.Count();
+          
 
             // Create a DrawingGroup to combine the ImageDrawing objects.
             DrawingGroup imageDrawings = new DrawingGroup();
 
             ImageDrawing pattern = new ImageDrawing();
-            pattern.Rect = new Rect(0,0, upscaledImage.Width, upscaledImage.Height);
+            pattern.Rect = new Rect(0,0, image.ActualWidth, image.ActualHeight);
             pattern.ImageSource = wBitmap;
 
             patternWidth = (int)(image.ActualWidth / stitchSize);
@@ -977,19 +980,29 @@ namespace Flow_Stitch
 
             imageDrawings.Children.Add(pattern);
 
-            for (int j = 0; j <= patternHeight; j++)
+            for (int j = 0; j < img.Height; j++)
             {
-                for (int i = 0; i < patternWidth; i++)
+                stitchPositionY = stitchStartPosition + j * stitchSize;
+                for (int i = 0; i < img.Width; i++)
                 {
-                    // Create a 100 by 100 image with an upper-left point of (75,75).
-                    ImageDrawing icon1 = new ImageDrawing();
-                    icon1.Rect = new Rect(stitchStartPosition + (stitchSize * i), stitchPositionY, iconHeight, iconHeight);
-                    icon1.ImageSource = new BitmapImage(
-                        new Uri("3.PNG", UriKind.Relative));
+                    System.Drawing.Color stitchColor = img.GetPixel(i, j);
 
-                    imageDrawings.Children.Add(icon1);
-                }
-                stitchPositionY = stitchStartPosition + j * stitchSize;            
+                    for(int k = 0; k < items.Count(); k++)
+                    {
+                        if(stitchColor == System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B))
+                        {
+                            string iconName = k.ToString() + ".PNG";
+                            // Create a 100 by 100 image with an upper-left point of (75,75).
+                            ImageDrawing icon1 = new ImageDrawing();
+                            icon1.Rect = new Rect(stitchStartPosition + (stitchSize * i), stitchPositionY, iconHeight, iconHeight);
+                            icon1.ImageSource = new BitmapImage(
+                                new Uri(iconName, UriKind.Relative));
+
+                            imageDrawings.Children.Add(icon1);
+                            break;
+                        }                      
+                    }
+                }                      
             }
             
             DrawingImage drawingImageSource = new DrawingImage(imageDrawings);
