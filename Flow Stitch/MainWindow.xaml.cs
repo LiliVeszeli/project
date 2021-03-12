@@ -953,6 +953,7 @@ namespace Flow_Stitch
             enc.Save(outStream);
             System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
+            //upscale
             //System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(img, upscalePercentage);
             //wBitmap = BitmapToImageSource(upscaledImage);
 
@@ -991,7 +992,7 @@ namespace Flow_Stitch
                     {
                         if(stitchColor == System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B))
                         {
-                            string iconName = k.ToString() + ".PNG";
+                            string iconName = (k+0).ToString() + ".PNG";
                             // Create a 100 by 100 image with an upper-left point of (75,75).
                             ImageDrawing icon1 = new ImageDrawing();
                             icon1.Rect = new Rect(stitchStartPosition + (stitchSize * i), stitchPositionY, iconHeight, iconHeight);
@@ -1015,11 +1016,21 @@ namespace Flow_Stitch
             imageControl.Source = drawingImageSource;
 
             image.Source = imageControl.Source;
+            //wBitmap = new WriteableBitmap ((BitmapSource)image.Source);
 
-            
+            ////convert to bitmap
+            //outStream = new MemoryStream();
+            //enc = new BmpBitmapEncoder();
+            //enc.Frames.Add(BitmapFrame.Create(wBitmap));
+            //enc.Save(outStream);
+            //System.Drawing.Bitmap img2 = new System.Drawing.Bitmap(outStream);
 
-            //
+            ////upscale
+            //System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(img2, upscalePercentage);
+            //wBitmap = BitmapToImageSource(upscaledImage);
             //image.Source = wBitmap;
+            //
+            
 
         }
 
