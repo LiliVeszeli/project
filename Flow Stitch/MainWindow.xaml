@@ -58,15 +58,17 @@
 
                 <TextBlock x:Name="OptionsTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFB0E4FF"><Run Text=" "/><Run Text="Pattern Options"/></TextBlock>
                 <StackPanel Height="58" Margin="0,0,0.2,0" Orientation="Horizontal">
-                    <Button x:Name="UpScale" Content="UpScale" Margin="0,0,0,9.6" Click="UpScale_Click" RenderTransformOrigin="0.467,2.823">
+                    <Button x:Name="UpScale" Margin="0,0,0,17.6" Click="UpScale_Click" RenderTransformOrigin="0.467,2.823" Width="40">
                         <Button.ToolTip>
                             <TextBlock>Set symbols and save.</TextBlock>
                         </Button.ToolTip>
+                        <Image x:Name="symbol" Source="symbol.png"/>
                     </Button>
-                    <Button x:Name="preview" Content="Preview" Margin="0,0,0.2,9.6" Width="51">
+                    <Button x:Name="previewButton"  Margin="0,0,0.2,17.6" Width="40" Height="40">
                         <Button.ToolTip>
-                            <TextBlock>Preview of finised pattern.</TextBlock>
+                            <TextBlock><Run Text="Preview of finised pattern."/></TextBlock>
                         </Button.ToolTip>
+                        <Image x:Name="preview" Source="x.jpg" />
                     </Button>
                 </StackPanel>
             </StackPanel>

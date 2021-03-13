@@ -227,5 +227,11 @@
   <ItemGroup>
     <SplashScreen Include="SplashScreen.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="symbol.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="x.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
