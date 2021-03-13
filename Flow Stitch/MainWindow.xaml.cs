@@ -943,6 +943,10 @@ namespace Flow_Stitch
             }
         }
 
+
+
+       
+
         private void UpScale_Click(object sender, RoutedEventArgs e)
         {
 
@@ -1016,21 +1020,63 @@ namespace Flow_Stitch
             imageControl.Source = drawingImageSource;
 
             image.Source = imageControl.Source;
-            //wBitmap = new WriteableBitmap ((BitmapSource)image.Source);
 
-            ////convert to bitmap
-            //outStream = new MemoryStream();
-            //enc = new BmpBitmapEncoder();
-            //enc.Frames.Add(BitmapFrame.Create(wBitmap));
-            //enc.Save(outStream);
-            //System.Drawing.Bitmap img2 = new System.Drawing.Bitmap(outStream);
+            //making it bigger? and into a bitmap
+            //RenderTargetBitmap bitmap = new RenderTargetBitmap((int)this.image.ActualWidth, (int)this.image.ActualHeight, 96, 96, PixelFormats.Pbgra32);
 
-            ////upscale
-            //System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(img2, upscalePercentage);
-            //wBitmap = BitmapToImageSource(upscaledImage);
-            //image.Source = wBitmap;
+            //bitmap.Render(this.image);
+
+            //wBitmap = new WriteableBitmap ((BitmapSource)bitmap);
+
+            //save
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = "Document";
+            dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
+            Nullable<bool> result = dlg.ShowDialog();
+            string fileName = "";
+
+            if (result == true)
+            {
+                fileName = dlg.FileName;
+                System.Windows.Size size = image.RenderSize;
+                RenderTargetBitmap rtb = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96, 96, PixelFormats.Pbgra32);
+                image.Measure(size);
+                image.Arrange(new Rect(size)); // This is important
+                rtb.Render(image);
+                JpegBitmapEncoder jpg = new JpegBitmapEncoder(); //pngbit
+                jpg.Frames.Add(BitmapFrame.Create(rtb));
+                using (Stream stm = File.Create(fileName))
+                {
+                    jpg.Save(stm);
+                }
+            }
+
+            //  ////upscale
+            //  System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(bmpOut, upscalePercentage);
+            //  wBitmap = BitmapToImageSource(upscaledImage);
+            //  //image.Source = wBitmap;
+
+            //  //save
+            //  Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            ////  dlg.FileName = "Document";
+            //  dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
+            //  if (dlg.ShowDialog() == true)
+            //  {
+            //      var encoder = new JpegBitmapEncoder(); // Or PngBitmapEncoder, or whichever encoder you want
+            //      encoder.Frames.Add(BitmapFrame.Create(wBitmap));
+            //      using (var stream = dlg.OpenFile())
+            //      {
+            //          encoder.Save(stream);
+            //      }
+            //  }
+
+
+
+
+
+
             //
-            
+
 
         }
 
