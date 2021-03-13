@@ -6,7 +6,8 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:Flow_Stitch"
         mc:Ignorable="d"
-        Title="Flow Stitch" Height="450" Width="800" KeyDown="Window_KeyDown">
+        Title="Flow Stitch" Height="643.98" Width="889.8" KeyDown="Window_KeyDown" WindowState="Maximized">
+
     <Window.Resources>
         <DataTemplate DataType="{x:Type local:ListItemColour}">
             <StackPanel Orientation="Horizontal" Height="43" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">
@@ -37,18 +38,12 @@
     <Grid Background="#FFEEEEEE">
 
         <DockPanel HorizontalAlignment="Left" Height="Auto" Margin="0,26,0,-510" VerticalAlignment="Stretch" Width="183" RenderTransformOrigin="0.411,0.501" Background="#FFD4D4FF" LastChildFill="False">
-            <StackPanel Height="395" VerticalAlignment="Top" Width="167" Background="#FFD4D4FF">
+            <StackPanel Height="583" VerticalAlignment="Top" Width="167" Background="#FFD4D4FF">
                 <TextBlock x:Name="textBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" Background="#FFB9A5FF" TextDecorations="{x:Null}" FontFamily="Segoe UI Historic" FontWeight="Bold"><Run Text=" "/><Run Text="DMC "/><Run Text="Thread "/><Run Text="Colours"/></TextBlock>
                 <ListBox ItemsSource="{Binding items}" Margin="0,0,-15.8,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Name="listBox" Height="248">
                 </ListBox>
-                <TextBlock x:Name="ToolTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold">
-                    <TextBlock.Background>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FFB9A5FF" Offset="0"/>
-                            <GradientStop Color="#FF61BEFF" Offset="1"/>
-                        </LinearGradientBrush>
-                    </TextBlock.Background><Run Text=" "/><Run Text="Tools"/></TextBlock>
-                <StackPanel Height="58" Margin="0,0,0.2,0" Orientation="Horizontal">
+                <TextBlock x:Name="ToolTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFB0E4FF"><Run Text=" "/><Run Text="Tools"/></TextBlock>
+                <StackPanel Height="58" Margin="0,0,0.2,0" Orientation="Horizontal" Background="#00000000" OpacityMask="Black">
                     <Button x:Name="drawButton"  Width="40" Height="40" Margin="0,2,0,15.6">
                         <Image x:Name="drawButtonImage" Source="draw.png" MouseLeftButtonDown="drawButtonImage_MouseLeftButtonDown" />
                     </Button>
@@ -60,7 +55,20 @@
                     </Button>
 
                 </StackPanel>
-                <Button x:Name="UpScale" Content="UpScale" Margin="0,0,94.2,0" Click="UpScale_Click"/>
+
+                <TextBlock x:Name="OptionsTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFB0E4FF"><Run Text=" "/><Run Text="Pattern Options"/></TextBlock>
+                <StackPanel Height="58" Margin="0,0,0.2,0" Orientation="Horizontal">
+                    <Button x:Name="UpScale" Content="UpScale" Margin="0,0,0,9.6" Click="UpScale_Click" RenderTransformOrigin="0.467,2.823">
+                        <Button.ToolTip>
+                            <TextBlock>Set symbols and save.</TextBlock>
+                        </Button.ToolTip>
+                    </Button>
+                    <Button x:Name="preview" Content="Preview" Margin="0,0,0.2,9.6" Width="51">
+                        <Button.ToolTip>
+                            <TextBlock>Preview of finised pattern.</TextBlock>
+                        </Button.ToolTip>
+                    </Button>
+                </StackPanel>
             </StackPanel>
         </DockPanel>
 
@@ -68,8 +76,8 @@
             <MenuItem Header="File" Width="35" Height="25" Foreground="#FFF0F0F0">
                 <MenuItem Header="New" Name="ItemOpen" Background="White" Click="ItemOpen_Click" Foreground="#FF181818">
                 </MenuItem>
-                <MenuItem Header="Save" Name="ItemSave" Background="White" Click="ItemSave_Click" Foreground="#FF020202">
-                </MenuItem>
+                <!--<MenuItem Header="Save" Name="ItemSave" Background="White" Click="ItemSave_Click" Foreground="#FF020202">
+                </MenuItem> save at symbols now-->
                 <MenuItem Header="Exit" Name="ItemExit" Background="White" Foreground="#FF050505" >
                 </MenuItem>
             </MenuItem>

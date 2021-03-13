@@ -224,5 +224,8 @@
   <ItemGroup>
     <Resource Include="picker.PNG" />
   </ItemGroup>
+  <ItemGroup>
+    <SplashScreen Include="SplashScreen.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
