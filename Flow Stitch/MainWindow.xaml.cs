@@ -603,10 +603,13 @@ namespace Flow_Stitch
             System.Windows.Media.Color nextColor;
             string currentName;
             string nextName;
+
+            //open colour picker
             var initialColor = Colors.Blue;
             var dialog = new ColorPickerDialog(initialColor);
             var result = dialog.ShowDialog();
 
+            //getting closest DMC colour to selected colour
             if (result.HasValue && result.Value)
             {
                 //the colour it will change to
@@ -617,14 +620,38 @@ namespace Flow_Stitch
 
                 for (int j = 0; j < DMCColors.Count(); j++)
                 {
-                    double d = ((dialog.Color.R - DMCColors[j].Red) * 0.30) * ((dialog.Color.R - DMCColors[j].Red) * 0.30)
-                        + ((dialog.Color.G - DMCColors[j].Green) * 0.59) * ((dialog.Color.G - DMCColors[j].Green) * 0.59)
-                        + ((dialog.Color.B - DMCColors[j].Blue) * 0.11) * ((dialog.Color.B - DMCColors[j].Blue) * 0.11);
 
-                    if (d < distance)
+                    
+                    //double d = ((dialog.Color.R - DMCColors[j].Red) * 0.30) * ((dialog.Color.R - DMCColors[j].Red) * 0.30)
+                    //    + ((dialog.Color.G - DMCColors[j].Green) * 0.59) * ((dialog.Color.G - DMCColors[j].Green) * 0.59)
+                    //    + ((dialog.Color.B - DMCColors[j].Blue) * 0.11) * ((dialog.Color.B - DMCColors[j].Blue) * 0.11);
+
+                    var b = dialog.Color.B;
+                    if (dialog.Color.B > 180 && dialog.Color.G < 100 && dialog.Color.R < 100)
+                    {
+                        b = (byte)(160 + (20 * (b - 160)) / (256 - 160));
+                    }
+
+                    //using Lab space
+                    var dialogRgb = new Rgb { R = dialog.Color.R, G = dialog.Color.G, B = b };
+                    var lab1 = dialogRgb.To<Lab>();
+                    var lch1 = lab1.To<Lch>();
+
+                    var DMCRgb = new Rgb { R = DMCColors[j].Red, G = DMCColors[j].Green, B = DMCColors[j].Blue };
+                    var lab2 = DMCRgb.To<Lab>();
+                    var lch2 = lab2.To<Lch>();
+
+                    // var deltaE = lch1.Compare(lch2, new CmcComparison(lightness: 2, chroma: 1));
+                    var comparison = new CmcComparison();
+                    var deltaE = comparison.Compare(dialogRgb, DMCRgb);
+
+
+                    //finding smallest distance
+                    if (deltaE < distance)
                     {
                         closestColor = DMCColors[j];
-                        distance = d;
+                        // distance = d;
+                        distance = deltaE;
                     }
                 }
 
@@ -649,7 +676,7 @@ namespace Flow_Stitch
                 enc.Save(outStream);
                 System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
-
+                //changing all pixels from previous colour
                 for (int i = 0; i < img.Width; i++)
                 {
                     for (int j = 0; j < img.Height; j++)
@@ -703,12 +730,15 @@ namespace Flow_Stitch
                         items.RemoveAt(i);
                     }
                 }
+
+                //binding number of colours
                 this.DataContext = this;
                 this.numberColours = items.Count().ToString();
 
+                //getting palette of image
                 System.Drawing.Color[] palette = new System.Drawing.Color[items.Count];
 
-                //getting new palette
+                //making new palette
                 for (int i = 0; i < items.Count(); i++)
                 {
                     palette[i] = System.Drawing.Color.FromArgb(items[i].color.R, items[i].color.G, items[i].color.B);
@@ -734,6 +764,7 @@ namespace Flow_Stitch
                     //putting it back into the image and the writable bitmap
                     wBitmap = BitmapToImageSource(newBitmap);
                 }
+                //setting all the image to one colour
                 else
                 {
                     for (int i = 0; i < img.Width; i++)
@@ -759,13 +790,15 @@ namespace Flow_Stitch
             }
         }
 
-
+        //selecting eraser tool
         private void eraserImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            //currect colour is white
             currentColour = System.Windows.Media.Color.FromRgb(255, 255, 255);
             isEraser = true;
         }
 
+        //undo operation
         private void Undo_Click(object sender, RoutedEventArgs e)
         {
             UndoFunction();
@@ -855,6 +888,7 @@ namespace Flow_Stitch
 
                 items.Clear();
 
+                //remaking palette
                 for (int i = 0; i < DMCitems.Count(); i++)
                 {
                     if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
@@ -865,6 +899,7 @@ namespace Flow_Stitch
             }
         }
 
+        //redo operation
         private void Redo_Click(object sender, RoutedEventArgs e)
         {
             //if(currentIndex != patternStates.Count() -1)
@@ -966,9 +1001,7 @@ namespace Flow_Stitch
         }
 
 
-
-       
-
+        //setting symbols on pattern
         private void UpScale_Click(object sender, RoutedEventArgs e)
         {
 
@@ -1007,8 +1040,10 @@ namespace Flow_Stitch
 
             imageDrawings.Children.Add(pattern);
 
+            //drawing symbols
             for (int j = 0; j < img.Height; j++)
             {
+                //changing Y position
                 stitchPositionY = stitchStartPosition + j * stitchSize;
                 for (int i = 0; i < img.Width; i++)
                 {
@@ -1158,6 +1193,7 @@ namespace Flow_Stitch
             //store state of image
             patternStatesAdd();
 
+            //if drawing tool is used
             if (!isEraser)
             {
                 //adding new color to palette
@@ -1202,6 +1238,7 @@ namespace Flow_Stitch
                 this.DataContext = this;
                 this.numberColours = items.Count().ToString();
             }
+            //if eraser tool is used
             else
             {
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
@@ -1243,11 +1280,14 @@ namespace Flow_Stitch
 
                 items.Clear();
 
+                //remaking palette
                 for (int i = 0; i < DMCitems.Count(); i++)
                 {
                     if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
                         items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
                 }
+
+                //binding number of colours
                 this.DataContext = this;
                 this.numberColours = items.Count().ToString();
             }
