@@ -12,8 +12,14 @@
             <ColumnDefinition Width="9*"/>
             <ColumnDefinition Width="4*"/>
         </Grid.ColumnDefinitions>
-        <Image x:Name="image" HorizontalAlignment="Left" Height="490" Margin="10,10,0,0" VerticalAlignment="Top" Width="817" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-        <Button x:Name="Savebutton" Content="Save" Margin="740,521,0,0" Background="#FFEFD3FF" Click="Savebutton_Click" Height="26" VerticalAlignment="Top" FontSize="14" HorizontalAlignment="Left" Width="99"/>
+        <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" Margin="20,20,20,40" VerticalAlignment="Top" Width="Auto" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor">
+            <Image.Effect>
+                <DropShadowEffect BlurRadius="10" 
+                           ShadowDepth="0" 
+                           Color="Black"/>
+            </Image.Effect>
+        </Image>
+        <Button x:Name="Savebutton" Content="Save" Margin="0,0,17.8,16" Background="#FFEFD3FF" Click="Savebutton_Click" FontSize="14" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="76" Height="24"/>
 
     </Grid>
 </Window>

@@ -1048,8 +1048,6 @@ namespace Flow_Stitch
             double stitchSize = image.ActualHeight / patternHeight;
             double stitchStartPosition = (stitchSize / 2) - (iconHeight / 2);
             double stitchPositionY = stitchStartPosition;
-
-            //int numberOfColours = items.Count();
           
 
             // Create a DrawingGroup to combine the ImageDrawing objects.
@@ -1316,6 +1314,84 @@ namespace Flow_Stitch
                 this.DataContext = this;
                 this.numberColours = items.Count().ToString();
             }
+
+        }
+
+        private void previewButton_Click(object sender, RoutedEventArgs e)
+        {
+            //convert to bitmap
+            MemoryStream outStream = new MemoryStream();
+            BitmapEncoder enc = new BmpBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(wBitmap));
+            enc.Save(outStream);
+            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+            double stitchSize = ((image.ActualHeight / patternHeight) * (patternHeight / 5)) / 1.5 - 10;
+            double stitchSizeY = stitchSize - 7.5;
+            double stitchSizeX = stitchSize - 13;
+
+
+            // Create a DrawingGroup to combine the ImageDrawing objects.
+            DrawingGroup imageDrawings = new DrawingGroup();
+
+            ImageDrawing background = new ImageDrawing();
+            background.Rect = new Rect(0, 0, 1772, 1772);
+            background.ImageSource = new BitmapImage(new Uri("aidasmall.png", UriKind.Relative)); ;
+
+            patternWidth = (int)(image.ActualWidth / stitchSize);
+            //patternWidth = (int)image.Width;
+
+            imageDrawings.Children.Add(background);
+
+            double stitchStartPosition = 1772 / 2 - image.ActualWidth / 2;
+            double stitchStartPositionY = 1772 / 2 - image.ActualHeight / 2 + 40;
+            double stitchPositionY = stitchStartPositionY;
+
+            //drawing symbols
+            for (int j = 0; j < img.Height; j++)
+            {
+                //changing Y position
+                stitchPositionY = stitchStartPositionY + (j * stitchSizeY);
+                for (int i = 0; i < img.Width; i++)
+                {
+                    System.Drawing.Color stitchColor = img.GetPixel(i, j);
+
+                    for (int k = 0; k < items.Count(); k++)
+                    {
+                        if (stitchColor == System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B))
+                        {
+                            string iconName = "stitch4WhiteS.png";
+                            // Create a 100 by 100 image with an upper-left point of (75,75).
+                            ImageDrawing icon1 = new ImageDrawing();
+                            icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
+                            icon1.ImageSource = new BitmapImage(
+                                new Uri(iconName, UriKind.Relative));
+
+                            imageDrawings.Children.Add(icon1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            DrawingImage drawingImageSource = new DrawingImage(imageDrawings);
+
+            // Freeze the DrawingImage for performance benefits.
+            drawingImageSource.Freeze();
+
+            System.Windows.Controls.Image imageControl = new System.Windows.Controls.Image();
+            imageControl.Stretch = Stretch.None;
+            imageControl.Source = drawingImageSource;
+
+            //image.Source = imageControl.Source; IMPORTANT
+
+            //making a new image to pass to the symbol window
+            System.Windows.Controls.Image passImage = new System.Windows.Controls.Image();
+            passImage.Source = imageControl.Source;
+
+            //show the symbol window, passing the image
+            Preview previewWindow = new Preview(imageControl);
+            previewWindow.ShowDialog();
 
         }
 
