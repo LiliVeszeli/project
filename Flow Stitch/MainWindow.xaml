@@ -42,7 +42,7 @@
                 <TextBlock x:Name="textBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" Background="#FFB9A5FF" TextDecorations="{x:Null}" FontFamily="Segoe UI Historic" FontWeight="Bold"><Run Text=" "/><Run Text="DMC "/><Run Text="Thread "/><Run Text="Colours"/></TextBlock>
                 <ListBox ItemsSource="{Binding items}" Margin="0,0,-15.8,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Name="listBox" Height="248">
                 </ListBox>
-                <TextBlock x:Name="ToolTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFB0E4FF"><Run Text=" "/><Run Text="Tools"/></TextBlock>
+                <TextBlock x:Name="ToolTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFBCF2FF"><Run Text=" "/><Run Text="Tools"/></TextBlock>
                 <StackPanel Height="58" Margin="0,0,0.2,0" Orientation="Horizontal" Background="#00000000" OpacityMask="Black">
                     <Button x:Name="drawButton"  Width="40" Height="40" Margin="0,2,0,15.6">
                         <Image x:Name="drawButtonImage" Source="draw.png" MouseLeftButtonDown="drawButtonImage_MouseLeftButtonDown" />
@@ -56,7 +56,7 @@
 
                 </StackPanel>
 
-                <TextBlock x:Name="OptionsTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFB0E4FF"><Run Text=" "/><Run Text="Pattern Options"/></TextBlock>
+                <TextBlock x:Name="OptionsTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFBCF2FF"><Run Text=" "/><Run Text="Pattern Options"/></TextBlock>
                 <StackPanel Height="58" Margin="0,0,0.2,0" Orientation="Horizontal">
                     <Button x:Name="UpScale" Margin="0,0,0,17.6" Click="UpScale_Click" RenderTransformOrigin="0.467,2.823" Width="40">
                         <Button.ToolTip>
@@ -71,7 +71,7 @@
                         <Image x:Name="preview" Source="x2.PNG" />
                     </Button>
                 </StackPanel>
-                <TextBlock x:Name="PropertiesTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFB0E4FF"><Run Text=" "/><Run Text="Properties"/></TextBlock>
+                <TextBlock x:Name="PropertiesTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFBCF2FF"><Run Text=" "/><Run Text="Properties"/></TextBlock>
                 <TextBlock x:Name="HeightTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" Background="#FFEBF8FF"><Run Text=" "/><Run Text="Height: "/><Run Text="{Binding image.Height, UpdateSourceTrigger=PropertyChanged}"/></TextBlock>
                 <TextBlock x:Name="WidthTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" Background="#FFEEF9FF"><Run Text=" "/><Run Text="Width: "/><Run Text="{Binding image.Width, UpdateSourceTrigger=PropertyChanged}"/></TextBlock>
                 <TextBlock x:Name="ColorTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" Background="#FFEDF9FF"><Run Text=" "/><Run Text="Number of colours: "/><Run Text="{Binding Path=numberColours, UpdateSourceTrigger=PropertyChanged}"/></TextBlock>
@@ -79,7 +79,7 @@
             </StackPanel>
         </DockPanel>
 
-        <Menu x:Name="menu" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Top" Width="Auto" Grid.ColumnSpan="2" Margin="0,0,-0.4,0" Background="#FF352199">
+        <Menu x:Name="menu" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Top" Width="Auto" Grid.ColumnSpan="2" Margin="0,0,-0.4,0" Background="#FF321F8C">
             <MenuItem Header="File" Width="35" Height="25" Foreground="#FFF0F0F0">
                 <MenuItem Header="New" Name="ItemOpen" Background="White" Click="ItemOpen_Click" Foreground="#FF181818">
                 </MenuItem>

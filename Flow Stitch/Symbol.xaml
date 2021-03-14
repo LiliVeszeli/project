@@ -13,7 +13,7 @@
             <ColumnDefinition Width="4*"/>
         </Grid.ColumnDefinitions>
         <Image x:Name="image" HorizontalAlignment="Left" Height="490" Margin="10,10,0,0" VerticalAlignment="Top" Width="817" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-        <Button x:Name="Savebutton" Content="Save" Margin="740,521,17.8,0" Background="#FFEFD3FF" Click="Savebutton_Click" Height="26" VerticalAlignment="Top" FontSize="14"/>
+        <Button x:Name="Savebutton" Content="Save" Margin="740,521,0,0" Background="#FFEFD3FF" Click="Savebutton_Click" Height="26" VerticalAlignment="Top" FontSize="14" HorizontalAlignment="Left" Width="99"/>
 
     </Grid>
 </Window>

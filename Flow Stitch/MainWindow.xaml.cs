@@ -599,9 +599,9 @@ namespace Flow_Stitch
         //change existing palette colour
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Media.Color existingColor;
-            System.Windows.Media.Color nextColor;
-            string currentName;
+            System.Windows.Media.Color existingColor; //stores the colour that is changed
+            System.Windows.Media.Color nextColor; //stored the colour that it is changed to
+            string currentName; //name of the changed colour
             string nextName;
 
             //open colour picker
@@ -618,14 +618,14 @@ namespace Flow_Stitch
                 DMC closestColor = new DMC();
                 double distance = 1000;
 
+                //getting closest DMC colour to the selected colour
                 for (int j = 0; j < DMCColors.Count(); j++)
-                {
-
-                    
+                {     
                     //double d = ((dialog.Color.R - DMCColors[j].Red) * 0.30) * ((dialog.Color.R - DMCColors[j].Red) * 0.30)
                     //    + ((dialog.Color.G - DMCColors[j].Green) * 0.59) * ((dialog.Color.G - DMCColors[j].Green) * 0.59)
                     //    + ((dialog.Color.B - DMCColors[j].Blue) * 0.11) * ((dialog.Color.B - DMCColors[j].Blue) * 0.11);
 
+                    //adjusting blue
                     var b = dialog.Color.B;
                     if (dialog.Color.B > 180 && dialog.Color.G < 100 && dialog.Color.R < 100)
                     {
@@ -687,11 +687,34 @@ namespace Flow_Stitch
                     }
                 }
 
-                //check that it is not an already existing color!!!        
-                (listBox.SelectedItem as ListItemColour).color = nextColor;
-                (listBox.SelectedItem as ListItemColour).Name = "  " + closestColor.Description;
-                (listBox.SelectedItem as ListItemColour).Number = "  " + closestColor.Floss;
 
+                nextName = "  " + closestColor.Description;
+
+                //checking if that colour is already in the palette
+                int count = 0;
+                for (int i = 0; i < items.Count(); i++)
+                {
+                    if (items[i].Name == nextName)
+                    {
+                        count++;
+                    }
+                }
+
+                //if the colour is not in the palette, then it is changed
+                if (count == 0)
+                {      
+                    (listBox.SelectedItem as ListItemColour).color = nextColor;
+                    (listBox.SelectedItem as ListItemColour).Name = "  " + closestColor.Description;
+                    (listBox.SelectedItem as ListItemColour).Number = "  " + closestColor.Floss;
+                }
+                //if it is already in the palette, then it is deleted
+                else
+                {
+                    items.Remove(listBox.SelectedItem as ListItemColour);
+                    //number of colours updated
+                    this.DataContext = this;
+                    this.numberColours = items.Count().ToString();
+                }
 
                 wBitmap = BitmapToImageSource(img);
                 image.Source = wBitmap;
@@ -860,7 +883,7 @@ namespace Flow_Stitch
 
                 DMC closestColor = new DMC();
                 double distance = 1000;
-                List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
+                //List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
                 DMCitems.Clear();
 
                 //getting closest DMC colours to RGB
@@ -880,11 +903,11 @@ namespace Flow_Stitch
                     }
                     DMCitems.Add(closestColor);
                     distance = 1000;
-                    paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
+                    //paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
                 }
 
                 //making the list into a simple array so that it can be passed to the quantizer
-                palette = paletteList.ToArray();
+               // palette = paletteList.ToArray();
 
                 items.Clear();
 
@@ -947,7 +970,7 @@ namespace Flow_Stitch
 
                 DMC closestColor = new DMC();
                 double distance = 1000;
-                List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
+                //List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
                 DMCitems.Clear();
 
                 //getting closest DMC colours to RGB
@@ -967,14 +990,15 @@ namespace Flow_Stitch
                     }
                     DMCitems.Add(closestColor);
                     distance = 1000;
-                    paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
+                   // paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
                 }
 
                 //making the list into a simple array so that it can be passed to the quantizer
-                palette = paletteList.ToArray();
+                //palette = paletteList.ToArray();
 
                 items.Clear();
 
+                //creating the palette
                 for (int i = 0; i < DMCitems.Count(); i++)
                 {
                     if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
@@ -1202,9 +1226,7 @@ namespace Flow_Stitch
                 DMC closestColor = new DMC();
                 double distance = 1000;
 
-                //getting closest DMC colours to RGB
-               
-                
+                //getting closest DMC colours to RGB     
                 for (int j = 0; j < DMCColors.Count(); j++)
                 {
                     double d = ((currentColour.R - DMCColors[j].Red) * 0.30) * ((currentColour.R - DMCColors[j].Red) * 0.30)
@@ -1220,7 +1242,7 @@ namespace Flow_Stitch
 
                 string nextName = "  " + closestColor.Description;
 
-
+                //checking if that colour is already in the palette
                 int count = 0;
                 for (int i = 0; i < items.Count(); i++)
                 {
@@ -1230,6 +1252,7 @@ namespace Flow_Stitch
                     }
                 }
 
+                //if the colour is not in the palette, then it it added
                 if (count == 0)
                 {
                     items.Add(new ListItemColour() { Number = "  " + closestColor.Floss, Name = nextName, color = System.Windows.Media.Color.FromRgb((byte)closestColor.Red, (byte)closestColor.Green, (byte)closestColor.Blue) });
@@ -1241,6 +1264,7 @@ namespace Flow_Stitch
             //if eraser tool is used
             else
             {
+                //getting the RGB colours in the pattern
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
 
                 //items.Clear();
@@ -1254,11 +1278,11 @@ namespace Flow_Stitch
 
 
                 DMC closestColor = new DMC();
-                double distance = 1000;
+                double distance = 1000; //initial distance between colours, set to a way too big value
                 List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
-                DMCitems.Clear();
+                DMCitems.Clear(); //clearing the palette, so that the right colours could be added back in
 
-                //getting closest DMC colours to RGB
+                //getting closest DMC colours to RGB in pattern
                 for (int i = 0; i < myPalette.Colors.Count(); i++)
                 {
                     for (int j = 0; j < DMCColors.Count(); j++)
@@ -1280,14 +1304,15 @@ namespace Flow_Stitch
 
                 items.Clear();
 
-                //remaking palette
+                //remaking palette based on the colours found in the pattern to make sure that if a colour was erased,
+                //then it is removed from the palette
                 for (int i = 0; i < DMCitems.Count(); i++)
                 {
                     if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
                         items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
                 }
 
-                //binding number of colours
+                //binding number of colours to display in properties
                 this.DataContext = this;
                 this.numberColours = items.Count().ToString();
             }
