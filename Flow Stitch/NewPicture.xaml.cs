@@ -26,12 +26,15 @@ namespace Flow_Stitch
 
         private void OK_Click(object sender, RoutedEventArgs e)
         {
+            this.DialogResult = true;
             Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             Close();
+           // this.DialogResult = false;
         }
+       
     }
 }

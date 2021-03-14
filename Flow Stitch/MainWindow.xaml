@@ -68,9 +68,14 @@
                         <Button.ToolTip>
                             <TextBlock><Run Text="Preview of finised pattern."/></TextBlock>
                         </Button.ToolTip>
-                        <Image x:Name="preview" Source="x.jpg" />
+                        <Image x:Name="preview" Source="x2.PNG" />
                     </Button>
                 </StackPanel>
+                <TextBlock x:Name="PropertiesTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFB0E4FF"><Run Text=" "/><Run Text="Properties"/></TextBlock>
+                <TextBlock x:Name="HeightTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" Background="#FFEBF8FF"><Run Text=" "/><Run Text="Height: "/><Run Text="{Binding image.Height, UpdateSourceTrigger=PropertyChanged}"/></TextBlock>
+                <TextBlock x:Name="WidthTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" Background="#FFEEF9FF"><Run Text=" "/><Run Text="Width: "/><Run Text="{Binding image.Width, UpdateSourceTrigger=PropertyChanged}"/></TextBlock>
+                <TextBlock x:Name="ColorTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" Background="#FFEDF9FF"><Run Text=" "/><Run Text="Number of colours: "/><Run Text="{Binding Path=numberColours, UpdateSourceTrigger=PropertyChanged}"/></TextBlock>
+                
             </StackPanel>
         </DockPanel>
 
@@ -92,7 +97,13 @@
         </Menu>
 
 
-        <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="184,47,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseDown="image_MouseDown"/>
+        <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="184,47,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseDown="image_MouseDown">
+            <Image.Effect>
+                <DropShadowEffect BlurRadius="10" 
+                           ShadowDepth="0" 
+                           Color="Black"/>
+            </Image.Effect>
+        </Image>
 
 
         <Canvas HorizontalAlignment="Left" Height="335" Margin="188,75,0,0" VerticalAlignment="Top" Width="602"/>

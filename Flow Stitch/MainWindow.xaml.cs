@@ -103,6 +103,8 @@ namespace Flow_Stitch
         }
     }
 
+
+   
     public partial class MainWindow : Window
     {
         
@@ -127,11 +129,20 @@ namespace Flow_Stitch
         //stores image for undo and redo functionality
         List<WriteableBitmap> patternStates = new List<WriteableBitmap>();
         int currentIndex = -1; //stores which image stored is the current state
+       
 
         float upscalePercentage;
         int patternWidth;
         int patternHeight;
-        //Bitmap icon1 = new Bitmap("3.PNG");
+
+        public string numberColours
+        {
+            get { return (string)GetValue(numberColoursProperty); }
+            set { SetValue(numberColoursProperty, value); }
+        }
+
+        public static readonly DependencyProperty numberColoursProperty =
+            DependencyProperty.Register("numberColours", typeof(string), typeof(MainWindow), new PropertyMetadata(string.Empty));
 
         public MainWindow()
         {
@@ -156,6 +167,7 @@ namespace Flow_Stitch
                     };
                     DMCColors.Add(record);
                 }
+
             }
 
             //currentDMCColour.Description = "Black";
@@ -195,7 +207,7 @@ namespace Flow_Stitch
 
             //opening other window for setup
             NewPicture window = new NewPicture();
-            window.ShowDialog();
+            Nullable<bool> result2 = window.ShowDialog();
 
             //parsing input strings
             if (!(int.TryParse(window.ColourtextBox.Text, out numberOfColours)))
@@ -208,7 +220,7 @@ namespace Flow_Stitch
             }
            
             //only opening a picture if input is not empty/invalid
-            if(numberOfColours != 0 && heightOfPattern != 0)
+            if(numberOfColours != 0 && heightOfPattern != 0 && result2 == true)
             {
                 //opening files
                 OpenFileDialog dlg = new OpenFileDialog();
@@ -248,136 +260,147 @@ namespace Flow_Stitch
                 patternStates.Clear();
                 currentIndex = -1;
 
-                //convert to bitmap
-                MemoryStream outStream = new MemoryStream();
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(wBitmap));
-                enc.Save(outStream);
-                System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
-
-                //calculating new size in percentage
-                float newSizePercentage = (float)heightOfPattern / (float)img.Height;
-                newSizePercentage *= 100;
-
-                //???????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-                upscalePercentage = 100*((float)img.Height/ (float)heightOfPattern);
-
-                //reduce colour palette
-                ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
-                var quantizer2 = new WuQuantizer();
-                System.Drawing.Bitmap quantizedImage = quantizer.ReduceColors(img, numberOfColours);
-
-
-                //resize image
-                System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
-                patternHeight = heightOfPattern;
-                //requantize
-                 System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours)); //original
-                //System.Drawing.Bitmap requantizedImage = (Bitmap)quantizer2.QuantizeImage(scaledImage);
-
-                //getting the colours in the pattern
-                // palette = quantizer.CalculatePalette(requantizedImage, numberOfColours);
-
-                wBitmap = BitmapToImageSource(requantizedImage);
-                image.Source = wBitmap;
-
-                //getting color palette of quantized image
-                BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
-
-                DMC closestColor = new DMC();
-                double distance = 1000;
-                List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
-                DMCitems.Clear();
-                List<DMC> DMCitemsDup = new List<DMC>();
-                DMCitemsDup.Clear();
-
-                //getting closest DMC colours to RGB
-                for (int i = 0; i < myPalette.Colors.Count(); i++)
+                if (wBitmap != null)
                 {
-                    for(int j = 0; j < DMCColors.Count(); j++)
+                    //convert to bitmap
+                    MemoryStream outStream = new MemoryStream();
+                    BitmapEncoder enc = new BmpBitmapEncoder();
+                    enc.Frames.Add(BitmapFrame.Create(wBitmap));
+                    enc.Save(outStream);
+                    System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+
+                    //calculating new size in percentage
+                    float newSizePercentage = (float)heightOfPattern / (float)img.Height;
+                    newSizePercentage *= 100;
+
+                    //???????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+                    upscalePercentage = 100 * ((float)img.Height / (float)heightOfPattern);
+
+                    //reduce colour palette
+                    ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
+                    var quantizer2 = new WuQuantizer();
+                    System.Drawing.Bitmap quantizedImage = quantizer.ReduceColors(img, numberOfColours);
+
+
+                    //resize image
+                    System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
+                    patternHeight = heightOfPattern;
+                    WidthTextBlock.Text = " Width: " + scaledImage.Width.ToString();
+                    //requantize
+                    System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours)); //original
+                                                                                                                               //System.Drawing.Bitmap requantizedImage = (Bitmap)quantizer2.QuantizeImage(scaledImage);
+
+                    //getting the colours in the pattern
+                    // palette = quantizer.CalculatePalette(requantizedImage, numberOfColours);
+
+                    wBitmap = BitmapToImageSource(requantizedImage);
+                    image.Source = wBitmap;
+
+                    //getting color palette of quantized image
+                    BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
+
+                    DMC closestColor = new DMC();
+                    double distance = 1000;
+                    List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
+                    DMCitems.Clear();
+                    List<DMC> DMCitemsDup = new List<DMC>();
+                    DMCitemsDup.Clear();
+
+                    //getting closest DMC colours to RGB
+                    for (int i = 0; i < myPalette.Colors.Count(); i++)
                     {
-
-                        DMCColoursList.Add(new ListItemColour() { Number = "  " + DMCColors[j].Floss, Name = "  " + DMCColors[j].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCColors[j].Red, (byte)DMCColors[j].Green, (byte)DMCColors[j].Blue) });
-                        //    double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
-                        //        +((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
-                        //        +((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
-
-                        //getting a closer blue colour because of lack of bright blue threads
-                        var b = myPalette.Colors[i].B;
-                        if (myPalette.Colors[i].B > 180 && myPalette.Colors[i].G < 100 && myPalette.Colors[i].R < 100)
+                        for (int j = 0; j < DMCColors.Count(); j++)
                         {
-                            b = (byte)(160 + (20 * (b - 160)) / (256 - 160));
+
+                            DMCColoursList.Add(new ListItemColour() { Number = "  " + DMCColors[j].Floss, Name = "  " + DMCColors[j].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCColors[j].Red, (byte)DMCColors[j].Green, (byte)DMCColors[j].Blue) });
+                            //    double d = ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30) * ((myPalette.Colors[i].R - DMCColors[j].Red) * 0.30)
+                            //        +((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59) * ((myPalette.Colors[i].G - DMCColors[j].Green) * 0.59)
+                            //        +((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11) * ((myPalette.Colors[i].B - DMCColors[j].Blue) * 0.11);
+
+                            //getting a closer blue colour because of lack of bright blue threads
+                            var b = myPalette.Colors[i].B;
+                            if (myPalette.Colors[i].B > 180 && myPalette.Colors[i].G < 100 && myPalette.Colors[i].R < 100)
+                            {
+                                b = (byte)(160 + (20 * (b - 160)) / (256 - 160));
+                            }
+
+                            var dialogRgb = new Rgb { R = myPalette.Colors[i].R, G = myPalette.Colors[i].G, B = b };
+                            var lab1 = dialogRgb.To<Lab>();
+                            var lch1 = lab1.To<Lch>();
+
+                            var DMCRgb = new Rgb { R = DMCColors[j].Red, G = DMCColors[j].Green, B = DMCColors[j].Blue };
+                            var lab2 = DMCRgb.To<Lab>();
+                            var lch2 = lab2.To<Lch>();
+
+                            //var deltaE = lch1.Compare(lch2, new CmcComparison(lightness: 5, chroma: 1));
+                            // dialogRgb.Compare(DMCRgb, CmcComparison());
+                            var comparison = new CmcComparison();
+                            var deltaE = comparison.Compare(dialogRgb, DMCRgb);
+
+                            if (deltaE < distance)
+                            {
+                                closestColor = DMCColors[j];
+                                //distance = d;
+                                distance = deltaE;
+                            }
                         }
-
-                        var dialogRgb = new Rgb { R = myPalette.Colors[i].R, G = myPalette.Colors[i].G, B = b};
-                        var lab1 = dialogRgb.To<Lab>();
-                        var lch1 = lab1.To<Lch>();
-
-                        var DMCRgb = new Rgb { R = DMCColors[j].Red, G = DMCColors[j].Green, B = DMCColors[j].Blue };
-                        var lab2 = DMCRgb.To<Lab>();
-                        var lch2 = lab2.To<Lch>();
-
-                        //var deltaE = lch1.Compare(lch2, new CmcComparison(lightness: 5, chroma: 1));
-                        // dialogRgb.Compare(DMCRgb, CmcComparison());
-                        var comparison = new CmcComparison();
-                        var deltaE = comparison.Compare(dialogRgb, DMCRgb);
-
-                        if (deltaE < distance)
-                        {
-                            closestColor = DMCColors[j];
-                            //distance = d;
-                            distance = deltaE;
-                        }
+                        DMCitemsDup.Add(closestColor);
+                        distance = 1000;
+                        paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
                     }
-                    DMCitemsDup.Add(closestColor);
-                    distance = 1000;
-                    paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
-                }
 
-                //
-                //removing duplicates
-                DMCitems = DMCitemsDup.Distinct().ToList();
-                List<System.Drawing.Color> uniquePL = paletteList.Distinct().ToList();
+                    //
+                    //removing duplicates
+                    DMCitems = DMCitemsDup.Distinct().ToList();
+                    List<System.Drawing.Color> uniquePL = paletteList.Distinct().ToList();
 
-                //making the list into a simple array so that it can be passed to the quantizer
-                palette = uniquePL.ToArray();
-  
-                items.Clear();
+                    //making the list into a simple array so that it can be passed to the quantizer
+                    palette = uniquePL.ToArray();
 
-                //data binding
-                //making listbox items dynamically
-                //for (int i = 0; i < palette.Count(); i++)
-                //{                      
-                //    items.Add(new ListItemColour() { Name= "   #" + palette[i].Name , color= System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
-                //}
-                // items = new HashSet<T>(items).ToList();
+                    items.Clear();
 
-                for (int i = 0; i < DMCitems.Count(); i++)
-                {
-                    items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
-                }
+                    //data binding
+                    //making listbox items dynamically
+                    //for (int i = 0; i < palette.Count(); i++)
+                    //{                      
+                    //    items.Add(new ListItemColour() { Name= "   #" + palette[i].Name , color= System.Windows.Media.Color.FromRgb(palette[i].R, palette[i].G, palette[i].B) });
+                    //}
+                    // items = new HashSet<T>(items).ToList();
 
-                listBox.ItemsSource = items;
+                    for (int i = 0; i < DMCitems.Count(); i++)
+                    {
+                        items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
+                    }
 
-                //changing the colours in the pattern to the DMC colours
-                System.Drawing.Bitmap requantizedImage2 = new Bitmap(quantizer.ReduceColors(requantizedImage, palette)); //CHANGE BACK
-                Bitmap newBitmap = new Bitmap(requantizedImage2);
+                    listBox.ItemsSource = items;
 
-                //putting it back into the image and the writable bitmap
-                wBitmap = BitmapToImageSource(newBitmap);
-                image.Source = wBitmap;
+                    //changing the colours in the pattern to the DMC colours
+                    System.Drawing.Bitmap requantizedImage2 = new Bitmap(quantizer.ReduceColors(requantizedImage, palette)); //CHANGE BACK
+                    Bitmap newBitmap = new Bitmap(requantizedImage2);
 
-                //store state of image
-                patternStatesAdd();
-                //patternHeight = (int)wBitmap.Height;
-                patternWidth = (int)image.Source.Width;
+                    //putting it back into the image and the writable bitmap
+                    wBitmap = BitmapToImageSource(newBitmap);
+                    image.Source = wBitmap;
 
-                //width = wBitmap.PixelWidth;
-                //height = wBitmap.PixelHeight;
+                    //store state of image
+                    patternStatesAdd();
+                    //patternHeight = (int)wBitmap.Height;
+                    patternWidth = (int)image.Source.Width;
 
-                //// New array of pixels to match the bitmap, one for each pixel
-                //pixels = new System.Windows.Media.Color[height, width];
-                //GetPixelsFromBitmap();
+                    //HeightTextBlock.DataContext = new TextboxText() { textdata = heightOfPattern.ToString() };
+                    HeightTextBlock.Text = " Height: " + heightOfPattern.ToString();
+
+                    // InitializeComponent();
+                    this.DataContext = this;
+                    this.numberColours = items.Count().ToString();
+
+                    //width = wBitmap.PixelWidth;
+                    //height = wBitmap.PixelHeight;
+
+                    //// New array of pixels to match the bitmap, one for each pixel
+                    //pixels = new System.Windows.Media.Color[height, width];
+                    //GetPixelsFromBitmap();
+                }//if wbitmap not null
             }         
         }
 
@@ -687,6 +710,8 @@ namespace Flow_Stitch
                         items.RemoveAt(i);
                     }
                 }
+                this.DataContext = this;
+                this.numberColours = items.Count().ToString();
 
                 System.Drawing.Color[] palette = new System.Drawing.Color[items.Count];
 
@@ -842,6 +867,8 @@ namespace Flow_Stitch
                     if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
                         items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
                 }
+                this.DataContext = this;
+                this.numberColours = items.Count().ToString();
             }
         }
 
@@ -925,6 +952,8 @@ namespace Flow_Stitch
                     if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
                         items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
                 }
+                this.DataContext = this;
+                this.numberColours = items.Count().ToString();
             }
         }
 
@@ -970,7 +999,7 @@ namespace Flow_Stitch
             double stitchStartPosition = (stitchSize / 2) - (iconHeight / 2);
             double stitchPositionY = stitchStartPosition;
 
-            int numberOfColours = items.Count();
+            //int numberOfColours = items.Count();
           
 
             // Create a DrawingGroup to combine the ImageDrawing objects.
@@ -1019,7 +1048,25 @@ namespace Flow_Stitch
             imageControl.Stretch = Stretch.None;
             imageControl.Source = drawingImageSource;
 
-            image.Source = imageControl.Source;
+            //Border imageBorder = new Border();
+            //imageBorder.BorderBrush = System.Windows.Media.Brushes.Gray;
+            //imageBorder.BorderThickness = new Thickness(1);
+            //imageBorder.HorizontalAlignment = HorizontalAlignment.Left;
+            //imageBorder.VerticalAlignment = VerticalAlignment.Top;
+            //imageBorder.Margin = new Thickness(20);
+            //imageBorder.Child = imageControl;
+
+            //image.Source = imageControl.Source; IMPORTANT
+
+            //making a new image to pass to the symbol window
+            System.Windows.Controls.Image passImage = new System.Windows.Controls.Image();
+            passImage.Source = imageControl.Source;
+
+            //show the symbol window, passing the image
+            Symbol symbolWindow = new Symbol(imageControl);
+            symbolWindow.ShowDialog();
+
+
 
             //making it bigger? and into a bitmap
             //RenderTargetBitmap bitmap = new RenderTargetBitmap((int)this.image.ActualWidth, (int)this.image.ActualHeight, 96, 96, PixelFormats.Pbgra32);
@@ -1029,27 +1076,27 @@ namespace Flow_Stitch
             //wBitmap = new WriteableBitmap ((BitmapSource)bitmap);
 
             //save
-            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = "Document";
-            dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
-            Nullable<bool> result = dlg.ShowDialog();
-            string fileName = "";
+            //Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            //dlg.FileName = "Document";
+            //dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
+            //Nullable<bool> result = dlg.ShowDialog();
+            //string fileName = "";
 
-            if (result == true)
-            {
-                fileName = dlg.FileName;
-                System.Windows.Size size = image.RenderSize;
-                RenderTargetBitmap rtb = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96, 96, PixelFormats.Pbgra32);
-                image.Measure(size);
-                image.Arrange(new Rect(size)); // This is important
-                rtb.Render(image);
-                JpegBitmapEncoder jpg = new JpegBitmapEncoder(); //pngbit
-                jpg.Frames.Add(BitmapFrame.Create(rtb));
-                using (Stream stm = File.Create(fileName))
-                {
-                    jpg.Save(stm);
-                }
-            }
+            //if (result == true)
+            //{
+            //    fileName = dlg.FileName;
+            //    System.Windows.Size size = image.RenderSize;
+            //    RenderTargetBitmap rtb = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96, 96, PixelFormats.Pbgra32);
+            //    image.Measure(size);
+            //    image.Arrange(new Rect(size)); // This is important
+            //    rtb.Render(image);
+            //    JpegBitmapEncoder jpg = new JpegBitmapEncoder(); //pngbit
+            //    jpg.Frames.Add(BitmapFrame.Create(rtb));
+            //    using (Stream stm = File.Create(fileName))
+            //    {
+            //        jpg.Save(stm);
+            //    }
+            //}
 
             //  ////upscale
             //  System.Drawing.Bitmap upscaledImage = ScaleByPercentUp(bmpOut, upscalePercentage);
@@ -1158,6 +1205,9 @@ namespace Flow_Stitch
                 {
                     items.Add(new ListItemColour() { Number = "  " + closestColor.Floss, Name = nextName, color = System.Windows.Media.Color.FromRgb((byte)closestColor.Red, (byte)closestColor.Green, (byte)closestColor.Blue) });
                 }
+
+                this.DataContext = this;
+                this.numberColours = items.Count().ToString();
             }
             else
             {
@@ -1205,7 +1255,8 @@ namespace Flow_Stitch
                     if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
                         items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
                 }
-
+                this.DataContext = this;
+                this.numberColours = items.Count().ToString();
             }
 
         }
