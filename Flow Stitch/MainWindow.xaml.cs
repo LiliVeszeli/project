@@ -30,6 +30,7 @@ using System.Globalization;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
 using nQuant;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Flow_Stitch
 {
@@ -422,6 +423,23 @@ namespace Flow_Stitch
                 return new WriteableBitmap(bitmapimage);
             }
         }
+
+        WriteableBitmap BitmapToImageSourcePng(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+
+                return new WriteableBitmap(bitmapimage);
+            }
+        }
+
 
        
         //save image
@@ -1333,10 +1351,20 @@ namespace Flow_Stitch
 
             // Create a DrawingGroup to combine the ImageDrawing objects.
             DrawingGroup imageDrawings = new DrawingGroup();
+            RenderOptions.SetBitmapScalingMode(imageDrawings, BitmapScalingMode.NearestNeighbor);
 
             ImageDrawing background = new ImageDrawing();
-            background.Rect = new Rect(0, 0, 1772, 1772);
-            background.ImageSource = new BitmapImage(new Uri("aidasmall.png", UriKind.Relative)); ;
+            if (patternHeight > 15 || patternWidth > 15)
+            {
+                background.Rect = new Rect(0, 0, 1772, 1772);
+                background.ImageSource = new BitmapImage(new Uri("aida.png", UriKind.Relative));
+            }
+            else
+            {           
+                background.Rect = new Rect(0, 0, 1772, 1772);
+                background.ImageSource = new BitmapImage(new Uri("aidasmall.png", UriKind.Relative)); 
+            }
+            
 
             patternWidth = (int)(image.ActualWidth / stitchSize);
             //patternWidth = (int)image.Width;
@@ -1347,6 +1375,7 @@ namespace Flow_Stitch
             double stitchStartPositionY = 1772 / 2 - image.ActualHeight / 2 + 40;
             double stitchPositionY = stitchStartPositionY;
 
+
             //drawing symbols
             for (int j = 0; j < img.Height; j++)
             {
@@ -1355,17 +1384,83 @@ namespace Flow_Stitch
                 for (int i = 0; i < img.Width; i++)
                 {
                     System.Drawing.Color stitchColor = img.GetPixel(i, j);
+                    var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
+
+                    //colour blending
+                    for (int b = 0; b < XStitch.Height; b++)
+                    {
+                        for (int c = 0; c < XStitch.Width; c++)
+                        {
+                            System.Drawing.Color XColor = XStitch.GetPixel(c, b);
+
+                            int red = XColor.R * stitchColor.R / 255;
+                            int blue = XColor.B * stitchColor.B / 255;
+                            int green = XColor.G * stitchColor.G / 255;
+                            System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+
+                            if (XColor.A > 0.5)
+                                XStitch.SetPixel(c, b, ResultColor);
+
+                            XStitch.MakeTransparent();
+                        }
+                    }
+
+                    //faster colour blending
+                    //int width = XStitch.Width;
+                    //int height = XStitch.Height;
+                    //var rect = new Rectangle(0, 0, width, height);
+                    //BitmapData lowerData = XStitch.LockBits(rect, ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+                    //unsafe
+                    //{
+                    //    byte* lowerPointer = (byte*)lowerData.Scan0;
+
+
+                    //    for (int d = 0; d < height; d++)
+                    //    {
+                    //        for (int f = 0; f < width; f++)
+                    //        {
+
+                    //            int red = lowerPointer[2] * stitchColor.R / 255;
+                    //            int blue = lowerPointer[0] * stitchColor.B / 255;
+                    //            int green = lowerPointer[1] * stitchColor.G / 255;
+                    //            System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+
+
+
+                    //            lowerPointer[0] = ResultColor.B;
+                    //            lowerPointer[1] = ResultColor.G;
+                    //            lowerPointer[2] = ResultColor.R;
+
+                    //            // Moving the pointers by 3 bytes per pixel
+                    //            lowerPointer += 3;
+
+                    //        }
+
+                    //        // Moving the pointers to the next pixel row
+                    //        lowerPointer += lowerData.Stride - (width * 3);
+
+                    //    }
+                    //}//end of unsafe
+
+                    //XStitch.UnlockBits(lowerData);
+
+
+
+
 
                     for (int k = 0; k < items.Count(); k++)
                     {
                         if (stitchColor == System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B))
                         {
-                            string iconName = "stitch4WhiteS.png";
+                            //string iconName = "stitch4WhiteS.png";
                             // Create a 100 by 100 image with an upper-left point of (75,75).
                             ImageDrawing icon1 = new ImageDrawing();
                             icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
-                            icon1.ImageSource = new BitmapImage(
-                                new Uri(iconName, UriKind.Relative));
+                            icon1.ImageSource = BitmapToImageSourcePng(XStitch);
+                            
+                                //new BitmapImage(
+                                //new Uri(iconName, UriKind.Relative));
 
                             imageDrawings.Children.Add(icon1);
                             break;
