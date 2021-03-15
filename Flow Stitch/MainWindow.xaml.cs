@@ -1347,6 +1347,7 @@ namespace Flow_Stitch
             double stitchSize = ((image.ActualHeight / patternHeight) * (patternHeight / 5)) / 1.5 - 10;
             double stitchSizeY = stitchSize - 7.5;
             double stitchSizeX = stitchSize - 13;
+            double aidaSize;
 
 
             // Create a DrawingGroup to combine the ImageDrawing objects.
@@ -1356,13 +1357,15 @@ namespace Flow_Stitch
             ImageDrawing background = new ImageDrawing();
             if (patternHeight > 15 || patternWidth > 15)
             {
-                background.Rect = new Rect(0, 0, 1772, 1772);
+                background.Rect = new Rect(0, 0, 1772*2, 1772*2);
                 background.ImageSource = new BitmapImage(new Uri("aida.png", UriKind.Relative));
+                aidaSize = 1772 * 2;
             }
             else
             {           
                 background.Rect = new Rect(0, 0, 1772, 1772);
-                background.ImageSource = new BitmapImage(new Uri("aidasmall.png", UriKind.Relative)); 
+                background.ImageSource = new BitmapImage(new Uri("aidasmall.png", UriKind.Relative));
+                aidaSize = 1772;
             }
             
 
@@ -1371,8 +1374,8 @@ namespace Flow_Stitch
 
             imageDrawings.Children.Add(background);
 
-            double stitchStartPosition = 1772 / 2 - image.ActualWidth / 2;
-            double stitchStartPositionY = 1772 / 2 - image.ActualHeight / 2 + 40;
+            double stitchStartPosition = aidaSize / 2 - image.ActualWidth / 2;
+            double stitchStartPositionY = aidaSize / 2 - image.ActualHeight / 2 + 40;
             double stitchPositionY = stitchStartPositionY;
 
 
