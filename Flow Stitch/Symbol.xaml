@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Flow_Stitch"
         mc:Ignorable="d"
-        Title="Pattern Symbols" Height="594" Width="874.4">
+        Title="Pattern Symbols" Height="594" Width="874.4" WindowState="Maximized">
     <Grid Margin="0,0,-2,1" Background="#FFD8FAFF">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="852*"/>

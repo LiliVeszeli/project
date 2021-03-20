@@ -1070,6 +1070,7 @@ namespace Flow_Stitch
 
             // Create a DrawingGroup to combine the ImageDrawing objects.
             DrawingGroup imageDrawings = new DrawingGroup();
+            RenderOptions.SetBitmapScalingMode(imageDrawings, BitmapScalingMode.NearestNeighbor);
 
             ImageDrawing pattern = new ImageDrawing();
             pattern.Rect = new Rect(0,0, image.ActualWidth, image.ActualHeight);
@@ -1112,6 +1113,35 @@ namespace Flow_Stitch
             // Freeze the DrawingImage for performance benefits.
             drawingImageSource.Freeze();
 
+            double destWidth = (int)drawingImageSource.Width;
+            double destHeight = (int)drawingImageSource.Height;
+
+            if ((patternHeight > 20 || patternWidth > 20) && (patternHeight < 200 && patternWidth < 200))
+            {
+                destHeight = destHeight*patternHeight/ (10/(patternHeight* patternHeight));
+                destWidth = destWidth* patternHeight/ (10 / (patternHeight * patternHeight));               
+            }
+            else if(patternHeight > 200 || patternWidth > 200)
+            {                          
+                destHeight = destHeight * patternHeight / 20;
+                destWidth = destWidth * patternHeight / 20;               
+            }
+           
+
+            // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap seems to be the best way
+            DrawingVisual visual = new DrawingVisual();
+            DrawingContext context = visual.RenderOpen();
+            Rect rect = new Rect(0, 0, destWidth, destHeight);
+            context.DrawImage(drawingImageSource, rect);
+            context.Close();
+
+            
+                           
+            RenderTargetBitmap bitmap = new RenderTargetBitmap((int)destWidth, (int)destHeight, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(visual);
+
+
+
             System.Windows.Controls.Image imageControl = new System.Windows.Controls.Image();
             imageControl.Stretch = Stretch.None;
             imageControl.Source = drawingImageSource;
@@ -1132,10 +1162,29 @@ namespace Flow_Stitch
 
             //show the symbol window, passing the image
             Symbol symbolWindow = new Symbol(imageControl);
-            symbolWindow.ShowDialog();
+            Nullable<bool> result2 = symbolWindow.ShowDialog();
 
+            if(result2 == true)
+            {
+                //save
+                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                dlg.FileName = "Document";
+                dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
+                Nullable<bool> result = dlg.ShowDialog();
+                string fileName = "";
 
-
+                if (result == true)
+                {
+                    fileName = dlg.FileName;
+                    PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
+                    jpg.Frames.Add(BitmapFrame.Create(bitmap));
+                    using (Stream stm = File.Create(fileName))
+                    {
+                        jpg.Save(stm);
+                    }
+                }
+            }
+       
             //making it bigger? and into a bitmap
             //RenderTargetBitmap bitmap = new RenderTargetBitmap((int)this.image.ActualWidth, (int)this.image.ActualHeight, 96, 96, PixelFormats.Pbgra32);
 
@@ -1344,10 +1393,11 @@ namespace Flow_Stitch
             enc.Save(outStream);
             System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
-            double stitchSize = ((image.ActualHeight / patternHeight) * (patternHeight / 5)) / 1.5 - 10;
+            double stitchSize = ((image.ActualHeight / patternHeight) * (patternHeight / 5.0)) / 1.5 - 10;
             double stitchSizeY = stitchSize - 7.5;
             double stitchSizeX = stitchSize - 13;
             double aidaSize;
+            double stitchStartPosition;
 
 
             // Create a DrawingGroup to combine the ImageDrawing objects.
@@ -1360,12 +1410,16 @@ namespace Flow_Stitch
                 background.Rect = new Rect(0, 0, 1772*2, 1772*2);
                 background.ImageSource = new BitmapImage(new Uri("aida.png", UriKind.Relative));
                 aidaSize = 1772 * 2;
+                //stitchStartPosition = 20;
+                stitchStartPosition = aidaSize / 2 - image.ActualWidth ;
             }
             else
             {           
                 background.Rect = new Rect(0, 0, 1772, 1772);
                 background.ImageSource = new BitmapImage(new Uri("aidasmall.png", UriKind.Relative));
                 aidaSize = 1772;
+                //stitchStartPosition = aidaSize / 2 - image.ActualWidth / 2;
+                stitchStartPosition = aidaSize / 2 - image.ActualWidth;
             }
             
 
@@ -1374,8 +1428,8 @@ namespace Flow_Stitch
 
             imageDrawings.Children.Add(background);
 
-            double stitchStartPosition = aidaSize / 2 - image.ActualWidth / 2;
-            double stitchStartPositionY = aidaSize / 2 - image.ActualHeight / 2 + 40;
+            
+            double stitchStartPositionY = aidaSize / 2 - (image.ActualHeight) + 85;
             double stitchPositionY = stitchStartPositionY;
 
 
@@ -1408,11 +1462,19 @@ namespace Flow_Stitch
                         }
                     }
 
+
+
+
                     //faster colour blending
                     //int width = XStitch.Width;
                     //int height = XStitch.Height;
                     //var rect = new Rectangle(0, 0, width, height);
-                    //BitmapData lowerData = XStitch.LockBits(rect, ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                    //BitmapData lowerData = XStitch.LockBits(rect, ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+
+                    //BitmapData lowerData = XStitch.LockBits(XStitch, ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    //BitmapData dstData = tile.LockBits(new Rectangle(0, 0, tile.Width, tile.Height), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+
 
                     //unsafe
                     //{
@@ -1434,6 +1496,7 @@ namespace Flow_Stitch
                     //            lowerPointer[0] = ResultColor.B;
                     //            lowerPointer[1] = ResultColor.G;
                     //            lowerPointer[2] = ResultColor.R;
+                    //            lowerPointer[3] = ResultColor.A;
 
                     //            // Moving the pointers by 3 bytes per pixel
                     //            lowerPointer += 3;

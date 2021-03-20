@@ -31,29 +31,7 @@ namespace Flow_Stitch
 
         private void Savebutton_Click(object sender, RoutedEventArgs e)
         {
-            //save
-            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = "Document";
-            dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
-            Nullable<bool> result = dlg.ShowDialog();
-            string fileName = "";
-
-            if (result == true)
-            {
-                fileName = dlg.FileName;
-                System.Windows.Size size = image.RenderSize;
-                RenderTargetBitmap rtb = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96, 96, PixelFormats.Pbgra32);
-                image.Measure(size);
-                image.Arrange(new Rect(size)); // This is important
-                rtb.Render(image);
-                JpegBitmapEncoder jpg = new JpegBitmapEncoder(); //pngbit
-                jpg.Frames.Add(BitmapFrame.Create(rtb));
-                using (Stream stm = File.Create(fileName))
-                {
-                    jpg.Save(stm);
-                }
-            }
-
+            this.DialogResult = true;
             Close();
         }
     }
