@@ -83,16 +83,23 @@
             <MenuItem Header="File" Width="35" Height="25" Foreground="#FFF0F0F0">
                 <MenuItem Header="New" Name="ItemOpen" Background="White" Click="ItemOpen_Click" Foreground="#FF181818">
                 </MenuItem>
-                <!--<MenuItem Header="Save" Name="ItemSave" Background="White" Click="ItemSave_Click" Foreground="#FF020202">
-                </MenuItem> save at symbols now-->
-                <MenuItem Header="Exit" Name="ItemExit" Background="White" Foreground="#FF050505" >
+                <MenuItem Header="Save" Name="ItemSave" Background="White" Click="ItemSave_Click" Foreground="#FF020202">
+                    <MenuItem.ToolTip>
+                        <TextBlock>Save without symbols.</TextBlock>
+                    </MenuItem.ToolTip>
                 </MenuItem>
+                <MenuItem Header="Exit" Name="ItemExit" Background="White" Foreground="#FF050505" Click="ItemExit_Click" >
+                </MenuItem>
+                
             </MenuItem>
             <MenuItem Header="Edit" Width="35" Height="25" Foreground="#FFE5E5E5">
                 <MenuItem Header="Undo" Name="Undo" Background="White" Click="Undo_Click" Foreground="#FF0C0C0C" >
                 </MenuItem>
                 <MenuItem Header="Redo" Name="Redo" Background="White" Click="Redo_Click" Foreground="Black" >
                 </MenuItem>
+            </MenuItem>
+            <MenuItem Header="Help" Width="35" Height="25" Foreground="#FFF0F0F0">
+                <MenuItem Header="About Flow Stitch" Name="ItemAbout" Background="White" Foreground="#FF050505" Click="ItemAbout_Click" />
             </MenuItem>
         </Menu>
 

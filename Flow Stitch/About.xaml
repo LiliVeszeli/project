@@ -1,0 +1,18 @@
+﻿<Window x:Class="Flow_Stitch.About"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Flow_Stitch"
+        mc:Ignorable="d"
+        Title="About" Height="443.939" Width="569.697">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="325*"/>
+            <ColumnDefinition Width="12*"/>
+            <ColumnDefinition Width="226*"/>
+        </Grid.ColumnDefinitions>
+        <Image x:Name="image" HorizontalAlignment="Center" Height="419" Margin="0,0,0.2,-4.6" VerticalAlignment="Top" Width="Auto" Source="about.png" Grid.ColumnSpan="3"/>
+
+    </Grid>
+</Window>

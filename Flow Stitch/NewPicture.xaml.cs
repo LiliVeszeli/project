@@ -22,6 +22,7 @@ namespace Flow_Stitch
         public NewPicture()
         {
             InitializeComponent();
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
         }
 
         private void OK_Click(object sender, RoutedEventArgs e)

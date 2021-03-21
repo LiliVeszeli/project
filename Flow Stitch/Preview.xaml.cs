@@ -22,10 +22,15 @@ namespace Flow_Stitch
         public Preview(Image imagePass)
         {
             InitializeComponent();
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
 
             image.Source = imagePass.Source;
         }
 
-
+        private void Savebutton_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = true;
+            Close();
+        }
     }
 }

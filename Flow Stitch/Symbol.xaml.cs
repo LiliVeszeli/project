@@ -25,6 +25,7 @@ namespace Flow_Stitch
         public Symbol(Image imagePass)
         {
             InitializeComponent();
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
             //bitmap = new WriteableBitmap(bitmapPass);
             image.Source = imagePass.Source;
         }
