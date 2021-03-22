@@ -125,6 +125,7 @@ namespace Flow_Stitch
             DependencyProperty.Register("numberColours", typeof(string), typeof(MainWindow), new PropertyMetadata(string.Empty));
 
         private Pattern Pattern = new Pattern();
+        private Utilities utilities = new Utilities();
 
         public MainWindow()
         {
@@ -223,11 +224,7 @@ namespace Flow_Stitch
                 if (wBitmap != null)
                 {
                     //convert to bitmap
-                    MemoryStream outStream = new MemoryStream();
-                    BitmapEncoder enc = new BmpBitmapEncoder();
-                    enc.Frames.Add(BitmapFrame.Create(wBitmap));
-                    enc.Save(outStream);
-                    System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+                    System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
 
                     if (img.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb || img.PixelFormat == System.Drawing.Imaging.PixelFormat.Format24bppRgb || img.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppPArgb || img.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppRgb)
                     {
@@ -246,7 +243,7 @@ namespace Flow_Stitch
 
 
                         //resize image
-                        System.Drawing.Bitmap scaledImage = ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
+                        System.Drawing.Bitmap scaledImage = Utilities.ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
                         //storing height
                         patternHeight = heightOfPattern;
                         //outputting width to properties
@@ -254,7 +251,7 @@ namespace Flow_Stitch
                         //requantize
                         System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours)); //original
 
-                        wBitmap = BitmapToImageSource(requantizedImage);
+                        wBitmap = utilities.BitmapToImageSource(requantizedImage);
                         image.Source = wBitmap;
 
                         //getting color palette of quantized image
@@ -332,7 +329,7 @@ namespace Flow_Stitch
                         Bitmap newBitmap = new Bitmap(requantizedImage2);
 
                         //putting it back into the image and the writable bitmap
-                        wBitmap = BitmapToImageSource(newBitmap);
+                        wBitmap = utilities.BitmapToImageSource(newBitmap);
                         image.Source = wBitmap;
 
                         //store state of image
@@ -388,37 +385,37 @@ namespace Flow_Stitch
         //}
 
         //converting bitmap to writeable bitmap
-        WriteableBitmap BitmapToImageSource(Bitmap bitmap)
-        {
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
+        //WriteableBitmap BitmapToImageSource(Bitmap bitmap)
+        //{
+        //    using (MemoryStream memory = new MemoryStream())
+        //    {
+        //        bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+        //        memory.Position = 0;
+        //        BitmapImage bitmapimage = new BitmapImage();
+        //        bitmapimage.BeginInit();
+        //        bitmapimage.StreamSource = memory;
+        //        bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+        //        bitmapimage.EndInit();
 
-                return new WriteableBitmap(bitmapimage);
-            }
-        }
+        //        return new WriteableBitmap(bitmapimage);
+        //    }
+        //}
 
-        WriteableBitmap BitmapToImageSourcePng(Bitmap bitmap)
-        {
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
+        //WriteableBitmap BitmapToImageSourcePng(Bitmap bitmap)
+        //{
+        //    using (MemoryStream memory = new MemoryStream())
+        //    {
+        //        bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+        //        memory.Position = 0;
+        //        BitmapImage bitmapimage = new BitmapImage();
+        //        bitmapimage.BeginInit();
+        //        bitmapimage.StreamSource = memory;
+        //        bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+        //        bitmapimage.EndInit();
 
-                return new WriteableBitmap(bitmapimage);
-            }
-        }
+        //        return new WriteableBitmap(bitmapimage);
+        //    }
+        //}
 
 
        
@@ -426,113 +423,112 @@ namespace Flow_Stitch
         private void ItemSave_Click(object sender, RoutedEventArgs e)
         {
             if(wBitmap != null)
-            {
+            {  
                 //convert to bitmap
-                MemoryStream outStream = new MemoryStream();
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(wBitmap));
-                enc.Save(outStream);
-                System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+                System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
 
                 //upscaling image
-                System.Drawing.Bitmap scaledImage = ScaleByPercentUp(img, upscalePercentage);
+                System.Drawing.Bitmap scaledImage = Utilities.ScaleByPercentUp(img, upscalePercentage);
 
-                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                dlg.FileName = "Document";
-                dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
-                Nullable<bool> result = dlg.ShowDialog();
-                string fileName = "";
+                //save
+                utilities.Save(utilities.BitmapToImageSource(scaledImage));
 
-                if (result == true)
-                {
-                    fileName = dlg.FileName;
-                    PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
-                    jpg.Frames.Add(BitmapFrame.Create(BitmapToImageSourcePng(scaledImage)));
-                    using (Stream stm = File.Create(fileName))
-                    {
-                        jpg.Save(stm);
-                    }
-                }
+                //Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                //dlg.FileName = "Document";
+                //dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
+                //Nullable<bool> result = dlg.ShowDialog();
+                //string fileName = "";
+
+                //if (result == true)
+                //{
+                //    fileName = dlg.FileName;
+                //    PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
+                //    jpg.Frames.Add(BitmapFrame.Create(utilities.BitmapToImageSource(scaledImage)));
+                //    using (Stream stm = File.Create(fileName))
+                //    {
+                //        jpg.Save(stm);
+                //    }
+                //}
             }        
         }
 
 
-        //scaling down image
-        static System.Drawing.Bitmap ScaleByPercent(System.Drawing.Image imgPhoto, float Percent, int Height)
-        {
-            float nPercent = ((float)Percent / 100);
+        ////scaling down image
+        //static System.Drawing.Bitmap ScaleByPercent(System.Drawing.Image imgPhoto, float Percent, int Height)
+        //{
+        //    float nPercent = ((float)Percent / 100);
 
-            int sourceWidth = imgPhoto.Width;
-            int sourceHeight = imgPhoto.Height;
-            int sourceX = 0;
-            int sourceY = 0;
+        //    int sourceWidth = imgPhoto.Width;
+        //    int sourceHeight = imgPhoto.Height;
+        //    int sourceX = 0;
+        //    int sourceY = 0;
 
-            int destX = 0;
-            int destY = 0;
-            int destWidth = (int)(sourceWidth * nPercent);
-            int destHeight = Height;
+        //    int destX = 0;
+        //    int destY = 0;
+        //    int destWidth = (int)(sourceWidth * nPercent);
+        //    int destHeight = Height;
             
-            Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
-                                     System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-            bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
-                                    imgPhoto.VerticalResolution);
+        //    Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
+        //                             System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+        //    bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
+        //                            imgPhoto.VerticalResolution);
 
-            Graphics grPhoto = Graphics.FromImage(bmPhoto);
-            grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        //    Graphics grPhoto = Graphics.FromImage(bmPhoto);
+        //    grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
            
 
-            using (ImageAttributes wrapMode = new ImageAttributes())
-            {
-                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+        //    using (ImageAttributes wrapMode = new ImageAttributes())
+        //    {
+        //        wrapMode.SetWrapMode(WrapMode.TileFlipXY);
 
-                grPhoto.DrawImage(imgPhoto,
-                    new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
-                    sourceX, sourceY, sourceWidth, sourceHeight,
-                    GraphicsUnit.Pixel, wrapMode);
-            }
+        //        grPhoto.DrawImage(imgPhoto,
+        //            new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
+        //            sourceX, sourceY, sourceWidth, sourceHeight,
+        //            GraphicsUnit.Pixel, wrapMode);
+        //    }
 
-            grPhoto.Dispose();
-            return bmPhoto;
-        }
-
-
-        //scaling up image
-        static System.Drawing.Bitmap ScaleByPercentUp(System.Drawing.Image imgPhoto, float Percent)
-        {
-            float nPercent = ((float)Percent / 100);
-
-            int sourceWidth = imgPhoto.Width;
-            int sourceHeight = imgPhoto.Height;
-            int sourceX = 0;
-            int sourceY = 0;
-
-            int destX = 0;
-            int destY = 0;
-            int destWidth = (int)(sourceWidth * nPercent);
-            int destHeight = (int)(sourceHeight * nPercent);
-
-            Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
-                                     System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-            bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
-                                    imgPhoto.VerticalResolution);
-
-            Graphics grPhoto = Graphics.FromImage(bmPhoto);
-            grPhoto.InterpolationMode = InterpolationMode.NearestNeighbor;
+        //    grPhoto.Dispose();
+        //    return bmPhoto;
+        //}
 
 
-            using (ImageAttributes wrapMode = new ImageAttributes())
-            {
-                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+        ////scaling up image
+        //static System.Drawing.Bitmap ScaleByPercentUp(System.Drawing.Image imgPhoto, float Percent)
+        //{
+        //    float nPercent = ((float)Percent / 100);
 
-                grPhoto.DrawImage(imgPhoto,
-                    new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
-                    sourceX, sourceY, sourceWidth, sourceHeight,
-                    GraphicsUnit.Pixel, wrapMode);
-            }
+        //    int sourceWidth = imgPhoto.Width;
+        //    int sourceHeight = imgPhoto.Height;
+        //    int sourceX = 0;
+        //    int sourceY = 0;
 
-            grPhoto.Dispose();
-            return bmPhoto;
-        }
+        //    int destX = 0;
+        //    int destY = 0;
+        //    int destWidth = (int)(sourceWidth * nPercent);
+        //    int destHeight = (int)(sourceHeight * nPercent);
+
+        //    Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
+        //                             System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+        //    bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
+        //                            imgPhoto.VerticalResolution);
+
+        //    Graphics grPhoto = Graphics.FromImage(bmPhoto);
+        //    grPhoto.InterpolationMode = InterpolationMode.NearestNeighbor;
+
+
+        //    using (ImageAttributes wrapMode = new ImageAttributes())
+        //    {
+        //        wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+
+        //        grPhoto.DrawImage(imgPhoto,
+        //            new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
+        //            sourceX, sourceY, sourceWidth, sourceHeight,
+        //            GraphicsUnit.Pixel, wrapMode);
+        //    }
+
+        //    grPhoto.Dispose();
+        //    return bmPhoto;
+        //}
 
         //clicking on the draw button
         private void drawButtonImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -673,11 +669,7 @@ namespace Flow_Stitch
 
 
                 //converting to bitmap
-                MemoryStream outStream = new MemoryStream();
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(wBitmap));
-                enc.Save(outStream);
-                System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+                System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
 
                 //changing all pixels from previous colour
                 for (int i = 0; i < img.Width; i++)
@@ -719,7 +711,7 @@ namespace Flow_Stitch
                     this.numberColours = items.Count().ToString();
                 }
 
-                wBitmap = BitmapToImageSource(img);
+                wBitmap = utilities.BitmapToImageSource(img);
                 image.Source = wBitmap;
 
                 //store state of image
@@ -772,11 +764,7 @@ namespace Flow_Stitch
 
 
                 //converting to bitmap
-                MemoryStream outStream = new MemoryStream();
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(wBitmap));
-                enc.Save(outStream);
-                System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+                System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
 
                 //reduce colour palette
                 //checking if there is more than 1 colour
@@ -788,7 +776,7 @@ namespace Flow_Stitch
                     Bitmap newBitmap = new Bitmap(quantizedImage);
 
                     //putting it back into the image and the writable bitmap
-                    wBitmap = BitmapToImageSource(newBitmap);
+                    wBitmap = utilities.BitmapToImageSource(newBitmap);
                 }
                 //setting all the image to one colour
                 else
@@ -801,7 +789,7 @@ namespace Flow_Stitch
                         }
                     }
 
-                    wBitmap = BitmapToImageSource(img);
+                    wBitmap = utilities.BitmapToImageSource(img);
                 }
 
                 image.Source = wBitmap;
@@ -956,11 +944,7 @@ namespace Flow_Stitch
         {
 
             //convert to bitmap
-            MemoryStream outStream = new MemoryStream();
-            BitmapEncoder enc = new BmpBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(wBitmap));
-            enc.Save(outStream);
-            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+            System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
 
 
             double iconHeight = (image.ActualHeight / patternHeight) * 0.6;
@@ -1059,22 +1043,23 @@ namespace Flow_Stitch
             if(result2 == true)
             {
                 //save
-                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                dlg.FileName = "Document";
-                dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
-                Nullable<bool> result = dlg.ShowDialog();
-                string fileName = "";
+                utilities.Save(bitmap);
+                //Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                //dlg.FileName = "Document";
+                //dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
+                //Nullable<bool> result = dlg.ShowDialog();
+                //string fileName = "";
 
-                if (result == true)
-                {
-                    fileName = dlg.FileName;
-                    PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
-                    jpg.Frames.Add(BitmapFrame.Create(bitmap));
-                    using (Stream stm = File.Create(fileName))
-                    {
-                        jpg.Save(stm);
-                    }
-                }
+                //if (result == true)
+                //{
+                //    fileName = dlg.FileName;
+                //    PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
+                //    jpg.Frames.Add(BitmapFrame.Create(bitmap));
+                //    using (Stream stm = File.Create(fileName))
+                //    {
+                //        jpg.Save(stm);
+                //    }
+                //}
             }
         }
 
@@ -1088,14 +1073,9 @@ namespace Flow_Stitch
             System.Drawing.Color bitmapColour = System.Drawing.Color.FromArgb(currentColour.R, currentColour.G, currentColour.B);
 
             //converting to bitmap
-            MemoryStream outStream = new MemoryStream();
+            System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
 
-            BitmapEncoder enc = new BmpBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(wBitmap));
-            enc.Save(outStream);
-            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
 
-            
             var source = (BitmapSource)image.Source;
 
             //calculating pixel position
@@ -1110,7 +1090,7 @@ namespace Flow_Stitch
            
             img.SetPixel(x, y, bitmapColour);
 
-            wBitmap = BitmapToImageSource(img);
+            wBitmap = utilities.BitmapToImageSource(img);
             image.Source = wBitmap;
 
             //store state of image
@@ -1121,8 +1101,7 @@ namespace Flow_Stitch
             if (!isEraser)
             {
                 //adding new color to palette
-                //string nextName = "   #" + "ff" + (bitmapColour.R.ToString("X2") + bitmapColour.G.ToString("X2") + bitmapColour.B.ToString("X2")).ToLower();
-
+               
                 DMC closestColor = new DMC();
                 double distance = 1000;
 
@@ -1213,11 +1192,7 @@ namespace Flow_Stitch
         private void previewButton_Click(object sender, RoutedEventArgs e)
         {
             //convert to bitmap
-            MemoryStream outStream = new MemoryStream();
-            BitmapEncoder enc = new BmpBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(wBitmap));
-            enc.Save(outStream);
-            System.Drawing.Bitmap img = new System.Drawing.Bitmap(outStream);
+            System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
 
             double stitchSize = ((image.ActualHeight / patternHeight) * (patternHeight / 5.0)) / 1.5 - 10;
             double stitchSizeY = stitchSize - 7.5;
@@ -1408,7 +1383,7 @@ namespace Flow_Stitch
                             // Create a 100 by 100 image with an upper-left point of (75,75).
                             ImageDrawing icon1 = new ImageDrawing();                          
                             icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
-                            icon1.ImageSource = BitmapToImageSourcePng(XStitch);//XStitch.Source;
+                            icon1.ImageSource = utilities.BitmapToImageSource(XStitch);//XStitch.Source;
 
                             imageDrawings.Children.Add(icon1);
                             break;
@@ -1468,23 +1443,24 @@ namespace Flow_Stitch
             //save
             if (result2 == true)
             {
-                //save
-                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                dlg.FileName = "Document";
-                dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
-                Nullable<bool> result = dlg.ShowDialog();
-                string fileName = "";
+                ////save
+                //Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                //dlg.FileName = "Document";
+                //dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
+                //Nullable<bool> result = dlg.ShowDialog();
+                //string fileName = "";
 
-                if (result == true)
-                {
-                    fileName = dlg.FileName;
-                    PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
-                    jpg.Frames.Add(BitmapFrame.Create(bitmap));
-                    using (Stream stm = File.Create(fileName))
-                    {
-                        jpg.Save(stm);
-                    }
-                }
+                //if (result == true)
+                //{
+                //    fileName = dlg.FileName;
+                //    PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
+                //    jpg.Frames.Add(BitmapFrame.Create(bitmap));
+                //    using (Stream stm = File.Create(fileName))
+                //    {
+                //        jpg.Save(stm);
+                //    }
+                //}
+                utilities.Save(bitmap);
             }
 
         }
