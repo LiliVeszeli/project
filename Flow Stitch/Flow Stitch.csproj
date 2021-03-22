@@ -151,7 +151,11 @@
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
     <Compile Include="BlankEffect.cs" />
+    <Compile Include="DMCColour.cs" />
+    <Compile Include="ImageProcessor.cs" />
+    <Compile Include="ListItemColour.cs" />
     <Compile Include="LockBitmap.cs" />
+    <Compile Include="Pattern.cs" />
     <Compile Include="Preview.xaml.cs">
       <DependentUpon>Preview.xaml</DependentUpon>
     </Compile>

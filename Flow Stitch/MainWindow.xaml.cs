@@ -3,34 +3,20 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
-using System.Windows.Media.Media3D;
 using AForge.Imaging.ColorReduction;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using CsvHelper;
 using System.Globalization;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
-using nQuant;
-using Rectangle = System.Drawing.Rectangle;
 
 namespace Flow_Stitch
 {
@@ -38,74 +24,72 @@ namespace Flow_Stitch
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-    public class DMC
-    {
-        public string Floss { get; set; }
-        public string Description { get; set; }
-        public int Red { get; set; }
-        public int Green { get; set; }
-        public int Blue { get; set; }
+    //public class DMC
+    //{
+    //    public string Floss { get; set; }
+    //    public string Description { get; set; }
+    //    public int Red { get; set; }
+    //    public int Green { get; set; }
+    //    public int Blue { get; set; }
 
-       // public System.Windows.Media.Color color { get; set; }
-
-    }
+    //}
 
     //class for the listbox item
-    public class ListItemColour : INotifyPropertyChanged
-    {
-        public string _Name { get; set; } //description
+    //public class ListItemColour : INotifyPropertyChanged
+    //{
+    //    public string _Name { get; set; } //description
 
-        public string _Number { get; set; } //floss
-        public System.Windows.Media.Color _Color { get; set; } //rgb
-        // Declare the event
-        public event PropertyChangedEventHandler PropertyChanged;
+    //    public string _Number { get; set; } //floss
+    //    public System.Windows.Media.Color _Color { get; set; } //rgb
+    //    // Declare the event
+    //    public event PropertyChangedEventHandler PropertyChanged;
 
-        public ListItemColour()
-        {
-        }        
+    //    public ListItemColour()
+    //    {
+    //    }        
 
-        public System.Windows.Media.Color color
-        {
-            get { return _Color; }
-            set
-            {
-                _Color = value;
-                // Call OnPropertyChanged whenever the property is updated
-                OnPropertyChanged();
-            }
-        }
-        public string Name
-        {
-            get { return _Name; }
-            set
-            {
-                _Name = value;
-                // Call OnPropertyChanged whenever the property is updated
-                OnPropertyChanged();
-            }
-        }
+    //    public System.Windows.Media.Color color
+    //    {
+    //        get { return _Color; }
+    //        set
+    //        {
+    //            _Color = value;
+    //            // Call OnPropertyChanged whenever the property is updated
+    //            OnPropertyChanged();
+    //        }
+    //    }
+    //    public string Name
+    //    {
+    //        get { return _Name; }
+    //        set
+    //        {
+    //            _Name = value;
+    //            // Call OnPropertyChanged whenever the property is updated
+    //            OnPropertyChanged();
+    //        }
+    //    }
 
-        public string Number
-        {
-            get { return _Number; }
-            set
-            {
-                _Number = value;
-                // Call OnPropertyChanged whenever the property is updated
-                OnPropertyChanged();
-            }
-        }
+    //    public string Number
+    //    {
+    //        get { return _Number; }
+    //        set
+    //        {
+    //            _Number = value;
+    //            // Call OnPropertyChanged whenever the property is updated
+    //            OnPropertyChanged();
+    //        }
+    //    }
 
-        // Create the OnPropertyChanged method to raise the event
-        // The calling member's name will be used as the parameter.
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-    }
+    //    // Create the OnPropertyChanged method to raise the event
+    //    // The calling member's name will be used as the parameter.
+    //    protected void OnPropertyChanged([CallerMemberName] string name = null)
+    //    {
+    //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    //    }
+    //}
 
 
-   
+
     public partial class MainWindow : Window
     {
         
@@ -122,9 +106,9 @@ namespace Flow_Stitch
         ObservableCollection<ListItemColour> DMCColoursList = new ObservableCollection<ListItemColour>(); //stores all DMC colors but as ListItemColours
         List<DMC> DMCColors = new List<DMC>(); //stores all DMC colours
 
-        //stores image for undo and redo functionality
-        List<WriteableBitmap> patternStates = new List<WriteableBitmap>();
-        int currentIndex = -1; //stores which image stored is the current state
+        ////stores image for undo and redo functionality
+        //List<WriteableBitmap> patternStates = new List<WriteableBitmap>();
+        /*int currentIndex = -1;*/ //stores which image stored is the current state
        
         float upscalePercentage; //stores how much to upsacle image to go back to original size
         int patternWidth; //width of pattern in stitches
@@ -139,6 +123,8 @@ namespace Flow_Stitch
 
         public static readonly DependencyProperty numberColoursProperty =
             DependencyProperty.Register("numberColours", typeof(string), typeof(MainWindow), new PropertyMetadata(string.Empty));
+
+        private Pattern Pattern = new Pattern();
 
         public MainWindow()
         {
@@ -224,9 +210,14 @@ namespace Flow_Stitch
                     }
                 }
 
-                //resetting the undo states
-                patternStates.Clear();
-                currentIndex = -1;
+                //Pattern = ImageProcessor.OpenImage(ref wBitmap);
+                ////outputting width to properties
+                //WidthTextBlock.Text = " Width: " + scaledImage.Width.ToString();
+
+                // resetting the undo states
+                //patternStates.Clear();
+                Pattern.Clear();
+                //currentIndex = -1;
 
                 //making sure a picture was loaded in before doing operations
                 if (wBitmap != null)
@@ -345,7 +336,9 @@ namespace Flow_Stitch
                         image.Source = wBitmap;
 
                         //store state of image
-                        patternStatesAdd();
+                        //patternStatesAdd();
+                        Pattern.patternStatesAdd(ref wBitmap);
+
                         //patternHeight = (int)wBitmap.Height;
                         patternWidth = (int)image.Source.Width;
 
@@ -379,20 +372,20 @@ namespace Flow_Stitch
         }
 
         //helper function for undo/redo
-        void patternStatesAdd()
-        {
+        //void patternStatesAdd()
+        //{
             
-            if(currentIndex >= 0 && currentIndex != patternStates.Count() - 1)
-            {
-                int range = patternStates.Count() - (currentIndex + 1);
+        //    if(currentIndex >= 0 && currentIndex != patternStates.Count() - 1)
+        //    {
+        //        int range = patternStates.Count() - (currentIndex + 1);
 
-                patternStates.RemoveRange(currentIndex + 1, range);
-            }
+        //        patternStates.RemoveRange(currentIndex + 1, range);
+        //    }
         
-            //store state of image
-            patternStates.Add(wBitmap);
-            currentIndex++;
-        }
+        //    //store state of image
+        //    patternStates.Add(wBitmap);
+        //    currentIndex++;
+        //}
 
         //converting bitmap to writeable bitmap
         WriteableBitmap BitmapToImageSource(Bitmap bitmap)
@@ -730,7 +723,7 @@ namespace Flow_Stitch
                 image.Source = wBitmap;
 
                 //store state of image
-                patternStatesAdd();
+                Pattern.patternStatesAdd(ref wBitmap);
             }
         }
 
@@ -814,7 +807,7 @@ namespace Flow_Stitch
                 image.Source = wBitmap;
 
                 //store state of image
-                patternStatesAdd();
+                Pattern.patternStatesAdd(ref wBitmap);
             }
             else
             {
@@ -839,10 +832,10 @@ namespace Flow_Stitch
 
         void UndoFunction()
         {
-            if (currentIndex > 0)
+            if (Pattern.hasPreviousState())
             {
-                currentIndex--;
-                wBitmap = patternStates[currentIndex];
+                //currentIndex--;
+                wBitmap = Pattern.GetPreviousState();//patternStates[currentIndex];
                 image.Source = wBitmap;
 
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
@@ -896,10 +889,11 @@ namespace Flow_Stitch
 
         void RedoFunction()
         {
-            if (currentIndex != patternStates.Count() - 1)
+            if (Pattern.hasNextState())//currentIndex != patternStates.Count() - 1)
             {
-                currentIndex++;
-                wBitmap = patternStates[currentIndex];
+                //currentIndex++;
+                //wBitmap = patternStates[currentIndex];
+                wBitmap = Pattern.GetNextState();
                 image.Source = wBitmap;
 
                 BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
@@ -1120,7 +1114,8 @@ namespace Flow_Stitch
             image.Source = wBitmap;
 
             //store state of image
-            patternStatesAdd();
+            //patternStatesAdd();
+            Pattern.patternStatesAdd(ref wBitmap);
 
             //if drawing tool is used
             if (!isEraser)
