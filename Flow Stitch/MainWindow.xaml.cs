@@ -1227,8 +1227,9 @@ namespace Flow_Stitch
             double stitchSize = ((image.ActualHeight / patternHeight) * (patternHeight / 5.0)) / 1.5 - 10;
             double stitchSizeY = stitchSize - 7.5;
             double stitchSizeX = stitchSize - 13;
-            double aidaSize;
+            double aidaSize = 1772;
             double stitchStartPosition;
+            double stitchStartPositionY = aidaSize / 2 - (image.ActualHeight) + 85;
 
 
             // Create a DrawingGroup to combine the ImageDrawing objects.
@@ -1236,15 +1237,26 @@ namespace Flow_Stitch
             RenderOptions.SetBitmapScalingMode(imageDrawings, BitmapScalingMode.NearestNeighbor);
 
             ImageDrawing background = new ImageDrawing();
+            //if ((patternHeight > 15 || patternWidth > 15) && (patternHeight < 40 || patternWidth <40))
+            //{
+            //    background.Rect = new Rect(0, 0, stitchSize * patternWidth * 1.05, stitchSize * patternHeight);
+            //    background.ImageSource = new BitmapImage(new Uri("aida.png", UriKind.Relative));
+            //    //aidaSize = 1772;
+            //    stitchStartPositionY = 1;
+            //    stitchStartPosition = 1;
+            //    //stitchStartPosition = 20;
+            //    //stitchStartPositionY = 20;
+            //    //stitchStartPosition = aidaSize / 2 - image.ActualWidth ;
+            //}
             if (patternHeight > 15 || patternWidth > 15)
             {
-                background.Rect = new Rect(0, 0, 1772*2, 1772*2);
+                background.Rect = new Rect(0, 0, ((stitchSize*1.1) * patternWidth)*1.2, (stitchSize * patternHeight)*1.2);
                 background.ImageSource = new BitmapImage(new Uri("aida.png", UriKind.Relative));
-                aidaSize = 1772 * 2;
-                //stitchStartPosition = 20;
-                stitchStartPosition = aidaSize / 2 - image.ActualWidth ;
+                //aidaSize = 1772;
+                stitchStartPositionY = ((stitchSize * 1.1) * patternWidth)*0.1;
+                stitchStartPosition = ((stitchSize * 1.1) * patternWidth) * 0.1;
             }
-            else
+            else 
             {           
                 background.Rect = new Rect(0, 0, 1772, 1772);
                 background.ImageSource = new BitmapImage(new Uri("aidasmall.png", UriKind.Relative));
@@ -1252,15 +1264,15 @@ namespace Flow_Stitch
                 //stitchStartPosition = aidaSize / 2 - image.ActualWidth / 2;
                 stitchStartPosition = aidaSize / 2 - image.ActualWidth;
             }
-            
+           
+
 
             patternWidth = (int)(image.ActualWidth / stitchSize);
             //patternWidth = (int)image.Width;
 
             imageDrawings.Children.Add(background);
 
-            
-            double stitchStartPositionY = aidaSize / 2 - (image.ActualHeight) + 85;
+             
             double stitchPositionY = stitchStartPositionY;
 
 
@@ -1272,6 +1284,7 @@ namespace Flow_Stitch
                 for (int i = 0; i < img.Width; i++)
                 {
                     System.Drawing.Color stitchColor = img.GetPixel(i, j);
+
                     var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
 
                     //set up for image that is passed to the shader
@@ -1299,23 +1312,23 @@ namespace Flow_Stitch
 
 
                     //colour blending
-                    for (int b = 0; b < XStitch.Height; b++)
-                    {
-                        for (int c = 0; c < XStitch.Width; c++)
-                        {
-                            System.Drawing.Color XColor = XStitch.GetPixel(c, b);
+                    //for (int b = 0; b < XStitch.Height; b++)
+                    //{
+                    //    for (int c = 0; c < XStitch.Width; c++)
+                    //    {
+                    //        System.Drawing.Color XColor = XStitch.GetPixel(c, b);
 
-                            int red = XColor.R * stitchColor.R / 255;
-                            int blue = XColor.B * stitchColor.B / 255;
-                            int green = XColor.G * stitchColor.G / 255;
-                            System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+                    //        int red = XColor.R * stitchColor.R / 255;
+                    //        int blue = XColor.B * stitchColor.B / 255;
+                    //        int green = XColor.G * stitchColor.G / 255;
+                    //        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
 
-                            if (XColor.A > 0.5)
-                                XStitch.SetPixel(c, b, ResultColor);
+                    //        if (XColor.A > 0.5)
+                    //            XStitch.SetPixel(c, b, ResultColor);
 
-                            XStitch.MakeTransparent();
-                        }
-                    }
+                    //        XStitch.MakeTransparent();
+                    //    }
+                    //}
 
 
 
@@ -1368,7 +1381,29 @@ namespace Flow_Stitch
 
 
 
+                    //pointer blending 2
+                    LockBitmap lockBitmap = new LockBitmap(XStitch);
+                    lockBitmap.LockBits();
 
+                    
+                    for (int y = 0; y < lockBitmap.Height; y++)
+                    {
+                        for (int x = 0; x < lockBitmap.Width; x++)
+                        {
+                            System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
+
+                            int red = XColor.R * stitchColor.R / 255;
+                            int blue = XColor.B * stitchColor.B / 255;
+                            int green = XColor.G * stitchColor.G / 255;
+                            System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+
+                            if (XColor.A > 0.5)
+                                lockBitmap.SetPixel(x, y, ResultColor);                                                  
+                        }
+                    }
+                    lockBitmap.UnlockBits();
+
+                    XStitch.MakeTransparent();
 
                     for (int k = 0; k < items.Count(); k++)
                     {
@@ -1395,16 +1430,16 @@ namespace Flow_Stitch
             double destWidth = (int)drawingImageSource.Width;
             double destHeight = (int)drawingImageSource.Height;
 
-            if ((patternHeight > 20 || patternWidth > 20) && (patternHeight < 200 && patternWidth < 200))
-            {
-                destHeight = destHeight * patternHeight / (10 / (patternHeight * patternHeight));
-                destWidth = destWidth * patternHeight / (10 / (patternHeight * patternHeight));
-            }
-            else if (patternHeight > 200 || patternWidth > 200)
-            {
-                destHeight = destHeight * patternHeight / 20;
-                destWidth = destWidth * patternHeight / 20;
-            }
+            //if ((patternHeight > 20 || patternWidth > 20) && (patternHeight < 200 && patternWidth < 200))
+            //{
+            //    destHeight = destHeight * patternHeight / (10 / (patternHeight * patternHeight));
+            //    destWidth = destWidth * patternHeight / (10 / (patternHeight * patternHeight));
+            //}
+            //else if (patternHeight > 200 || patternWidth > 200)
+            //{
+            //    destHeight = destHeight * patternHeight / 20;
+            //    destWidth = destWidth * patternHeight / 20;
+            //}
 
 
             // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap seems to be the best way
