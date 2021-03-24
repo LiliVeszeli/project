@@ -14,8 +14,9 @@ namespace Flow_Stitch
     {
         PixelShader _pixelShader = new PixelShader();// { UriSource = MakePackUri("shader1.ps") };
 
-        Uri uri = new Uri(System.IO.Directory.GetCurrentDirectory() + @"\..\..\shader1.ps", UriKind.Absolute);
-  
+       // Uri uri = new Uri(System.IO.Directory.GetCurrentDirectory() + @"\..\..\shader1.ps", UriKind.Relative);
+        Uri uri = new Uri(@"/Flow Stitch;component/shader1.ps", UriKind.Relative);
+
 
         public ThresholdEffect()
         {

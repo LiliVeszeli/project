@@ -109,6 +109,7 @@
                 <DropShadowEffect BlurRadius="10" 
                            ShadowDepth="0" 
                            Color="Black"/>
+                <!--<local:ThresholdEffect BlankColor="Orange" />-->
             </Image.Effect>
         </Image>
 

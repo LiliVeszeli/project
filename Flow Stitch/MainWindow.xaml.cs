@@ -332,6 +332,13 @@ namespace Flow_Stitch
                         wBitmap = utilities.BitmapToImageSource(newBitmap);
                         image.Source = wBitmap;
 
+                        //ThresholdEffect effect = new ThresholdEffect();
+                        //System.Windows.Media.Color inputColor = new System.Windows.Media.Color();
+                        ////inputColor = System.Windows.Media.Color.FromRgb(1, 0, 0);
+                       
+                        //effect.BlankColor = System.Windows.Media.Color.FromArgb(255, 0, 255, 0); 
+                        //image.Effect = effect;
+
                         //store state of image
                         //patternStatesAdd();
                         Pattern.patternStatesAdd(ref wBitmap);
@@ -961,7 +968,7 @@ namespace Flow_Stitch
             pattern.Rect = new Rect(0,0, image.ActualWidth, image.ActualHeight);
             pattern.ImageSource = wBitmap;
 
-            patternWidth = (int)(image.ActualWidth / stitchSize);
+            //patternWidth = (int)(image.ActualWidth / stitchSize);
 
             imageDrawings.Children.Add(pattern);
 
@@ -1220,7 +1227,7 @@ namespace Flow_Stitch
             //}
             if (patternHeight > 15 || patternWidth > 15)
             {
-                background.Rect = new Rect(0, 0, ((stitchSize*1.1) * patternWidth)*1.2, (stitchSize * patternHeight)*1.2);
+                background.Rect = new Rect(0, 0, ((stitchSize*1.1) * patternWidth)*1.2, (stitchSize * patternHeight)+10);
                 background.ImageSource = new BitmapImage(new Uri("aida.png", UriKind.Relative));
                 //aidaSize = 1772;
                 stitchStartPositionY = ((stitchSize * 1.1) * patternWidth)*0.1;
@@ -1237,7 +1244,7 @@ namespace Flow_Stitch
            
 
 
-            patternWidth = (int)(image.ActualWidth / stitchSize);
+            //patternWidth = (int)(image.ActualWidth / stitchSize);
             //patternWidth = (int)image.Width;
 
             imageDrawings.Children.Add(background);
@@ -1255,30 +1262,44 @@ namespace Flow_Stitch
                 {
                     System.Drawing.Color stitchColor = img.GetPixel(i, j);
 
-                    var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
+                    //var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
 
                     //set up for image that is passed to the shader
-                    //BitmapImage bitmap2 = new BitmapImage();
-                    //bitmap2.BeginInit();
-                    //bitmap2.UriSource = new Uri(@"../Debug/stitch4WhiteS.png", UriKind.Relative);
-                    //bitmap2.EndInit();
-                    //WriteableBitmap XStitchWbitmap = new WriteableBitmap(bitmap2);
-                    //System.Windows.Controls.Image XStitch = new System.Windows.Controls.Image();
-                    //XStitch.Source = XStitchWbitmap;
+                    BitmapImage bitmap2 = new BitmapImage();
+                    bitmap2.BeginInit();
+                    bitmap2.UriSource = new Uri(@"../Debug/stitch4WhiteS.png", UriKind.Relative);
+                    bitmap2.EndInit();
+                    WriteableBitmap XStitchWbitmap = new WriteableBitmap(bitmap2);
+                    System.Windows.Controls.Image XStitch = new System.Windows.Controls.Image();
+                    XStitch.Source = XStitchWbitmap;
 
 
-                    ////shader
-                    ////ThresholdEffect effect = new ThresholdEffect();
-                    //System.Windows.Media.Color inputColor = new System.Windows.Media.Color();
-                    //inputColor = System.Windows.Media.Color.FromRgb(stitchColor.R, stitchColor.G, stitchColor.B);
-                    ////effect.SetValue(ThresholdEffect.BlankColorProperty, inputColor);
-                    //XStitch.Effect = new BlankEffect();
+                    //shader
+                    ThresholdEffect effect = new ThresholdEffect();
+                    System.Windows.Media.Color inputColor = new System.Windows.Media.Color();
+                    inputColor = System.Windows.Media.Color.FromArgb(255, stitchColor.R, stitchColor.G, stitchColor.B);
+                    effect.BlankColor = inputColor;
+                    XStitch.Effect = effect;
+
+                    BitmapSource bitmapX = bitmap2;
+                    System.Windows.Shapes.Rectangle r = new System.Windows.Shapes.Rectangle();
+                    r.Fill = new ImageBrush(bitmapX);
+                    r.Effect = effect;
+
+                    System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
+                    r.Measure(sz);
+                    r.Arrange(new Rect(sz));
+
+                    var rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
+                    rtb.Render(r);
 
 
+                    //MemoryStream stream = new MemoryStream();
+                    //BitmapEncoder encoder = new BmpBitmapEncoder();
+                    //encoder.Frames.Add(BitmapFrame.Create(rtb));
+                    //encoder.Save(stream);
 
-
-
-
+                    //Bitmap bitmapXStitch = new Bitmap(stream);
 
 
                     //colour blending
@@ -1352,28 +1373,28 @@ namespace Flow_Stitch
 
 
                     //pointer blending 2
-                    LockBitmap lockBitmap = new LockBitmap(XStitch);
-                    lockBitmap.LockBits();
+                    //LockBitmap lockBitmap = new LockBitmap(XStitch);
+                    //lockBitmap.LockBits();
 
-                    
-                    for (int y = 0; y < lockBitmap.Height; y++)
-                    {
-                        for (int x = 0; x < lockBitmap.Width; x++)
-                        {
-                            System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
 
-                            int red = XColor.R * stitchColor.R / 255;
-                            int blue = XColor.B * stitchColor.B / 255;
-                            int green = XColor.G * stitchColor.G / 255;
-                            System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+                    //for (int y = 0; y < lockBitmap.Height; y++)
+                    //{
+                    //    for (int x = 0; x < lockBitmap.Width; x++)
+                    //    {
+                    //        System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
 
-                            if (XColor.A > 0.5)
-                                lockBitmap.SetPixel(x, y, ResultColor);                                                  
-                        }
-                    }
-                    lockBitmap.UnlockBits();
+                    //        int red = XColor.R * stitchColor.R / 255;
+                    //        int blue = XColor.B * stitchColor.B / 255;
+                    //        int green = XColor.G * stitchColor.G / 255;
+                    //        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
 
-                    XStitch.MakeTransparent();
+                    //        if (XColor.A > 0.5)
+                    //            lockBitmap.SetPixel(x, y, ResultColor);                                                  
+                    //    }
+                    //}
+                    //lockBitmap.UnlockBits();
+
+                    //XStitch.MakeTransparent();
 
                     for (int k = 0; k < items.Count(); k++)
                     {
@@ -1383,7 +1404,7 @@ namespace Flow_Stitch
                             // Create a 100 by 100 image with an upper-left point of (75,75).
                             ImageDrawing icon1 = new ImageDrawing();                          
                             icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
-                            icon1.ImageSource = utilities.BitmapToImageSource(XStitch);//XStitch.Source;
+                            icon1.ImageSource = rtb;//utilities.BitmapToImageSource(rtb);//XStitch.Source;
 
                             imageDrawings.Children.Add(icon1);
                             break;
