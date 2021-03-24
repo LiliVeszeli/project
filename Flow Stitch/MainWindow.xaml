@@ -6,7 +6,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:Flow_Stitch"
         mc:Ignorable="d"
-        Title="Flow Stitch" Height="643.98" Width="889.8" KeyDown="Window_KeyDown" WindowState="Maximized">
+        Title="Flow Stitch" Height="1141.58" Width="1549" KeyDown="Window_KeyDown" WindowState="Maximized">
 
     <Window.Resources>
         <DataTemplate DataType="{x:Type local:ListItemColour}">
@@ -36,11 +36,12 @@
     </Window.Resources>
 
     <Grid Background="#FFEEEEEE">
-
-        <DockPanel HorizontalAlignment="Left" Height="Auto" Margin="0,26,0,-510" VerticalAlignment="Stretch" Width="183" RenderTransformOrigin="0.411,0.501" Background="#FFD4D4FF" LastChildFill="False">
+        <DockPanel HorizontalAlignment="Left" Height="Auto" Margin="0,26,0,0" VerticalAlignment="Stretch" Width="183" RenderTransformOrigin="0.411,0.501" Background="#FFD4D4FF" LastChildFill="False">
+            <Border DockPanel.Dock="Right" Height="Auto" BorderBrush="#FF9694E4"
+        SnapsToDevicePixels="True" BorderThickness="1" Panel.ZIndex="1"/>
             <StackPanel Height="583" VerticalAlignment="Top" Width="167" Background="#FFD4D4FF">
                 <TextBlock x:Name="textBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" Background="#FFB9A5FF" TextDecorations="{x:Null}" FontFamily="Segoe UI Historic" FontWeight="Bold"><Run Text=" "/><Run Text="DMC "/><Run Text="Thread "/><Run Text="Colours"/></TextBlock>
-                <ListBox ItemsSource="{Binding items}" Margin="0,0,-15.8,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Name="listBox" Height="248">
+                <ListBox ItemsSource="{Binding items}" Margin="0,0,-15.8,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Name="listBox" Height="248" Panel.ZIndex="3">
                 </ListBox>
                 <TextBlock x:Name="ToolTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" FontWeight="Bold" Background="#FFBCF2FF"><Run Text=" "/><Run Text="Tools"/></TextBlock>
                 <StackPanel Height="58" Margin="0,0,0.2,0" Orientation="Horizontal" Background="#00000000" OpacityMask="Black">
@@ -75,10 +76,9 @@
                 <TextBlock x:Name="HeightTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" Background="#FFEBF8FF"><Run Text=" "/><Run Text="Height: "/><Run Text="{Binding image.Height, UpdateSourceTrigger=PropertyChanged}"/></TextBlock>
                 <TextBlock x:Name="WidthTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" Background="#FFEEF9FF"><Run Text=" "/><Run Text="Width: "/><Run Text="{Binding image.Width, UpdateSourceTrigger=PropertyChanged}"/></TextBlock>
                 <TextBlock x:Name="ColorTextBlock" TextWrapping="Wrap" Height="20" Margin="0,0,-15.8,0" FontFamily="Segoe UI Historic" Background="#FFEDF9FF"><Run Text=" "/><Run Text="Number of colours: "/><Run Text="{Binding Path=numberColours, UpdateSourceTrigger=PropertyChanged}"/></TextBlock>
-                
+
             </StackPanel>
         </DockPanel>
-
         <Menu x:Name="menu" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Top" Width="Auto" Grid.ColumnSpan="2" Margin="0,0,-0.4,0" Background="#FF321F8C">
             <MenuItem Header="File" Width="35" Height="25" Foreground="#FFF0F0F0">
                 <MenuItem Header="New" Name="ItemOpen" Background="White" Click="ItemOpen_Click" Foreground="#FF181818">
@@ -90,7 +90,7 @@
                 </MenuItem>
                 <MenuItem Header="Exit" Name="ItemExit" Background="White" Foreground="#FF050505" Click="ItemExit_Click" >
                 </MenuItem>
-                
+
             </MenuItem>
             <MenuItem Header="Edit" Width="35" Height="25" Foreground="#FFE5E5E5">
                 <MenuItem Header="Undo" Name="Undo" Background="White" Click="Undo_Click" Foreground="#FF0C0C0C" >
