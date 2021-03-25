@@ -1198,66 +1198,9 @@ namespace Flow_Stitch
             DrawingGroup imageDrawings = new DrawingGroup();
             RenderOptions.SetBitmapScalingMode(imageDrawings, BitmapScalingMode.NearestNeighbor);
 
+            
             ImageDrawing background = new ImageDrawing();
-            //if ((patternHeight > 15 || patternWidth > 15) && (patternHeight < 40 || patternWidth <40))
-            //{
-            //    background.Rect = new Rect(0, 0, stitchSize * patternWidth * 1.05, stitchSize * patternHeight);
-            //    background.ImageSource = new BitmapImage(new Uri("aida.png", UriKind.Relative));
-            //    //aidaSize = 1772;
-            //    stitchStartPositionY = 1;
-            //    stitchStartPosition = 1;
-            //    //stitchStartPosition = 20;
-            //    //stitchStartPositionY = 20;
-            //    //stitchStartPosition = aidaSize / 2 - image.ActualWidth ;
-
-            // WriteableBitmap XStitchWbitmap = new WriteableBitmap(bitmap2);
-            // System.Windows.Controls.Image XStitch = new System.Windows.Controls.Image();
-            // XStitch.Source = XStitchWbitmap;
-
-            ////doesnt help
-            //rtb.Freeze();
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
-            //MemoryStream stream = new MemoryStream();
-            //BitmapEncoder encoder = new BmpBitmapEncoder();
-            //encoder.Frames.Add(BitmapFrame.Create(rtb));
-            //encoder.Save(stream);
-
-            //Bitmap bitmapXStitch = new Bitmap(stream);
-
-
-
-            //pointer blending 2
-            //LockBitmap lockBitmap = new LockBitmap(XStitch);
-            //lockBitmap.LockBits();
-
-
-            //for (int y = 0; y < lockBitmap.Height; y++)
-            //{
-            //    for (int x = 0; x < lockBitmap.Width; x++)
-            //    {
-            //        System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
-
-            //        int red = XColor.R * stitchColor.R / 255;
-            //        int blue = XColor.B * stitchColor.B / 255;
-            //        int green = XColor.G * stitchColor.G / 255;
-            //        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
-
-            //        if (XColor.A > 0.5)
-            //            lockBitmap.SetPixel(x, y, ResultColor);                                                  
-            //    }
-            //}
-            //lockBitmap.UnlockBits();
-
-            //XStitch.MakeTransparent();
-            //}
-
-            //rtb = null;
-            //icon1 = null;
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-            //utilities.BitmapToImageSource(XStitch);//XStitch.Source;
+           
             if (patternHeight > 15 || patternWidth > 15)
             {
                 background.Rect = new Rect(0, 0, ((stitchSize*1.1) * patternWidth)*1.2, (stitchSize * patternHeight)+10);
@@ -1274,8 +1217,8 @@ namespace Flow_Stitch
                 //stitchStartPosition = aidaSize / 2 - image.ActualWidth / 2;
                 stitchStartPosition = aidaSize / 2 - image.ActualWidth;
             }
-           
 
+            //adding background 
             imageDrawings.Children.Add(background);
 
              
@@ -1296,11 +1239,13 @@ namespace Flow_Stitch
             
             System.Windows.Media.Color inputColor = new System.Windows.Media.Color();
             ImageDrawing icon1 = new ImageDrawing();
-            //var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
+            DrawingImage drawingImageSourceTemp;
+            DrawingVisual visual2 = new DrawingVisual();
+            DrawingContext context2;
+            ImageDrawing icon2 = new ImageDrawing();
+           //RenderTargetBitmap bitmapTemp;
 
-
-           
-            //drawing symbols
+            //drawing stitches
             for (int j = 0; j < img.Height; j++)
             {
                 //changing Y position
@@ -1314,49 +1259,55 @@ namespace Flow_Stitch
                     inputColor = System.Windows.Media.Color.FromArgb(255, stitchColor.R, stitchColor.G, stitchColor.B);
                     effect.BlankColor = inputColor;
 
-                    //bitmap fill the rectangle with
-                    bitmapX = bitmap2;  
+                    //bitmap to fill the rectangle with
+                    bitmapX = bitmap2;
                     r.Fill = new ImageBrush(bitmapX);
                     r.Effect = effect; // set rectangle effect to shader
 
                     System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
                     r.Measure(sz);
                     r.Arrange(new Rect(sz));
+                    {
+                        //render rectangle with shader effect
+                        var rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
+                        rtb.Render(r);
 
-                    //render rectangle with shader effect
-                    var rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
-                    rtb.Render(r);
-
-                    //ImageDrawing icon1 = new ImageDrawing(); 
-                    //creating image drawing at the right stitch position
-                    
-                    icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
-                    icon1.ImageSource = rtb; //setting the rendered rectangle as the source
-                    imageDrawings.Children.Add(icon1);
-
-                    DrawingImage drawingImageSourceTemp = new DrawingImage(imageDrawings);
+                        //ImageDrawing icon1 = new ImageDrawing(); 
+                        //creating image drawing at the right stitch position 
+                        icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
+                        icon1.ImageSource = rtb; //setting the rendered rectangle as the source
+                        imageDrawings.Children.Add(icon1);
+                    }
+                    GC.Collect();
+                    drawingImageSourceTemp = new DrawingImage(imageDrawings);
 
                     double destWidth2 = (int)drawingImageSourceTemp.Width;
                     double destHeight2 = (int)drawingImageSourceTemp.Height;
 
-                    DrawingVisual visual2 = new DrawingVisual();
-                    DrawingContext context2 = visual2.RenderOpen();
+                    //DrawingVisual visual2 = new DrawingVisual();
+                    context2 = visual2.RenderOpen();
                     Rect rect2 = new Rect(0, 0, destWidth2, destHeight2);
                     context2.DrawImage(drawingImageSourceTemp, rect2);
                     context2.Close();
 
-                    RenderTargetBitmap bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
-                    bitmapTemp.Render(visual2);
+                    { 
+                        RenderTargetBitmap bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
+                        //bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
+                        bitmapTemp.Render(visual2);
+                       
+                        imageDrawings.Children.Clear();
+                       
+                        //ImageDrawing icon2 = new ImageDrawing();
+                        icon2.Rect = new Rect(0, 0, destWidth2, destHeight2);
+                        icon2.ImageSource = bitmapTemp;
+                        imageDrawings.Children.Add(icon2);
 
-                    imageDrawings.Children.Clear();
-
-                    ImageDrawing icon2 = new ImageDrawing();
-                    icon2.Rect = new Rect(0, 0, destWidth2, destHeight2);
-                    icon2.ImageSource = bitmapTemp;
-                    imageDrawings.Children.Add(icon2);
+                    }
+                    GC.Collect();
                 }
             }
 
+            //creating drawingImage from the drawingImage group
             DrawingImage drawingImageSource = new DrawingImage(imageDrawings);
 
             // Freeze the DrawingImage for performance benefits.
@@ -1364,17 +1315,6 @@ namespace Flow_Stitch
 
             double destWidth = (int)drawingImageSource.Width;
             double destHeight = (int)drawingImageSource.Height;
-
-            //if ((patternHeight > 20 || patternWidth > 20) && (patternHeight < 200 && patternWidth < 200))
-            //{
-            //    destHeight = destHeight * patternHeight / (10 / (patternHeight * patternHeight));
-            //    destWidth = destWidth * patternHeight / (10 / (patternHeight * patternHeight));
-            //}
-            //else if (patternHeight > 200 || patternWidth > 200)
-            //{
-            //    destHeight = destHeight * patternHeight / 20;
-            //    destWidth = destWidth * patternHeight / 20;
-            //}
 
 
             // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap seems to be the best way
@@ -1384,8 +1324,7 @@ namespace Flow_Stitch
             context.DrawImage(drawingImageSource, rect);
             context.Close();
 
-
-
+            //render the drawingImage to a bitmap
             RenderTargetBitmap bitmap = new RenderTargetBitmap((int)destWidth, (int)destHeight, 96, 96, PixelFormats.Pbgra32);
             bitmap.Render(visual);
 
@@ -1396,29 +1335,29 @@ namespace Flow_Stitch
 
             //image.Source = imageControl.Source; IMPORTANT
 
-            //making a new image to pass to the symbol window
+            //making a new image to pass to the preview window
             System.Windows.Controls.Image passImage = new System.Windows.Controls.Image();
             passImage.Source = imageControl.Source;
 
-            //show the symbol window, passing the image
+            //show the preview window, passing the image
             Preview previewWindow = new Preview(imageControl);
             Nullable<bool> result2 = previewWindow.ShowDialog();
-
 
             //save
             if (result2 == true)
             {
-                ////save
                 utilities.Save(bitmap);
             }
         }
 
+        //close application
         private void ItemExit_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Application.Current.Shutdown();
             //Environment.Exit(0);
         }
 
+        //shows "About" window
         private void ItemAbout_Click(object sender, RoutedEventArgs e)
         {
             About aboutWindow = new About();
