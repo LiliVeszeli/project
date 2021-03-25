@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:Flow_Stitch"
+       
         mc:Ignorable="d"
         Title="Flow Stitch" Height="1141.58" Width="1549" KeyDown="Window_KeyDown" WindowState="Maximized">
 
@@ -103,16 +104,16 @@
             </MenuItem>
         </Menu>
 
-
-        <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="184,47,0,20" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseDown="image_MouseDown">
-            <Image.Effect>
-                <DropShadowEffect BlurRadius="10" 
+        <local:Zoom x:Name="border" ClipToBounds="True" Background="Transparent" Margin="183,25,0.4,0">
+            <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="50,20,0,20" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseLeftButtonDown="image_MouseDown">
+                <Image.Effect>
+                    <DropShadowEffect BlurRadius="10" 
                            ShadowDepth="0" 
                            Color="Black"/>
-                <!--<local:ThresholdEffect BlankColor="Orange" />-->
-            </Image.Effect>
-        </Image>
-
+                    <!--<local:ThresholdEffect BlankColor="Orange" />-->
+                </Image.Effect>
+            </Image>
+        </local:Zoom>
 
         <Canvas HorizontalAlignment="Left" Height="335" Margin="188,75,0,0" VerticalAlignment="Top" Width="602"/>
         <!-- <Button x:Name="ChangeColour" Content="Change Colour" Grid.Column="1" HorizontalAlignment="Left" Margin="202,39,0,0" VerticalAlignment="Top" Width="98" Click="ChangeColour_Click" Visibility="Hidden"/>

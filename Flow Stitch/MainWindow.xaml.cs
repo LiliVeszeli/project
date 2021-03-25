@@ -9,8 +9,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Drawing;
 using System.IO;
-using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;
 using AForge.Imaging.ColorReduction;
 using System.Collections.ObjectModel;
 using CsvHelper;
@@ -435,7 +433,7 @@ namespace Flow_Stitch
                 System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
 
                 //upscaling image
-                System.Drawing.Bitmap scaledImage = Utilities.ScaleByPercentUp(img, upscalePercentage);
+                System.Drawing.Bitmap scaledImage = Utilities.ScaleByPercentUp(img, upscalePercentage*2);
 
                 //save
                 utilities.Save(utilities.BitmapToImageSource(scaledImage));
@@ -1009,8 +1007,11 @@ namespace Flow_Stitch
 
             if ((patternHeight > 20 || patternWidth > 20) && (patternHeight < 200 && patternWidth < 200))
             {
-                destHeight = destHeight*patternHeight/ (10/(patternHeight* patternHeight));
-                destWidth = destWidth* patternHeight/ (10 / (patternHeight * patternHeight));               
+                //destHeight = destHeight*patternHeight/ (10/(patternHeight* patternHeight));
+                //destWidth = destWidth* patternHeight/ (10 / (patternHeight * patternHeight));
+
+                destHeight = destHeight * stitchSize;
+                destWidth = destWidth * stitchSize;
             }
             else if(patternHeight > 200 || patternWidth > 200)
             {                          
@@ -1051,22 +1052,6 @@ namespace Flow_Stitch
             {
                 //save
                 utilities.Save(bitmap);
-                //Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                //dlg.FileName = "Document";
-                //dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
-                //Nullable<bool> result = dlg.ShowDialog();
-                //string fileName = "";
-
-                //if (result == true)
-                //{
-                //    fileName = dlg.FileName;
-                //    PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
-                //    jpg.Frames.Add(BitmapFrame.Create(bitmap));
-                //    using (Stream stm = File.Create(fileName))
-                //    {
-                //        jpg.Save(stm);
-                //    }
-                //}
             }
         }
 
@@ -1224,7 +1209,55 @@ namespace Flow_Stitch
             //    //stitchStartPosition = 20;
             //    //stitchStartPositionY = 20;
             //    //stitchStartPosition = aidaSize / 2 - image.ActualWidth ;
+
+            // WriteableBitmap XStitchWbitmap = new WriteableBitmap(bitmap2);
+            // System.Windows.Controls.Image XStitch = new System.Windows.Controls.Image();
+            // XStitch.Source = XStitchWbitmap;
+
+            ////doesnt help
+            //rtb.Freeze();
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+
+            //MemoryStream stream = new MemoryStream();
+            //BitmapEncoder encoder = new BmpBitmapEncoder();
+            //encoder.Frames.Add(BitmapFrame.Create(rtb));
+            //encoder.Save(stream);
+
+            //Bitmap bitmapXStitch = new Bitmap(stream);
+
+
+
+            //pointer blending 2
+            //LockBitmap lockBitmap = new LockBitmap(XStitch);
+            //lockBitmap.LockBits();
+
+
+            //for (int y = 0; y < lockBitmap.Height; y++)
+            //{
+            //    for (int x = 0; x < lockBitmap.Width; x++)
+            //    {
+            //        System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
+
+            //        int red = XColor.R * stitchColor.R / 255;
+            //        int blue = XColor.B * stitchColor.B / 255;
+            //        int green = XColor.G * stitchColor.G / 255;
+            //        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+
+            //        if (XColor.A > 0.5)
+            //            lockBitmap.SetPixel(x, y, ResultColor);                                                  
+            //    }
             //}
+            //lockBitmap.UnlockBits();
+
+            //XStitch.MakeTransparent();
+            //}
+
+            //rtb = null;
+            //icon1 = null;
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+            //utilities.BitmapToImageSource(XStitch);//XStitch.Source;
             if (patternHeight > 15 || patternWidth > 15)
             {
                 background.Rect = new Rect(0, 0, ((stitchSize*1.1) * patternWidth)*1.2, (stitchSize * patternHeight)+10);
@@ -1243,16 +1276,30 @@ namespace Flow_Stitch
             }
            
 
-
-            //patternWidth = (int)(image.ActualWidth / stitchSize);
-            //patternWidth = (int)image.Width;
-
             imageDrawings.Children.Add(background);
 
              
             double stitchPositionY = stitchStartPositionY;
 
+            //set up for bitmap that is passed to the shader
+            BitmapImage bitmap2 = new BitmapImage();
+            bitmap2.BeginInit();
+            bitmap2.UriSource = new Uri(@"../Debug/stitch4WhiteS.png", UriKind.Relative);
+            bitmap2.EndInit();
+          
+            //creating pixel shader object
+            ThresholdEffect effect = new ThresholdEffect();
 
+            //objects for shader setup
+            BitmapSource bitmapX;
+            System.Windows.Shapes.Rectangle r = new System.Windows.Shapes.Rectangle();
+            
+            System.Windows.Media.Color inputColor = new System.Windows.Media.Color();
+            ImageDrawing icon1 = new ImageDrawing();
+            //var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
+
+
+           
             //drawing symbols
             for (int j = 0; j < img.Height; j++)
             {
@@ -1260,156 +1307,53 @@ namespace Flow_Stitch
                 stitchPositionY = stitchStartPositionY + (j * stitchSizeY);
                 for (int i = 0; i < img.Width; i++)
                 {
+                    //getting colour from pattern
                     System.Drawing.Color stitchColor = img.GetPixel(i, j);
 
-                    //var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
-
-                    //set up for image that is passed to the shader
-                    BitmapImage bitmap2 = new BitmapImage();
-                    bitmap2.BeginInit();
-                    bitmap2.UriSource = new Uri(@"../Debug/stitch4WhiteS.png", UriKind.Relative);
-                    bitmap2.EndInit();
-                    WriteableBitmap XStitchWbitmap = new WriteableBitmap(bitmap2);
-                    System.Windows.Controls.Image XStitch = new System.Windows.Controls.Image();
-                    XStitch.Source = XStitchWbitmap;
-
-
-                    //shader
-                    ThresholdEffect effect = new ThresholdEffect();
-                    System.Windows.Media.Color inputColor = new System.Windows.Media.Color();
+                    //shader setup
                     inputColor = System.Windows.Media.Color.FromArgb(255, stitchColor.R, stitchColor.G, stitchColor.B);
                     effect.BlankColor = inputColor;
-                    XStitch.Effect = effect;
 
-                    BitmapSource bitmapX = bitmap2;
-                    System.Windows.Shapes.Rectangle r = new System.Windows.Shapes.Rectangle();
+                    //bitmap fill the rectangle with
+                    bitmapX = bitmap2;  
                     r.Fill = new ImageBrush(bitmapX);
-                    r.Effect = effect;
+                    r.Effect = effect; // set rectangle effect to shader
 
                     System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
                     r.Measure(sz);
                     r.Arrange(new Rect(sz));
 
+                    //render rectangle with shader effect
                     var rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
                     rtb.Render(r);
 
+                    //ImageDrawing icon1 = new ImageDrawing(); 
+                    //creating image drawing at the right stitch position
+                    
+                    icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
+                    icon1.ImageSource = rtb; //setting the rendered rectangle as the source
+                    imageDrawings.Children.Add(icon1);
 
-                    //MemoryStream stream = new MemoryStream();
-                    //BitmapEncoder encoder = new BmpBitmapEncoder();
-                    //encoder.Frames.Add(BitmapFrame.Create(rtb));
-                    //encoder.Save(stream);
+                    DrawingImage drawingImageSourceTemp = new DrawingImage(imageDrawings);
 
-                    //Bitmap bitmapXStitch = new Bitmap(stream);
+                    double destWidth2 = (int)drawingImageSourceTemp.Width;
+                    double destHeight2 = (int)drawingImageSourceTemp.Height;
 
+                    DrawingVisual visual2 = new DrawingVisual();
+                    DrawingContext context2 = visual2.RenderOpen();
+                    Rect rect2 = new Rect(0, 0, destWidth2, destHeight2);
+                    context2.DrawImage(drawingImageSourceTemp, rect2);
+                    context2.Close();
 
-                    //colour blending
-                    //for (int b = 0; b < XStitch.Height; b++)
-                    //{
-                    //    for (int c = 0; c < XStitch.Width; c++)
-                    //    {
-                    //        System.Drawing.Color XColor = XStitch.GetPixel(c, b);
+                    RenderTargetBitmap bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
+                    bitmapTemp.Render(visual2);
 
-                    //        int red = XColor.R * stitchColor.R / 255;
-                    //        int blue = XColor.B * stitchColor.B / 255;
-                    //        int green = XColor.G * stitchColor.G / 255;
-                    //        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+                    imageDrawings.Children.Clear();
 
-                    //        if (XColor.A > 0.5)
-                    //            XStitch.SetPixel(c, b, ResultColor);
-
-                    //        XStitch.MakeTransparent();
-                    //    }
-                    //}
-
-
-
-
-                    //faster colour blending
-                    //int width = XStitch.Width;
-                    //int height = XStitch.Height;
-                    //var rect = new Rectangle(0, 0, width, height);
-                    //BitmapData lowerData = XStitch.LockBits(rect, ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-
-                    //BitmapData lowerData = XStitch.LockBits(XStitch, ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    //BitmapData dstData = tile.LockBits(new Rectangle(0, 0, tile.Width, tile.Height), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-
-
-                    //unsafe
-                    //{
-                    //    byte* lowerPointer = (byte*)lowerData.Scan0;
-
-
-                    //    for (int d = 0; d < height; d++)
-                    //    {
-                    //        for (int f = 0; f < width; f++)
-                    //        {
-
-                    //            int red = lowerPointer[2] * stitchColor.R / 255;
-                    //            int blue = lowerPointer[0] * stitchColor.B / 255;
-                    //            int green = lowerPointer[1] * stitchColor.G / 255;
-                    //            System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
-
-
-
-                    //            lowerPointer[0] = ResultColor.B;
-                    //            lowerPointer[1] = ResultColor.G;
-                    //            lowerPointer[2] = ResultColor.R;
-                    //            lowerPointer[3] = ResultColor.A;
-
-                    //            // Moving the pointers by 3 bytes per pixel
-                    //            lowerPointer += 3;
-
-                    //        }
-
-                    //        // Moving the pointers to the next pixel row
-                    //        lowerPointer += lowerData.Stride - (width * 3);
-
-                    //    }
-                    //}//end of unsafe
-
-                    //XStitch.UnlockBits(lowerData);
-
-
-
-                    //pointer blending 2
-                    //LockBitmap lockBitmap = new LockBitmap(XStitch);
-                    //lockBitmap.LockBits();
-
-
-                    //for (int y = 0; y < lockBitmap.Height; y++)
-                    //{
-                    //    for (int x = 0; x < lockBitmap.Width; x++)
-                    //    {
-                    //        System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
-
-                    //        int red = XColor.R * stitchColor.R / 255;
-                    //        int blue = XColor.B * stitchColor.B / 255;
-                    //        int green = XColor.G * stitchColor.G / 255;
-                    //        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
-
-                    //        if (XColor.A > 0.5)
-                    //            lockBitmap.SetPixel(x, y, ResultColor);                                                  
-                    //    }
-                    //}
-                    //lockBitmap.UnlockBits();
-
-                    //XStitch.MakeTransparent();
-
-                    for (int k = 0; k < items.Count(); k++)
-                    {
-                        if (stitchColor == System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B))
-                        {
-                            //string iconName = "stitch4WhiteS.png";
-                            // Create a 100 by 100 image with an upper-left point of (75,75).
-                            ImageDrawing icon1 = new ImageDrawing();                          
-                            icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
-                            icon1.ImageSource = rtb;//utilities.BitmapToImageSource(rtb);//XStitch.Source;
-
-                            imageDrawings.Children.Add(icon1);
-                            break;
-                        }
-                    }
+                    ImageDrawing icon2 = new ImageDrawing();
+                    icon2.Rect = new Rect(0, 0, destWidth2, destHeight2);
+                    icon2.ImageSource = bitmapTemp;
+                    imageDrawings.Children.Add(icon2);
                 }
             }
 
@@ -1465,25 +1409,8 @@ namespace Flow_Stitch
             if (result2 == true)
             {
                 ////save
-                //Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                //dlg.FileName = "Document";
-                //dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
-                //Nullable<bool> result = dlg.ShowDialog();
-                //string fileName = "";
-
-                //if (result == true)
-                //{
-                //    fileName = dlg.FileName;
-                //    PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
-                //    jpg.Frames.Add(BitmapFrame.Create(bitmap));
-                //    using (Stream stm = File.Create(fileName))
-                //    {
-                //        jpg.Save(stm);
-                //    }
-                //}
                 utilities.Save(bitmap);
             }
-
         }
 
         private void ItemExit_Click(object sender, RoutedEventArgs e)

@@ -11,11 +11,7 @@ float4 main(float2 uv : TEXCOORD) : COLOR
 
     return color * colorFilter;
     
-    //vector<float, 4> color = { 1, 0, 0, 1 };
-
-    //return color;
-
-    //maybe discard alpha
+    
     
     
     //float4 inputColor;
