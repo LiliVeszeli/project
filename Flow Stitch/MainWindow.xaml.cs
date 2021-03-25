@@ -1181,6 +1181,27 @@ namespace Flow_Stitch
 
         }
 
+
+        RenderTargetBitmap RenderImage(System.Windows.Size sz, System.Windows.Shapes.Rectangle r)
+        {
+            var rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
+            rtb.Render(r);
+            rtb.Freeze();
+
+            return rtb;
+        }
+
+        RenderTargetBitmap RenderImage2(Visual visual2, double destWidth2, double destHeight2)
+        {
+            var bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
+            bitmapTemp.Render(visual2);
+            bitmapTemp.Freeze();
+
+            return bitmapTemp;
+        }
+
+       
+
         private void previewButton_Click(object sender, RoutedEventArgs e)
         {
             //convert to bitmap
@@ -1243,7 +1264,9 @@ namespace Flow_Stitch
             DrawingVisual visual2 = new DrawingVisual();
             DrawingContext context2;
             ImageDrawing icon2 = new ImageDrawing();
-           //RenderTargetBitmap bitmapTemp;
+            RenderTargetBitmap bitmapTemp;
+            RenderTargetBitmap rtb;
+            int it = 1;
 
             //drawing stitches
             for (int j = 0; j < img.Height; j++)
@@ -1263,47 +1286,58 @@ namespace Flow_Stitch
                     bitmapX = bitmap2;
                     r.Fill = new ImageBrush(bitmapX);
                     r.Effect = effect; // set rectangle effect to shader
+                    
 
                     System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
                     r.Measure(sz);
                     r.Arrange(new Rect(sz));
                     {
                         //render rectangle with shader effect
-                        var rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
-                        rtb.Render(r);
+                        //var rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
+                        //rtb.Render(r);
 
-                        //ImageDrawing icon1 = new ImageDrawing(); 
-                        //creating image drawing at the right stitch position 
-                        icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
+                        rtb = RenderImage(sz, r);
+                        if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
+                        {
+                            GC.Collect();
+                        }
+                            //ImageDrawing icon1 = new ImageDrawing(); 
+                            //creating image drawing at the right stitch position 
+                            icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
                         icon1.ImageSource = rtb; //setting the rendered rectangle as the source
-                        imageDrawings.Children.Add(icon1);
+                        imageDrawings.Children.Add(icon1.Clone());
+                        it++;
                     }
-                    GC.Collect();
-                    drawingImageSourceTemp = new DrawingImage(imageDrawings);
+                    if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
+                    {
 
-                    double destWidth2 = (int)drawingImageSourceTemp.Width;
-                    double destHeight2 = (int)drawingImageSourceTemp.Height;
 
-                    //DrawingVisual visual2 = new DrawingVisual();
-                    context2 = visual2.RenderOpen();
-                    Rect rect2 = new Rect(0, 0, destWidth2, destHeight2);
-                    context2.DrawImage(drawingImageSourceTemp, rect2);
-                    context2.Close();
+                        drawingImageSourceTemp = new DrawingImage(imageDrawings);
 
-                    { 
-                        RenderTargetBitmap bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
-                        //bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
-                        bitmapTemp.Render(visual2);
-                       
-                        imageDrawings.Children.Clear();
-                       
-                        //ImageDrawing icon2 = new ImageDrawing();
-                        icon2.Rect = new Rect(0, 0, destWidth2, destHeight2);
-                        icon2.ImageSource = bitmapTemp;
-                        imageDrawings.Children.Add(icon2);
+                        double destWidth2 = (int)drawingImageSourceTemp.Width;
+                        double destHeight2 = (int)drawingImageSourceTemp.Height;
 
+                        //DrawingVisual visual2 = new DrawingVisual();
+                        context2 = visual2.RenderOpen();
+                        Rect rect2 = new Rect(0, 0, destWidth2, destHeight2);
+                        context2.DrawImage(drawingImageSourceTemp, rect2);
+                        context2.Close();
+
+                        {
+                            //RenderTargetBitmap bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
+                            bitmapTemp = RenderImage2(visual2, destWidth2, destHeight2);
+                            //bitmapTemp.Render(visual2);
+
+                            imageDrawings.Children.Clear();
+
+                            //ImageDrawing icon2 = new ImageDrawing();
+                            icon2.Rect = new Rect(0, 0, destWidth2, destHeight2);
+                            icon2.ImageSource = bitmapTemp;
+                            imageDrawings.Children.Add(icon2.Clone());
+
+                        }
+                        GC.Collect();
                     }
-                    GC.Collect();
                 }
             }
 
