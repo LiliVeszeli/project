@@ -105,7 +105,7 @@
         </Menu>
 
         <local:Zoom x:Name="border" ClipToBounds="True" Background="Transparent" Margin="183,25,0.4,0">
-            <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="50,20,0,20" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseLeftButtonDown="image_MouseDown">
+            <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="10,20,0,20" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseLeftButtonDown="image_MouseDown">
                 <Image.Effect>
                     <DropShadowEffect BlurRadius="10" 
                            ShadowDepth="0" 

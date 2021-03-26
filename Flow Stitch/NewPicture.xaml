@@ -12,10 +12,10 @@
         </Grid.ColumnDefinitions>
         <Button x:Name="OK" Content="OK" Margin="295,236,0,0" Click="OK_Click" Background="#FFFFF2A0" UseLayoutRounding="False" FontWeight="Bold" Height="19.2" VerticalAlignment="Top" HorizontalAlignment="Left" Width="75"/>
         <Button x:Name="Cancel" Content="Cancel" Margin="193,236,0,0" Click="Cancel_Click" Background="#FFFFF3AA" HorizontalAlignment="Left" Width="75" Height="19" VerticalAlignment="Top"/>
-        <TextBox x:Name="HeighttextBox" HorizontalAlignment="Left" Height="23" Margin="157,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="ColourtextBox" HorizontalAlignment="Left" Height="23" Margin="157,86,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="HeighttextBox" HorizontalAlignment="Left" Height="23" Margin="183,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="ColourtextBox" HorizontalAlignment="Left" Height="23" Margin="183,86,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <TextBlock x:Name="HeighttextBlock" HorizontalAlignment="Left" Margin="34,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.269,0.713" Height="36" FontSize="13" Foreground="#FF3F3C46" FontWeight="Bold"><Run Text="Height of pattern:"/><LineBreak/><Run Text="(in stitches)"/><LineBreak/><Run/><LineBreak/><Run/></TextBlock>
-        <TextBlock x:Name="ColourtextBlock" HorizontalAlignment="Left" Margin="32,91,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.222,0.263" FontSize="13" Foreground="#FF3F3C46" FontWeight="Bold"><Run Text="Number of colours"/><Run Text=":"/></TextBlock>
+        <TextBlock x:Name="ColourtextBlock" HorizontalAlignment="Left" Margin="32,91,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.222,0.263" FontSize="13" Foreground="#FF3F3C46" FontWeight="Bold"><Run Text="Max number of colours"/><Run Text=":"/></TextBlock>
 
     </Grid>
 </Window>

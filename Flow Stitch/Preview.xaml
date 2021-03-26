@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:Flow_Stitch"
         mc:Ignorable="d"
         Title="Preview of pattern" Height="450" Width="539.394">
-    <Grid Background="#FFFFF8E3">
-        <local:Zoom x:Name="border" ClipToBounds="True" Background="Transparent" Margin="0,0,0.8,41">
+    <Grid Background="#FFFFFCCD">
+        <local:Zoom x:Name="border" ClipToBounds="True" Background="Transparent" Margin="0,0,0.8,0">
             <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" Margin="20,20,20,60" VerticalAlignment="Top" Width="Auto" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderTransformOrigin="0.389,0.52">
                 <Image.Effect>
                     <DropShadowEffect BlurRadius="10" 
@@ -16,6 +16,6 @@
                 </Image.Effect>
             </Image>
         </local:Zoom>
-      <Button x:Name="Savebutton" Content="Save" Margin="0,0,9.8,10" Background="#FFEFD3FF" FontSize="18" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="94" Height="26" Click="Savebutton_Click"/>
+      <Button x:Name="Savebutton" Content="Save" Margin="0,0,23.8,19" Background="#FFEFD3FF" FontSize="19" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="97" Height="32" Click="Savebutton_Click" VerticalContentAlignment="Top" Panel.ZIndex="1"/>
     </Grid>
 </Window>
