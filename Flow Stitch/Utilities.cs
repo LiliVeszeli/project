@@ -11,8 +11,10 @@ using System.Windows.Media.Imaging;
 
 namespace Flow_Stitch
 {
+    //helper methods for the program
     public class Utilities
     {
+        //converts bitmaps to writable bitmaps
         public WriteableBitmap BitmapToImageSource(Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
@@ -29,9 +31,10 @@ namespace Flow_Stitch
             }
         }
 
+        //converts writable bitmap to bitmap
         public Bitmap ConvertToBitmap(BitmapSource wBitmap)
         {
-            //convert to bitmap
+            //convert to bitmap using a stream
             MemoryStream outStream = new MemoryStream();
             BitmapEncoder enc = new BmpBitmapEncoder();
             enc.Frames.Add(BitmapFrame.Create(wBitmap));
@@ -39,19 +42,22 @@ namespace Flow_Stitch
             return new System.Drawing.Bitmap(outStream);
         }
 
+        //saves the pattern. writable bitmap can be passed to it too
         public void Save(BitmapSource bitmap)
         {
             //save
+            //brings up save file dialog
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.FileName = "Document";
             dlg.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
             Nullable<bool> result = dlg.ShowDialog();
             string fileName = "";
 
+            //if OK is pressed, the image is saved as a PNG
             if (result == true)
             {
                 fileName = dlg.FileName;
-                PngBitmapEncoder jpg = new PngBitmapEncoder(); //pngbit
+                PngBitmapEncoder jpg = new PngBitmapEncoder(); 
                 jpg.Frames.Add(BitmapFrame.Create(bitmap));
                 using (Stream stm = File.Create(fileName))
                 {

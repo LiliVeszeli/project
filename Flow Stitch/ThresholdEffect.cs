@@ -10,14 +10,17 @@ using System.Reflection;
 
 namespace Flow_Stitch
 {
+    //shader wrapper class
     public class ThresholdEffect : ShaderEffect
     {
+        //creates an instance of the pixel shader class
         PixelShader _pixelShader = new PixelShader();// { UriSource = MakePackUri("shader1.ps") };
 
+        //loads in pixel shader file
        // Uri uri = new Uri(System.IO.Directory.GetCurrentDirectory() + @"\..\..\shader1.ps", UriKind.Relative);
         Uri uri = new Uri(@"/Flow Stitch;component/shader1.ps", UriKind.Relative);
 
-
+        //constructor
         public ThresholdEffect()
         {
             _pixelShader.UriSource = uri;
@@ -48,7 +51,8 @@ namespace Flow_Stitch
         ///////////////////////////////////////////////////////////////////////
         #region Input dependency property
 
-        public Brush Input
+        //goes in the slot for input image/texture. This is for the stitch image (S0)
+        public Brush Inpu
         {
             get { return (Brush)GetValue(InputProperty); }
             set { SetValue(InputProperty, value); }
@@ -63,6 +67,7 @@ namespace Flow_Stitch
 
         #region BlankColor dependency property
 
+        //goes in the slot for a passed constant. This is the colour to blend the texture with (C0)
         public Color BlankColor
         {
             get { return (Color)GetValue(BlankColorProperty); }

@@ -1267,6 +1267,7 @@ namespace Flow_Stitch
             RenderTargetBitmap bitmapTemp;
             RenderTargetBitmap rtb;
             int it = 1;
+           
 
             //drawing stitches
             for (int j = 0; j < img.Height; j++)
@@ -1279,61 +1280,61 @@ namespace Flow_Stitch
                     System.Drawing.Color stitchColor = img.GetPixel(i, j);
                     var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
 
-                    //pointer blending 2
-                    LockBitmap lockBitmap = new LockBitmap(XStitch);
-                    lockBitmap.LockBits();
+                    ////pointer blending 2
+                    //LockBitmap lockBitmap = new LockBitmap(XStitch);
+                    //lockBitmap.LockBits();
 
 
-                    for (int y = 0; y < lockBitmap.Height; y++)
-                    {
-                        for (int x = 0; x < lockBitmap.Width; x++)
-                        {
-                            System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
+                    //for (int y = 0; y < lockBitmap.Height; y++)
+                    //{
+                    //    for (int x = 0; x < lockBitmap.Width; x++)
+                    //    {
+                    //        System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
 
-                            int red = XColor.R * stitchColor.R / 255;
-                            int blue = XColor.B * stitchColor.B / 255;
-                            int green = XColor.G * stitchColor.G / 255;
-                            System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+                    //        int red = XColor.R * stitchColor.R / 255;
+                    //        int blue = XColor.B * stitchColor.B / 255;
+                    //        int green = XColor.G * stitchColor.G / 255;
+                    //        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
 
-                            if (XColor.A > 0.5)
-                                lockBitmap.SetPixel(x, y, ResultColor);
-                        }
-                    }
-                    lockBitmap.UnlockBits();
+                    //        if (XColor.A > 0.5)
+                    //            lockBitmap.SetPixel(x, y, ResultColor);
+                    //    }
+                    //}
+                    //lockBitmap.UnlockBits();
 
-                    XStitch.MakeTransparent();
+                    //XStitch.MakeTransparent();
 
 
 
                     //shader setup
-                    //inputColor = System.Windows.Media.Color.FromArgb(255, stitchColor.R, stitchColor.G, stitchColor.B);
-                    //effect.BlankColor = inputColor;
+                    inputColor = System.Windows.Media.Color.FromArgb(255, stitchColor.R, stitchColor.G, stitchColor.B);
+                    effect.BlankColor = inputColor;
 
-                    ////bitmap to fill the rectangle with
-                    //bitmapX = bitmap2;
-                    //r.Fill = new ImageBrush(bitmapX);
-                    //r.Effect = effect; // set rectangle effect to shader
-                    
-                    ////get size of image
-                    //System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
-                    //r.Measure(sz);
-                    //r.Arrange(new Rect(sz));
+                    //bitmap to fill the rectangle with
+                    bitmapX = bitmap2;
+                    r.Fill = new ImageBrush(bitmapX);
+                    r.Effect = effect; // set rectangle effect to shader
+
+                    //get size of image
+                    System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
+                    r.Measure(sz);
+                    r.Arrange(new Rect(sz));
                     {
-                       // render rectangle with shader effect
-                       // rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
-                        //rtb.Render(r);
+                        //render rectangle with shader effect
+                        rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
+                        rtb.Render(r);
 
-                        //rtb = RenderImage(sz, r);
-                        //if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
-                        //{
-                        //    GC.Collect();
-                        //}
+                        rtb = RenderImage(sz, r);
+                        if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
+                        {
+                            GC.Collect();
+                        }
 
                         //ImageDrawing icon1 = new ImageDrawing(); 
                         //creating image drawing at the right stitch position 
                         icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
-                        //icon1.ImageSource = rtb; //setting the rendered rectangle as the source
-                        icon1.ImageSource = utilities.BitmapToImageSource(XStitch);
+                        icon1.ImageSource = rtb; //setting the rendered rectangle as the source
+                        //icon1.ImageSource = utilities.BitmapToImageSource(XStitch);
                         imageDrawings.Children.Add(icon1.Clone());
                         //imageDrawings.Children.Add(icon1);
                         it++;

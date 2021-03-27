@@ -17,25 +17,27 @@ namespace Flow_Stitch
     /// <summary>
     /// Interaction logic for NewPicture.xaml
     /// </summary>
+    /// opening new image
     public partial class NewPicture : Window
     {
         public NewPicture()
         {
             InitializeComponent();
+            //makes window open in the centre
             WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
         }
 
+        //if OK button is clicked, closes window and returns true
         private void OK_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
             Close();
         }
 
+        //if Cnacel button is clicked, closes window
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             Close();
-           // this.DialogResult = false;
-        }
-       
+        }      
     }
 }

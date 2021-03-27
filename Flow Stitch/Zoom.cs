@@ -6,6 +6,9 @@ using System.Windows.Media;
 
 namespace Flow_Stitch
 {
+    //zoom and pan code for pattern
+    //brilliant class by W. Šoltés
+    //modified by me to fit the mouse controls
     public class Zoom : Border
     {
         private UIElement child = null;
@@ -74,6 +77,7 @@ namespace Flow_Stitch
 
         #region Child Events
 
+        //zoom in with scrolling mouse wheel
         private void child_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (child != null)
@@ -100,6 +104,7 @@ namespace Flow_Stitch
             }
         }
 
+        //pan with right mouse button
         private void child_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (child != null)

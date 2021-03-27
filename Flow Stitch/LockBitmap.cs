@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace Flow_Stitch
 {
+    //pointer logic for GetPixel and SetPixel
+    //wonderful class by V. Maisuradze 
     public class LockBitmap
     {
         Bitmap source = null;
@@ -164,4 +166,12 @@ namespace Flow_Stitch
             }
         }
     }
+
+    // ***************************
+    //* Title: Work with Bitmaps Faster in C#
+    //* Author: Maisuradze, V
+    //* Date: 2011
+    //* Code version: 1.0
+    //* Availability: https://www.codeproject.com/Tips/240428/Work-with-Bitmaps-Faster-in-Csharp-3
+    //*
 }

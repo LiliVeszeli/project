@@ -1,26 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Flow_Stitch
 {
+    //Class to store the palette colours and update them when changed
     public class ListItemColour : INotifyPropertyChanged
     {
         public string _Name { get; set; } //description
 
         public string _Number { get; set; } //floss
         public System.Windows.Media.Color _Color { get; set; } //rgb
-        // Declare the event
+
+        // change event
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ListItemColour()
         {
         }
 
+        //getters and setters for member variables
         public System.Windows.Media.Color color
         {
             get { return _Color; }
