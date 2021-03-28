@@ -150,7 +150,6 @@
     <Compile Include="About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BlankEffect.cs" />
     <Compile Include="DMCColour.cs" />
     <Compile Include="ImageProcessor.cs" />
     <Compile Include="ListItemColour.cs" />
@@ -181,7 +180,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Colour.cs" />
     <Compile Include="DMCWindow.xaml.cs">
       <DependentUpon>DMCWindow.xaml</DependentUpon>
     </Compile>
