@@ -110,119 +110,18 @@ namespace Flow_Stitch
 
                     if (img.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb || img.PixelFormat == System.Drawing.Imaging.PixelFormat.Format24bppRgb || img.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppPArgb || img.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppRgb)
                     {
-
-                        ////calculating new size in percentage
-                        //float newSizePercentage = (float)heightOfPattern / (float)img.Height;
-                        //newSizePercentage *= 100;
-
-                        ////???
-                        //upscalePercentage = 100 * ((float)img.Height / (float)heightOfPattern);
-
-                        ////reduce colour palette
-                        //ColorImageQuantizer quantizer = new ColorImageQuantizer(new MedianCutQuantizer());
-                        ////var quantizer2 = new WuQuantizer();
-                        //System.Drawing.Bitmap quantizedImage = quantizer.ReduceColors(img, numberOfColours);
-
-
-                        ////resize image
-                        //System.Drawing.Bitmap scaledImage = Utilities.ScaleByPercent(quantizedImage, newSizePercentage, heightOfPattern);
-                        ////storing height
-                        //patternHeight = heightOfPattern;
-
-                        ////requantize
-                        //System.Drawing.Bitmap requantizedImage = new Bitmap(quantizer.ReduceColors(scaledImage, numberOfColours)); //original
-
-                        //wBitmap = utilities.BitmapToImageSource(requantizedImage);
-                        //image.Source = wBitmap;
-
-                        ////getting color palette of quantized image
-                        //BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
-
-                        //DMC closestColor = new DMC();
-                        //double distance = 1000;
-                        //List<System.Drawing.Color> paletteList = new List<System.Drawing.Color>();
-                        //DMCitems.Clear();
-                        //List<DMC> DMCitemsDup = new List<DMC>();
-                        //DMCitemsDup.Clear();
-
-                        ////getting closest DMC colours to RGB
-                        //for (int i = 0; i < myPalette.Colors.Count(); i++)
-                        //{
-                        //    for (int j = 0; j < DMCColors.Count(); j++)
-                        //    {
-
-                        //        DMCColoursList.Add(new ListItemColour() { Number = "  " + DMCColors[j].Floss, Name = "  " + DMCColors[j].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCColors[j].Red, (byte)DMCColors[j].Green, (byte)DMCColors[j].Blue) });
-
-                        //        //getting a closer blue colour because of lack of bright blue threads
-                        //        var b = myPalette.Colors[i].B;
-                        //        if (myPalette.Colors[i].B > 180 && myPalette.Colors[i].G < 100 && myPalette.Colors[i].R < 100)
-                        //        {
-                        //            b = (byte)(160 + (20 * (b - 160)) / (256 - 160));
-                        //        }
-
-                        //        //finding closest colour to image in DMC threads using Lab colour space
-                        //        var dialogRgb = new Rgb { R = myPalette.Colors[i].R, G = myPalette.Colors[i].G, B = b };
-                        //        var lab1 = dialogRgb.To<Lab>();
-                        //        var lch1 = lab1.To<Lch>();
-
-                        //        var DMCRgb = new Rgb { R = DMCColors[j].Red, G = DMCColors[j].Green, B = DMCColors[j].Blue };
-                        //        var lab2 = DMCRgb.To<Lab>();
-                        //        var lch2 = lab2.To<Lch>();
-
-                        //        var comparison = new CmcComparison();
-                        //        var deltaE = comparison.Compare(dialogRgb, DMCRgb);
-
-                        //        //finding the smallest distance 
-                        //        if (deltaE < distance)
-                        //        {
-                        //            closestColor = DMCColors[j];
-                        //            distance = deltaE;
-                        //        }
-                        //    }
-                        //    DMCitemsDup.Add(closestColor);
-                        //    distance = 1000;
-                        //    paletteList.Add(System.Drawing.Color.FromArgb(closestColor.Red, closestColor.Green, closestColor.Blue));
-                        //}
-
-
-                        ////removing duplicates
-                        //DMCitems = DMCitemsDup.Distinct().ToList();
-                        //List<System.Drawing.Color> uniquePL = paletteList.Distinct().ToList();
-
-                        ////making the list into a simple array so that it can be passed to the quantizer
-                        //palette = uniquePL.ToArray();
-
-                        ////resetting palette 
-                        //items.Clear();
-
-                        ////data binding
-                        ////making listbox items dynamically
-                        //for (int i = 0; i < DMCitems.Count(); i++)
-                        //{
-                        //    items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
-                        //}
-
-
-                        ////changing the colours in the pattern to the DMC colours
-                        //System.Drawing.Bitmap requantizedImage2 = new Bitmap(quantizer.ReduceColors(requantizedImage, palette)); //CHANGE BACK
-                        //Bitmap newBitmap = new Bitmap(requantizedImage2);
-
-                        ////putting it back into the image and the writable bitmap
-                        //wBitmap = utilities.BitmapToImageSource(newBitmap);
-                        //image.Source = wBitmap;
-
+                        //creating pattern
                         ImageProcessor.MakePattern(ref wBitmap, ref heightOfPattern, ref upscalePercentage, ref numberOfColours, ref patternHeight,
                                      ref img, ref image, ref DMCitems, ref DMCColors, ref DMCColoursList, ref items, ref palette);
 
-
-                        listBox.ItemsSource = items; //!!!
+                        //binding listbox to items
+                        listBox.ItemsSource = items;
+                        
                         //store state of image
                         Pattern.patternStatesAdd(ref wBitmap);
 
-                        //patternHeight = (int)wBitmap.Height;
                         patternWidth = (int)image.Source.Width;
                         //outputting width to properties
-                        //WidthTextBlock.Text = " Width: " + scaledImage.Width.ToString();
                         WidthTextBlock.Text = " Width: " + patternWidth.ToString();
 
                         //displaying height of pattern in properties
@@ -470,7 +369,7 @@ namespace Flow_Stitch
             else
             {
                 //cant delete all colours
-                MessageBox.Show("Error: Cannot delete all colours from pattern.", "ERROR");
+                System.Windows.Forms.MessageBox.Show("Error: Cannot delete all colours from pattern.", "ERROR", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
             }
         }
 
@@ -861,97 +760,102 @@ namespace Flow_Stitch
                 {
                     //getting colour from pattern
                     System.Drawing.Color stitchColor = img.GetPixel(i, j);
-                    var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
 
-                    ////pointer blending 2
-                    //LockBitmap lockBitmap = new LockBitmap(XStitch);
-                    //lockBitmap.LockBits();
-
-
-                    //for (int y = 0; y < lockBitmap.Height; y++)
-                    //{
-                    //    for (int x = 0; x < lockBitmap.Width; x++)
-                    //    {
-                    //        System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
-
-                    //        int red = XColor.R * stitchColor.R / 255;
-                    //        int blue = XColor.B * stitchColor.B / 255;
-                    //        int green = XColor.G * stitchColor.G / 255;
-                    //        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
-
-                    //        if (XColor.A > 0.5)
-                    //            lockBitmap.SetPixel(x, y, ResultColor);
-                    //    }
-                    //}
-                    //lockBitmap.UnlockBits();
-
-                    //XStitch.MakeTransparent();
-
-
-
-                    //shader setup
-                    inputColor = System.Windows.Media.Color.FromArgb(255, stitchColor.R, stitchColor.G, stitchColor.B);
-                    effect.BlankColor = inputColor;
-
-                    //bitmap to fill the rectangle with
-                    bitmapX = bitmap2;
-                    r.Fill = new ImageBrush(bitmapX);
-                    r.Effect = effect; // set rectangle effect to shader
-
-                    //get size of image
-                    System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
-                    r.Measure(sz);
-                    r.Arrange(new Rect(sz));
+                    //check if next square is white, meaning it is erased, so no stitch
+                    if (stitchColor != System.Drawing.Color.FromArgb(255, 255, 255, 255))
                     {
-                        //render rectangle with shader effect
-                        rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
-                        rtb.Render(r);
+                        var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
 
-                        //rtb = RenderImage(sz, r);
-                        if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
+                        ////pointer blending 2
+                        //LockBitmap lockBitmap = new LockBitmap(XStitch);
+                        //lockBitmap.LockBits();
+
+
+                        //for (int y = 0; y < lockBitmap.Height; y++)
+                        //{
+                        //    for (int x = 0; x < lockBitmap.Width; x++)
+                        //    {
+                        //        System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
+
+                        //        int red = XColor.R * stitchColor.R / 255;
+                        //        int blue = XColor.B * stitchColor.B / 255;
+                        //        int green = XColor.G * stitchColor.G / 255;
+                        //        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+
+                        //        if (XColor.A > 0.5)
+                        //            lockBitmap.SetPixel(x, y, ResultColor);
+                        //    }
+                        //}
+                        //lockBitmap.UnlockBits();
+
+                        //XStitch.MakeTransparent();
+
+
+
+                        //shader setup
+                        inputColor = System.Windows.Media.Color.FromArgb(255, stitchColor.R, stitchColor.G, stitchColor.B);
+                        effect.BlankColor = inputColor;
+
+                        //bitmap to fill the rectangle with
+                        bitmapX = bitmap2;
+                        r.Fill = new ImageBrush(bitmapX);
+                        r.Effect = effect; // set rectangle effect to shader
+
+                        //get size of image
+                        System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
+                        r.Measure(sz);
+                        r.Arrange(new Rect(sz));
                         {
-                            GC.Collect();
+                            //render rectangle with shader effect
+                            rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
+                            rtb.Render(r);
+
+                            //rtb = RenderImage(sz, r);
+                            if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
+                            {
+                                GC.Collect();
+                            }
+
+                            //ImageDrawing icon1 = new ImageDrawing(); 
+                            //creating image drawing at the right stitch position 
+                            icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
+                            icon1.ImageSource = rtb; //setting the rendered rectangle as the source
+                                                     //icon1.ImageSource = utilities.BitmapToImageSource(XStitch);
+                            imageDrawings.Children.Add(icon1.Clone());
+                            //imageDrawings.Children.Add(icon1);
+                            it++;
                         }
+                        //if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
+                        //{
 
-                        //ImageDrawing icon1 = new ImageDrawing(); 
-                        //creating image drawing at the right stitch position 
-                        icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
-                        icon1.ImageSource = rtb; //setting the rendered rectangle as the source
-                        //icon1.ImageSource = utilities.BitmapToImageSource(XStitch);
-                        imageDrawings.Children.Add(icon1.Clone());
-                        //imageDrawings.Children.Add(icon1);
-                        it++;
+
+                        //    drawingImageSourceTemp = new DrawingImage(imageDrawings);
+
+                        //    double destWidth2 = (int)drawingImageSourceTemp.Width;
+                        //    double destHeight2 = (int)drawingImageSourceTemp.Height;
+
+                        //    //DrawingVisual visual2 = new DrawingVisual();
+                        //    context2 = visual2.RenderOpen();
+                        //    Rect rect2 = new Rect(0, 0, destWidth2, destHeight2);
+                        //    context2.DrawImage(drawingImageSourceTemp, rect2);
+                        //    context2.Close();
+
+                        //    {
+                        //        bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
+                        //        bitmapTemp.Render(visual2);
+                        //        //bitmapTemp = RenderImage2(visual2, destWidth2, destHeight2);
+
+                        //        imageDrawings.Children.Clear();
+
+                        //        //ImageDrawing icon2 = new ImageDrawing();
+                        //        icon2.Rect = new Rect(0, 0, destWidth2, destHeight2);
+                        //        icon2.ImageSource = bitmapTemp;
+                        //        imageDrawings.Children.Add(icon2.Clone());
+
+                        //    }
+                        //    GC.Collect();
+                        //}
                     }
-                    //if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
-                    //{
-
-
-                    //    drawingImageSourceTemp = new DrawingImage(imageDrawings);
-
-                    //    double destWidth2 = (int)drawingImageSourceTemp.Width;
-                    //    double destHeight2 = (int)drawingImageSourceTemp.Height;
-
-                    //    //DrawingVisual visual2 = new DrawingVisual();
-                    //    context2 = visual2.RenderOpen();
-                    //    Rect rect2 = new Rect(0, 0, destWidth2, destHeight2);
-                    //    context2.DrawImage(drawingImageSourceTemp, rect2);
-                    //    context2.Close();
-
-                    //    {
-                    //        bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
-                    //        bitmapTemp.Render(visual2);
-                    //        //bitmapTemp = RenderImage2(visual2, destWidth2, destHeight2);
-
-                    //        imageDrawings.Children.Clear();
-
-                    //        //ImageDrawing icon2 = new ImageDrawing();
-                    //        icon2.Rect = new Rect(0, 0, destWidth2, destHeight2);
-                    //        icon2.ImageSource = bitmapTemp;
-                    //        imageDrawings.Children.Add(icon2.Clone());
-
-                    //    }
-                    //    GC.Collect();
-                    //}
                 }
             }
 

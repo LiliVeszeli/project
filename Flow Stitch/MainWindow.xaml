@@ -82,25 +82,23 @@
         </DockPanel>
         <Menu x:Name="menu" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Top" Width="Auto" Grid.ColumnSpan="2" Margin="0,0,-0.4,0" Background="#FF321F8C">
             <MenuItem Header="File" Width="35" Height="25" Foreground="#FFF0F0F0">
-                <MenuItem Header="New" Name="ItemOpen" Background="White" Click="ItemOpen_Click" Foreground="#FF181818">
+                <MenuItem Header="New" Name="ItemOpen" Background="White" Click="ItemOpen_Click" Foreground="#FF181818" Padding="-10,0,-40,0">
                 </MenuItem>
-                <MenuItem Header="Save" Name="ItemSave" Background="White" Click="ItemSave_Click" Foreground="#FF020202">
+                <MenuItem Header="Save" Name="ItemSave" Background="White" Click="ItemSave_Click" Foreground="#FF020202" Padding="-10,0,-40,0">
                     <MenuItem.ToolTip>
                         <TextBlock>Save without symbols.</TextBlock>
                     </MenuItem.ToolTip>
                 </MenuItem>
-                <MenuItem Header="Exit" Name="ItemExit" Background="White" Foreground="#FF050505" Click="ItemExit_Click" >
+                <MenuItem Header="Exit" Name="ItemExit" Background="White" Foreground="#FF050505" Click="ItemExit_Click" Padding="-10,0,-40,0" >
                 </MenuItem>
 
             </MenuItem>
             <MenuItem Header="Edit" Width="35" Height="25" Foreground="#FFE5E5E5">
-                <MenuItem Header="Undo" Name="Undo" Background="White" Click="Undo_Click" Foreground="#FF0C0C0C" >
-                </MenuItem>
-                <MenuItem Header="Redo" Name="Redo" Background="White" Click="Redo_Click" Foreground="Black" >
-                </MenuItem>
+                <MenuItem Header="Undo      Ctrl+Z" Name="Undo" Background="White" Click="Undo_Click" Foreground="#FF0C0C0C" Padding="-30,0,-40,0" Width="100" HorizontalAlignment="Left" />
+                <MenuItem Header="Redo       Ctrl+Y " Name="Redo" Background="White" Click="Redo_Click" Foreground="Black" Width="100" Padding="-30,0,-40,0" />
             </MenuItem>
             <MenuItem Header="Help" Width="35" Height="25" Foreground="#FFF0F0F0">
-                <MenuItem Header="About Flow Stitch" Name="ItemAbout" Background="White" Foreground="#FF050505" Click="ItemAbout_Click" />
+                <MenuItem Header="About Flow Stitch" Name="ItemAbout" Background="White" Foreground="#FF050505" Click="ItemAbout_Click" Padding="-20,0,-40,0" Margin="0,0,1.2,0" />
             </MenuItem>
         </Menu>
 
