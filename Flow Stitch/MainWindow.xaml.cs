@@ -1,5 +1,4 @@
 ﻿using Dsafa.WpfColorPicker;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +9,6 @@ using System.Windows.Media.Imaging;
 using System.Drawing;
 using AForge.Imaging.ColorReduction;
 using System.Collections.ObjectModel;
-using ColorMine.ColorSpaces;
-using ColorMine.ColorSpaces.Comparisons;
 
 namespace Flow_Stitch
 {

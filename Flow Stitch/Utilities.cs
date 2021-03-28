@@ -6,8 +6,6 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Media.Imaging;
-using Microsoft.Win32;
-using System.Windows;
 using System.Windows.Forms;
 using System.Linq;
 using ColorMine.ColorSpaces.Comparisons;

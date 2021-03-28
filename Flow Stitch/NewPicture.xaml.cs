@@ -34,7 +34,7 @@ namespace Flow_Stitch
             Close();
         }
 
-        //if Cnacel button is clicked, closes window
+        //if Cancel button is clicked, closes window
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             Close();
