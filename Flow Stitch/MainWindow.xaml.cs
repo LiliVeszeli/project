@@ -285,7 +285,7 @@ namespace Flow_Stitch
             }
         }
 
-        //clicking a colour in the palette - you can draw with that color
+        //clicking a colour in the palette - the user can draw with that color
         private void StackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             //getting the selected listbox item
@@ -294,6 +294,7 @@ namespace Flow_Stitch
             //setting current color from the palette that was clicked
             currentColour = selectedItem.color;
         }
+
 
         //deleting a colour from the palette
         private void MenuItem_Click_1(object sender, RoutedEventArgs e)
@@ -497,20 +498,24 @@ namespace Flow_Stitch
                 {
                     System.Drawing.Color stitchColor = img.GetPixel(i, j);
 
-                    for(int k = 0; k < items.Count(); k++)
+                    //check if next square is white, meaning it is erased, so no stitch
+                    if (stitchColor != System.Drawing.Color.FromArgb(255, 255, 255, 255))
                     {
-                        if(stitchColor == System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B))
+                        for (int k = 0; k < items.Count(); k++)
                         {
-                            string iconName = (k+0).ToString() + ".PNG";
-                            // Create a 100 by 100 image with an upper-left point of (75,75).
-                            ImageDrawing icon1 = new ImageDrawing();
-                            icon1.Rect = new Rect(stitchStartPosition + (stitchSize * i), stitchPositionY, iconHeight, iconHeight);
-                            icon1.ImageSource = new BitmapImage(
-                                new Uri(iconName, UriKind.Relative));
+                            if (stitchColor == System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B))
+                            {
+                                string iconName = (k + 0).ToString() + ".PNG";
 
-                            imageDrawings.Children.Add(icon1);
-                            break;
-                        }                      
+                                ImageDrawing icon1 = new ImageDrawing();
+                                icon1.Rect = new Rect(stitchStartPosition + (stitchSize * i), stitchPositionY, iconHeight, iconHeight);
+                                icon1.ImageSource = new BitmapImage(
+                                    new Uri(iconName, UriKind.Relative));
+
+                                imageDrawings.Children.Add(icon1);
+                                break;
+                            }
+                        }
                     }
                 }                      
             }
@@ -538,7 +543,7 @@ namespace Flow_Stitch
             }
            
 
-            // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap seems to be the best way
+            // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap
             DrawingVisual visual = new DrawingVisual();
             DrawingContext context = visual.RenderOpen();
             Rect rect = new Rect(0, 0, destWidth, destHeight);
@@ -553,7 +558,6 @@ namespace Flow_Stitch
             imageControl.Stretch = Stretch.None;
             imageControl.Source = drawingImageSource;
 
-            //image.Source = imageControl.Source; IMPORTANT
 
             //making a new image to pass to the symbol window
             System.Windows.Controls.Image passImage = new System.Windows.Controls.Image();
@@ -565,7 +569,7 @@ namespace Flow_Stitch
 
             if(result2 == true)
             {
-                //save
+                //save pattern with symbols
                 utilities.Save(bitmap);
             }
         }
@@ -661,25 +665,6 @@ namespace Flow_Stitch
         }
 
 
-        //RenderTargetBitmap RenderImage(System.Windows.Size sz, System.Windows.Shapes.Rectangle r)
-        //{
-        //    var rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
-        //    rtb.Render(r);
-        //    rtb.Freeze();
-
-        //    return rtb;
-        //}
-
-        //RenderTargetBitmap RenderImage2(Visual visual2, double destWidth2, double destHeight2)
-        //{
-        //    var bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
-        //    bitmapTemp.Render(visual2);
-        //    bitmapTemp.Freeze();
-
-        //    return bitmapTemp;
-        //}
-
-       
 
         private void previewButton_Click(object sender, RoutedEventArgs e)
         {
@@ -866,7 +851,7 @@ namespace Flow_Stitch
             double destHeight = (int)drawingImageSource.Height;
 
 
-            // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap seems to be the best way
+            // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap
             DrawingVisual visual = new DrawingVisual();
             DrawingContext context = visual.RenderOpen();
             Rect rect = new Rect(0, 0, destWidth, destHeight);
@@ -882,8 +867,6 @@ namespace Flow_Stitch
             imageControl.Stretch = Stretch.None;
             imageControl.Source = drawingImageSource;
 
-            //image.Source = imageControl.Source; IMPORTANT
-
             //making a new image to pass to the preview window
             System.Windows.Controls.Image passImage = new System.Windows.Controls.Image();
             passImage.Source = imageControl.Source;
@@ -892,7 +875,7 @@ namespace Flow_Stitch
             Preview previewWindow = new Preview(imageControl);
             Nullable<bool> result2 = previewWindow.ShowDialog();
 
-            //save
+            //save preview
             if (result2 == true)
             {
                 utilities.Save(bitmap);
@@ -903,7 +886,6 @@ namespace Flow_Stitch
         private void ItemExit_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Application.Current.Shutdown();
-            //Environment.Exit(0);
         }
 
         //shows "About" window
