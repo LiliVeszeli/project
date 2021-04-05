@@ -262,9 +262,6 @@
     <Resource Include="symbol.PNG" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="x.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="x2.PNG" />
   </ItemGroup>
   <ItemGroup>

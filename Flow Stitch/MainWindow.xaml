@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:Flow_Stitch"
        
         mc:Ignorable="d"
-        Title="Flow Stitch" Height="1141.58" Width="1549" KeyDown="Window_KeyDown" WindowState="Maximized">
+        Title="Flow Stitch" Height="806.78" Width="1567" KeyDown="Window_KeyDown" WindowState="Maximized">
 
     <Window.Resources>
         <DataTemplate DataType="{x:Type local:ListItemColour}">
@@ -37,7 +37,7 @@
     </Window.Resources>
 
     <Grid Background="#FFEEEEEE">
-        <DockPanel HorizontalAlignment="Left" Height="Auto" Margin="0,26,0,0" VerticalAlignment="Stretch" Width="183" RenderTransformOrigin="0.411,0.501" Background="#FFD4D4FF" LastChildFill="False">
+        <DockPanel HorizontalAlignment="Left" Height="Auto" Margin="0,26,0,-0.2" VerticalAlignment="Stretch" Width="183" RenderTransformOrigin="0.411,0.501" Background="#FFD4D4FF" LastChildFill="False">
             <Border DockPanel.Dock="Right" Height="Auto" BorderBrush="#FF9694E4"
         SnapsToDevicePixels="True" BorderThickness="1" Panel.ZIndex="1"/>
             <StackPanel Height="583" VerticalAlignment="Top" Width="167" Background="#FFD4D4FF">
@@ -102,7 +102,7 @@
             </MenuItem>
         </Menu>
 
-        <local:Zoom x:Name="border" ClipToBounds="True" Background="Transparent" Margin="183,25,0.4,0">
+        <local:Zoom x:Name="border" ClipToBounds="True" Background="Transparent" Margin="183,25,0.8,-0.2">
             <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" VerticalAlignment="Top" Width="Auto" RenderTransformOrigin="0.5,0.5" Margin="10,20,0,20" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseLeftButtonDown="image_MouseDown">
                 <Image.Effect>
                     <DropShadowEffect BlurRadius="10" 
@@ -114,8 +114,6 @@
         </local:Zoom>
 
         <Canvas HorizontalAlignment="Left" Height="335" Margin="188,75,0,0" VerticalAlignment="Top" Width="602"/>
-        <!-- <Button x:Name="ChangeColour" Content="Change Colour" Grid.Column="1" HorizontalAlignment="Left" Margin="202,39,0,0" VerticalAlignment="Top" Width="98" Click="ChangeColour_Click" Visibility="Hidden"/>
-        <Button x:Name="Resize" Content="Resize" Grid.Column="1" HorizontalAlignment="Left" Margin="406,39,0,0" VerticalAlignment="Top" Width="75" Click="Resize_Click" Visibility="Hidden"/>
-        <Button x:Name="Palette" Content="Reduce Colour" Grid.Column="1" HorizontalAlignment="Left" Margin="566,39,0,0" VerticalAlignment="Top" Width="88" Click="Palette_Click" Visibility="Hidden"/> -->
+       
     </Grid>
 </Window>
