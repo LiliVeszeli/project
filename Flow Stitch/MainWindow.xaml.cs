@@ -90,7 +90,7 @@ namespace Flow_Stitch
             }
 
             //only opening a picture if input is not empty/invalid and if OK was clicked
-            if (numberOfColours != 0 && heightOfPattern != 0 && result2 == true && numberOfColours <= 256 && numberOfColours >= 2)
+            if (numberOfColours != 0 && heightOfPattern != 0 && result2 == true && numberOfColours <= 256 && numberOfColours >= 2 && heightOfPattern < 5000)
             {
                 //opening files
                 utilities.OpenFile(ref wBitmap, ref image);
@@ -166,16 +166,19 @@ namespace Flow_Stitch
         //clicking on the draw button
         private void drawButtonImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //isDrawing = true;
-            isEraser = false;
+            if (wBitmap != null)
+            {
+                //isDrawing = true;
+                isEraser = false;
 
-            //opening window to choose from DMC colours
-            DMCWindow window = new DMCWindow(DMCColoursList);
-            window.ShowDialog();
+                //opening window to choose from DMC colours
+                DMCWindow window = new DMCWindow(DMCColoursList);
+                window.ShowDialog();
 
-            //setting the drawing colour to the selected one
-            if(window.currentColourW != null)
-            currentColour = window.currentColourW;
+                //setting the drawing colour to the selected one
+                if (window.currentColourW != null)
+                    currentColour = window.currentColourW;
+            }
         }
 
         //clicking on the colour picker button
@@ -382,7 +385,10 @@ namespace Flow_Stitch
         //undo operation
         private void Undo_Click(object sender, RoutedEventArgs e)
         {
-            UndoFunction();
+            if(wBitmap != null)
+            {
+                UndoFunction();
+            }
         }
 
         void UndoFunction()
@@ -415,8 +421,9 @@ namespace Flow_Stitch
 
         //redo operation
         private void Redo_Click(object sender, RoutedEventArgs e)
-        { 
-            RedoFunction();
+        {
+            if (wBitmap != null)
+                RedoFunction();
         }
 
         void RedoFunction()
@@ -468,109 +475,111 @@ namespace Flow_Stitch
         //setting symbols on pattern
         private void UpScale_Click(object sender, RoutedEventArgs e)
         {
-
-            //convert to bitmap
-            System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
-
-
-            double iconHeight = (image.ActualHeight / patternHeight) * 0.6;
-            double stitchSize = image.ActualHeight / patternHeight;
-            double stitchStartPosition = (stitchSize / 2) - (iconHeight / 2);
-            double stitchPositionY = stitchStartPosition;
-          
-
-            // Create a DrawingGroup to combine the ImageDrawing objects.
-            DrawingGroup imageDrawings = new DrawingGroup();
-            RenderOptions.SetBitmapScalingMode(imageDrawings, BitmapScalingMode.NearestNeighbor);
-
-            ImageDrawing pattern = new ImageDrawing();
-            pattern.Rect = new Rect(0,0, image.ActualWidth, image.ActualHeight);
-            pattern.ImageSource = wBitmap;
-
-            imageDrawings.Children.Add(pattern);
-
-            //drawing symbols
-            for (int j = 0; j < img.Height; j++)
+            if (wBitmap != null)
             {
-                //changing Y position
-                stitchPositionY = stitchStartPosition + j * stitchSize;
-                for (int i = 0; i < img.Width; i++)
+                //convert to bitmap
+                System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
+
+
+                double iconHeight = (image.ActualHeight / patternHeight) * 0.6;
+                double stitchSize = image.ActualHeight / patternHeight;
+                double stitchStartPosition = (stitchSize / 2) - (iconHeight / 2);
+                double stitchPositionY = stitchStartPosition;
+
+
+                // Create a DrawingGroup to combine the ImageDrawing objects.
+                DrawingGroup imageDrawings = new DrawingGroup();
+                RenderOptions.SetBitmapScalingMode(imageDrawings, BitmapScalingMode.NearestNeighbor);
+
+                ImageDrawing pattern = new ImageDrawing();
+                pattern.Rect = new Rect(0, 0, image.ActualWidth, image.ActualHeight);
+                pattern.ImageSource = wBitmap;
+
+                imageDrawings.Children.Add(pattern);
+
+                //drawing symbols
+                for (int j = 0; j < img.Height; j++)
                 {
-                    System.Drawing.Color stitchColor = img.GetPixel(i, j);
-
-                    //check if next square is white, meaning it is erased, so no stitch
-                    if (stitchColor != System.Drawing.Color.FromArgb(255, 255, 255, 255))
+                    //changing Y position
+                    stitchPositionY = stitchStartPosition + j * stitchSize;
+                    for (int i = 0; i < img.Width; i++)
                     {
-                        for (int k = 0; k < items.Count(); k++)
+                        System.Drawing.Color stitchColor = img.GetPixel(i, j);
+
+                        //check if next square is white, meaning it is erased, so no stitch
+                        if (stitchColor != System.Drawing.Color.FromArgb(255, 255, 255, 255))
                         {
-                            if (stitchColor == System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B))
+                            for (int k = 0; k < items.Count(); k++)
                             {
-                                string iconName = (k + 0).ToString() + ".PNG";
+                                if (stitchColor == System.Drawing.Color.FromArgb(items[k].color.R, items[k].color.G, items[k].color.B))
+                                {
+                                    string iconName = (k + 0).ToString() + ".PNG";
 
-                                ImageDrawing icon1 = new ImageDrawing();
-                                icon1.Rect = new Rect(stitchStartPosition + (stitchSize * i), stitchPositionY, iconHeight, iconHeight);
-                                icon1.ImageSource = new BitmapImage(
-                                    new Uri(iconName, UriKind.Relative));
+                                    ImageDrawing icon1 = new ImageDrawing();
+                                    icon1.Rect = new Rect(stitchStartPosition + (stitchSize * i), stitchPositionY, iconHeight, iconHeight);
+                                    icon1.ImageSource = new BitmapImage(
+                                        new Uri(iconName, UriKind.Relative));
 
-                                imageDrawings.Children.Add(icon1);
-                                break;
+                                    imageDrawings.Children.Add(icon1);
+                                    break;
+                                }
                             }
                         }
                     }
-                }                      
-            }
-            
-            DrawingImage drawingImageSource = new DrawingImage(imageDrawings);
+                }
 
-            // Freeze the DrawingImage for performance benefits.
-            drawingImageSource.Freeze();
+                DrawingImage drawingImageSource = new DrawingImage(imageDrawings);
 
-            double destWidth = (int)drawingImageSource.Width;
-            double destHeight = (int)drawingImageSource.Height;
+                // Freeze the DrawingImage for performance benefits.
+                drawingImageSource.Freeze();
 
-            if ((patternHeight > 20 || patternWidth > 20) && (patternHeight < 200 && patternWidth < 200))
-            {
-                //destHeight = destHeight*patternHeight/ (10/(patternHeight* patternHeight));
-                //destWidth = destWidth* patternHeight/ (10 / (patternHeight * patternHeight));
+                double destWidth = (int)drawingImageSource.Width;
+                double destHeight = (int)drawingImageSource.Height;
 
-                destHeight = destHeight * stitchSize;
-                destWidth = destWidth * stitchSize;
-            }
-            else if(patternHeight > 200 || patternWidth > 200)
-            {                          
-                destHeight = destHeight * patternHeight / 20;
-                destWidth = destWidth * patternHeight / 20;               
-            }
-           
+                if ((patternHeight > 50 || patternWidth > 50) && (patternHeight < 200 && patternWidth < 200))
+                {
+                    //destHeight = destHeight*patternHeight/ (10/(patternHeight* patternHeight));
+                    //destWidth = destWidth* patternHeight/ (10 / (patternHeight * patternHeight));
 
-            // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap
-            DrawingVisual visual = new DrawingVisual();
-            DrawingContext context = visual.RenderOpen();
-            Rect rect = new Rect(0, 0, destWidth, destHeight);
-            context.DrawImage(drawingImageSource, rect);
-            context.Close();
-             
-            //render image on the screen
-            RenderTargetBitmap bitmap = new RenderTargetBitmap((int)destWidth, (int)destHeight, 96, 96, PixelFormats.Pbgra32);
-            bitmap.Render(visual);
-
-            System.Windows.Controls.Image imageControl = new System.Windows.Controls.Image();
-            imageControl.Stretch = Stretch.None;
-            imageControl.Source = drawingImageSource;
+                    destHeight = destHeight * stitchSize;
+                    destWidth = destWidth * stitchSize;
+                }
+                else if (patternHeight > 200 || patternWidth > 200)
+                {
+                    destHeight = destHeight * patternHeight / 20;
+                    destWidth = destWidth * patternHeight / 20;
+                }
 
 
-            //making a new image to pass to the symbol window
-            System.Windows.Controls.Image passImage = new System.Windows.Controls.Image();
-            passImage.Source = imageControl.Source;
+                // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap
+                DrawingVisual visual = new DrawingVisual();
+                DrawingContext context = visual.RenderOpen();
+                Rect rect = new Rect(0, 0, destWidth, destHeight);
+                context.DrawImage(drawingImageSource, rect);
+                context.Close();
 
-            //show the symbol window, passing the image
-            Symbol symbolWindow = new Symbol(imageControl);
-            Nullable<bool> result2 = symbolWindow.ShowDialog();
+                //render image on the screen
+                RenderTargetBitmap bitmap = new RenderTargetBitmap((int)destWidth, (int)destHeight, 96, 96, PixelFormats.Pbgra32);
+                bitmap.Render(visual);
 
-            if(result2 == true)
-            {
-                //save pattern with symbols
-                utilities.Save(bitmap);
+                System.Windows.Controls.Image imageControl = new System.Windows.Controls.Image();
+                imageControl.Stretch = Stretch.None;
+                imageControl.Source = drawingImageSource;
+
+
+                //making a new image to pass to the symbol window
+                System.Windows.Controls.Image passImage = new System.Windows.Controls.Image();
+                passImage.Source = imageControl.Source;
+
+                //show the symbol window, passing the image
+                Symbol symbolWindow = new Symbol(imageControl);
+                Nullable<bool> result2 = symbolWindow.ShowDialog();
+
+                if (result2 == true)
+                {
+                    //save pattern with symbols
+                    utilities.Save(bitmap);
+                }
             }
         }
 
@@ -578,322 +587,331 @@ namespace Flow_Stitch
         //if image pixel is clicked
         private void image_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // coordinates are now available in p.X and p.Y
-            var p = e.GetPosition(image);
-
-            System.Drawing.Color bitmapColour = System.Drawing.Color.FromArgb(currentColour.R, currentColour.G, currentColour.B);
-
-            //converting to bitmap
-            System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
-
-            var source = (BitmapSource)image.Source;
-
-            //calculating pixel position
-            double pixelWidth = source.PixelWidth;
-            double pixelHeight = source.PixelHeight;
-            double dx = pixelWidth * p.X / image.ActualWidth;
-            double dy = pixelHeight * p.Y / image.ActualHeight;
-
-            //converting to int
-            int x = (int)dx;
-            int y = (int)dy;
-           
-            img.SetPixel(x, y, bitmapColour);
-
-            wBitmap = utilities.BitmapToImageSource(img);
-            image.Source = wBitmap;
-
-            //store state of image
-            Pattern.patternStatesAdd(ref wBitmap);
-
-            //if drawing tool is used
-            if (!isEraser)
+            if (wBitmap != null)
             {
-                //adding new color to palette
-               
-                DMC closestColor = new DMC();
 
-                ////getting closest DMC colours to RGB    
-                utilities.ClosestDMCToRGB(ref DMCColors, ref closestColor, ref currentColour);
 
-                string nextName = "  " + closestColor.Description;
+                // coordinates are now available in p.X and p.Y
+                var p = e.GetPosition(image);
 
-                //checking if that colour is already in the palette
-                int count = 0;
-                for (int i = 0; i < items.Count(); i++)
+                System.Drawing.Color bitmapColour = System.Drawing.Color.FromArgb(currentColour.R, currentColour.G, currentColour.B);
+
+                //converting to bitmap
+                System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
+
+                var source = (BitmapSource)image.Source;
+
+                //calculating pixel position
+                double pixelWidth = source.PixelWidth;
+                double pixelHeight = source.PixelHeight;
+                double dx = pixelWidth * p.X / image.ActualWidth;
+                double dy = pixelHeight * p.Y / image.ActualHeight;
+
+                //converting to int
+                int x = (int)dx;
+                int y = (int)dy;
+
+                img.SetPixel(x, y, bitmapColour);
+
+                wBitmap = utilities.BitmapToImageSource(img);
+                image.Source = wBitmap;
+
+                //store state of image
+                Pattern.patternStatesAdd(ref wBitmap);
+
+                //if drawing tool is used
+                if (!isEraser)
                 {
-                    if (items[i].Name == nextName)
+                    //adding new color to palette
+
+                    DMC closestColor = new DMC();
+
+                    ////getting closest DMC colours to RGB    
+                    utilities.ClosestDMCToRGB(ref DMCColors, ref closestColor, ref currentColour);
+
+                    string nextName = "  " + closestColor.Description;
+
+                    //checking if that colour is already in the palette
+                    int count = 0;
+                    for (int i = 0; i < items.Count(); i++)
                     {
-                        count++;
+                        if (items[i].Name == nextName)
+                        {
+                            count++;
+                        }
                     }
-                }
 
-                //if the colour is not in the palette, then it it added
-                if (count == 0)
+                    //if the colour is not in the palette, then it it added
+                    if (count == 0)
+                    {
+                        items.Add(new ListItemColour() { Number = "  " + closestColor.Floss, Name = nextName, color = System.Windows.Media.Color.FromRgb((byte)closestColor.Red, (byte)closestColor.Green, (byte)closestColor.Blue) });
+                    }
+
+                    this.DataContext = this;
+                    this.numberColours = items.Count().ToString();
+                }
+                //if eraser tool is used
+                else
                 {
-                    items.Add(new ListItemColour() { Number = "  " + closestColor.Floss, Name = nextName, color = System.Windows.Media.Color.FromRgb((byte)closestColor.Red, (byte)closestColor.Green, (byte)closestColor.Blue) });
+                    //getting the RGB colours in the pattern
+                    BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
+
+
+                    DMC closestColor = new DMC();
+                    utilities.ClosestDMC(ref DMCColors, ref DMCitems, ref myPalette);
+
+                    items.Clear();
+
+                    //remaking palette based on the colours found in the pattern to make sure that if a colour was erased,
+                    //then it is removed from the palette
+                    for (int i = 0; i < DMCitems.Count(); i++)
+                    {
+                        if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+                            items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
+                    }
+
+                    //binding number of colours to display in properties
+                    this.DataContext = this;
+                    this.numberColours = items.Count().ToString();
                 }
-
-                this.DataContext = this;
-                this.numberColours = items.Count().ToString();
             }
-            //if eraser tool is used
-            else
-            {
-                //getting the RGB colours in the pattern
-                BitmapPalette myPalette = new BitmapPalette(wBitmap, 256);
-
-
-                DMC closestColor = new DMC();
-                utilities.ClosestDMC(ref DMCColors, ref DMCitems, ref myPalette);
-
-                items.Clear();
-
-                //remaking palette based on the colours found in the pattern to make sure that if a colour was erased,
-                //then it is removed from the palette
-                for (int i = 0; i < DMCitems.Count(); i++)
-                {
-                    if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
-                        items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
-                }
-
-                //binding number of colours to display in properties
-                this.DataContext = this;
-                this.numberColours = items.Count().ToString();
-            }
-
         }
 
 
 
         private void previewButton_Click(object sender, RoutedEventArgs e)
         {
-            if (patternHeight * patternWidth >= 2000)
+            if (wBitmap != null)
             {
-                System.Windows.Forms.MessageBox.Show("Due to the size of the pattern, the preview may take longer to create.", "WARNING", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Warning);
-            }
+
+
+                if (patternHeight * patternWidth >= 2000)
+                {
+                    System.Windows.Forms.MessageBox.Show("Due to the size of the pattern, the preview may take longer to create.", "WARNING", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Warning);
+                }
                 //convert to bitmap
                 System.Drawing.Bitmap img = utilities.ConvertToBitmap(wBitmap);
 
-            double stitchSize = ((image.ActualHeight / patternHeight) * (patternHeight / 5.0)) / 1.5 - 10;
-            double stitchSizeY = stitchSize - 7.5;
-            double stitchSizeX = stitchSize - 13;
-            double aidaSize = 1772;
-            double stitchStartPosition;
-            double stitchStartPositionY = aidaSize / 2 - (image.ActualHeight) + 85;
+                double stitchSize = ((image.ActualHeight / patternHeight) * (patternHeight / 5.0)) / 1.5 - 10;
+                double stitchSizeY = stitchSize - 7.5;
+                double stitchSizeX = stitchSize - 13;
+                double aidaSize = 1772;
+                double stitchStartPosition;
+                double stitchStartPositionY = aidaSize / 2 - (image.ActualHeight) + 85;
 
 
-            // Create a DrawingGroup to combine the ImageDrawing objects.
-            DrawingGroup imageDrawings = new DrawingGroup();
-            RenderOptions.SetBitmapScalingMode(imageDrawings, BitmapScalingMode.NearestNeighbor);
+                // Create a DrawingGroup to combine the ImageDrawing objects.
+                DrawingGroup imageDrawings = new DrawingGroup();
+                RenderOptions.SetBitmapScalingMode(imageDrawings, BitmapScalingMode.NearestNeighbor);
 
-            
-            ImageDrawing background = new ImageDrawing();
-           
-            if (patternHeight > 15 || patternWidth > 15)
-            {
-                background.Rect = new Rect(0, 0, ((stitchSize*1.1) * patternWidth)*1.2, (stitchSize * patternHeight)*1.2);
-                background.ImageSource = new BitmapImage(new Uri("aida.png", UriKind.Relative));
-                //aidaSize = 1772;
-                stitchStartPositionY = ((stitchSize * 1.1) * patternWidth)*0.1;
-                stitchStartPosition = ((stitchSize * 1.1) * patternWidth) * 0.1;
-            }
-            else 
-            {           
-                background.Rect = new Rect(0, 0, 1772, 1772);
-                background.ImageSource = new BitmapImage(new Uri("aidasmall.png", UriKind.Relative));
-                aidaSize = 1772;
-                //stitchStartPosition = aidaSize / 2 - image.ActualWidth / 2;
-                stitchStartPosition = aidaSize / 2 - image.ActualWidth;
-            }
 
-            //adding background 
-            imageDrawings.Children.Add(background);
+                ImageDrawing background = new ImageDrawing();
 
-             
-            double stitchPositionY = stitchStartPositionY;
-
-            //set up for bitmap that is passed to the shader
-            BitmapImage bitmap2 = new BitmapImage();
-            bitmap2.BeginInit();
-            bitmap2.UriSource = new Uri(@"../Debug/stitch4WhiteS.png", UriKind.Relative);
-            bitmap2.EndInit();
-          
-            //creating pixel shader object
-            ThresholdEffect effect = new ThresholdEffect();
-
-            //objects for shader setup
-            BitmapSource bitmapX;
-            System.Windows.Shapes.Rectangle r = new System.Windows.Shapes.Rectangle();       
-            System.Windows.Media.Color inputColor = new System.Windows.Media.Color();
-            ImageDrawing icon1 = new ImageDrawing();
-            DrawingImage drawingImageSourceTemp;
-            DrawingVisual visual2 = new DrawingVisual();
-            DrawingContext context2;
-            ImageDrawing icon2 = new ImageDrawing();
-            RenderTargetBitmap bitmapTemp;
-            RenderTargetBitmap rtb;
-            int it = 1;
-           
-
-            //drawing stitches
-            for (int j = 0; j < img.Height; j++)
-            {
-                //changing Y position
-                stitchPositionY = stitchStartPositionY + (j * stitchSizeY);
-                for (int i = 0; i < img.Width; i++)
+                if (patternHeight > 15 || patternWidth > 15)
                 {
-                    //getting colour from pattern
-                    System.Drawing.Color stitchColor = img.GetPixel(i, j);
+                    background.Rect = new Rect(0, 0, ((stitchSize * 1.1) * patternWidth) * 1.2, (stitchSize * patternHeight) * 1.2);
+                    background.ImageSource = new BitmapImage(new Uri("aida.png", UriKind.Relative));
+                    //aidaSize = 1772;
+                    stitchStartPositionY = ((stitchSize * 1.1) * patternWidth) * 0.1;
+                    stitchStartPosition = ((stitchSize * 1.1) * patternWidth) * 0.1;
+                }
+                else
+                {
+                    background.Rect = new Rect(0, 0, 1772, 1772);
+                    background.ImageSource = new BitmapImage(new Uri("aidasmall.png", UriKind.Relative));
+                    aidaSize = 1772;
+                    //stitchStartPosition = aidaSize / 2 - image.ActualWidth / 2;
+                    stitchStartPosition = aidaSize / 2 - image.ActualWidth;
+                }
 
-                    //check if next square is white, meaning it is erased, so no stitch
-                    if (stitchColor != System.Drawing.Color.FromArgb(255, 255, 255, 255))
+                //adding background 
+                imageDrawings.Children.Add(background);
+
+
+                double stitchPositionY = stitchStartPositionY;
+
+                //set up for bitmap that is passed to the shader
+                BitmapImage bitmap2 = new BitmapImage();
+                bitmap2.BeginInit();
+                bitmap2.UriSource = new Uri(@"../Debug/stitch4WhiteS.png", UriKind.Relative);
+                bitmap2.EndInit();
+
+                //creating pixel shader object
+                ThresholdEffect effect = new ThresholdEffect();
+
+                //objects for shader setup
+                BitmapSource bitmapX;
+                System.Windows.Shapes.Rectangle r = new System.Windows.Shapes.Rectangle();
+                System.Windows.Media.Color inputColor = new System.Windows.Media.Color();
+                ImageDrawing icon1 = new ImageDrawing();
+                DrawingImage drawingImageSourceTemp;
+                DrawingVisual visual2 = new DrawingVisual();
+                DrawingContext context2;
+                ImageDrawing icon2 = new ImageDrawing();
+                RenderTargetBitmap bitmapTemp;
+                RenderTargetBitmap rtb;
+                int it = 1;
+
+
+                //drawing stitches
+                for (int j = 0; j < img.Height; j++)
+                {
+                    //changing Y position
+                    stitchPositionY = stitchStartPositionY + (j * stitchSizeY);
+                    for (int i = 0; i < img.Width; i++)
                     {
-                        var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
+                        //getting colour from pattern
+                        System.Drawing.Color stitchColor = img.GetPixel(i, j);
 
-
-                        if (patternHeight * patternWidth >= 2000)
+                        //check if next square is white, meaning it is erased, so no stitch
+                        if (stitchColor != System.Drawing.Color.FromArgb(255, 255, 255, 255))
                         {
-                          
-
-                            //pointer blending 
-                            LockBitmap lockBitmap = new LockBitmap(XStitch);
-                            lockBitmap.LockBits();
+                            var XStitch = new System.Drawing.Bitmap("stitch4WhiteS.png");
 
 
-                            for (int y = 0; y < lockBitmap.Height; y++)
+                            if (patternHeight * patternWidth >= 2000)
                             {
-                                for (int x = 0; x < lockBitmap.Width; x++)
+
+
+                                //pointer blending 
+                                LockBitmap lockBitmap = new LockBitmap(XStitch);
+                                lockBitmap.LockBits();
+
+
+                                for (int y = 0; y < lockBitmap.Height; y++)
                                 {
-                                    System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
+                                    for (int x = 0; x < lockBitmap.Width; x++)
+                                    {
+                                        System.Drawing.Color XColor = lockBitmap.GetPixel(x, y);
 
-                                    int red = XColor.R * stitchColor.R / 255;
-                                    int blue = XColor.B * stitchColor.B / 255;
-                                    int green = XColor.G * stitchColor.G / 255;
-                                    System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
+                                        int red = XColor.R * stitchColor.R / 255;
+                                        int blue = XColor.B * stitchColor.B / 255;
+                                        int green = XColor.G * stitchColor.G / 255;
+                                        System.Drawing.Color ResultColor = System.Drawing.Color.FromArgb(red, green, blue);
 
-                                    if (XColor.A > 0.5)
-                                        lockBitmap.SetPixel(x, y, ResultColor);
+                                        if (XColor.A > 0.5)
+                                            lockBitmap.SetPixel(x, y, ResultColor);
+                                    }
                                 }
-                            }
-                            lockBitmap.UnlockBits();
+                                lockBitmap.UnlockBits();
 
-                            XStitch.MakeTransparent();
+                                XStitch.MakeTransparent();
 
-                            icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
-                           
-                            icon1.ImageSource = utilities.BitmapToImageSource(XStitch);
-                            imageDrawings.Children.Add(icon1.Clone());
-                        }
-                        else
-                        {
-                            //shader setup
-                            inputColor = System.Windows.Media.Color.FromArgb(255, stitchColor.R, stitchColor.G, stitchColor.B);
-                            effect.BlankColor = inputColor;
-
-                            //bitmap to fill the rectangle with
-                            bitmapX = bitmap2;
-                            r.Fill = new ImageBrush(bitmapX);
-                            r.Effect = effect; // set rectangle effect to shader
-
-                            //get size of image
-                            System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
-                            r.Measure(sz);
-                            r.Arrange(new Rect(sz));
-                            {
-                                //render rectangle with shader effect
-                                rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
-                                rtb.Render(r);
-
-                                //rtb = RenderImage(sz, r);
-                                if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
-                                {
-                                    GC.Collect();
-                                }
-
-                                //ImageDrawing icon1 = new ImageDrawing(); 
-                                //creating image drawing at the right stitch position 
                                 icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
-                                icon1.ImageSource = rtb; //setting the rendered rectangle as the source
-                                                         //icon1.ImageSource = utilities.BitmapToImageSource(XStitch);
+
+                                icon1.ImageSource = utilities.BitmapToImageSource(XStitch);
                                 imageDrawings.Children.Add(icon1.Clone());
-                                //imageDrawings.Children.Add(icon1);
-                                it++;
                             }
+                            else
+                            {
+                                //shader setup
+                                inputColor = System.Windows.Media.Color.FromArgb(255, stitchColor.R, stitchColor.G, stitchColor.B);
+                                effect.BlankColor = inputColor;
+
+                                //bitmap to fill the rectangle with
+                                bitmapX = bitmap2;
+                                r.Fill = new ImageBrush(bitmapX);
+                                r.Effect = effect; // set rectangle effect to shader
+
+                                //get size of image
+                                System.Windows.Size sz = new System.Windows.Size(bitmapX.PixelWidth, bitmapX.PixelHeight);
+                                r.Measure(sz);
+                                r.Arrange(new Rect(sz));
+                                {
+                                    //render rectangle with shader effect
+                                    rtb = new RenderTargetBitmap((int)sz.Width, (int)sz.Height, 96, 96, PixelFormats.Pbgra32);
+                                    rtb.Render(r);
+
+                                    //rtb = RenderImage(sz, r);
+                                    if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
+                                    {
+                                        GC.Collect();
+                                    }
+
+                                    //ImageDrawing icon1 = new ImageDrawing(); 
+                                    //creating image drawing at the right stitch position 
+                                    icon1.Rect = new Rect(stitchStartPosition + (stitchSizeX * i), stitchPositionY, stitchSize, stitchSize);
+                                    icon1.ImageSource = rtb; //setting the rendered rectangle as the source
+                                                             //icon1.ImageSource = utilities.BitmapToImageSource(XStitch);
+                                    imageDrawings.Children.Add(icon1.Clone());
+                                    //imageDrawings.Children.Add(icon1);
+                                    it++;
+                                }
+                            }
+
+                            //if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
+                            //{
+
+
+                            //    drawingImageSourceTemp = new DrawingImage(imageDrawings);
+
+                            //    double destWidth2 = (int)drawingImageSourceTemp.Width;
+                            //    double destHeight2 = (int)drawingImageSourceTemp.Height;
+
+                            //    //DrawingVisual visual2 = new DrawingVisual();
+                            //    context2 = visual2.RenderOpen();
+                            //    Rect rect2 = new Rect(0, 0, destWidth2, destHeight2);
+                            //    context2.DrawImage(drawingImageSourceTemp, rect2);
+                            //    context2.Close();
+
+                            //    {
+                            //        bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
+                            //        bitmapTemp.Render(visual2);
+                            //        //bitmapTemp = RenderImage2(visual2, destWidth2, destHeight2);
+
+                            //        imageDrawings.Children.Clear();
+
+                            //        //ImageDrawing icon2 = new ImageDrawing();
+                            //        icon2.Rect = new Rect(0, 0, destWidth2, destHeight2);
+                            //        icon2.ImageSource = bitmapTemp;
+                            //        imageDrawings.Children.Add(icon2.Clone());
+
+                            //    }
+                            //    GC.Collect();
+                            //}
                         }
-     
-                        //if (it == 20 || it == 40 || it == 60 || it == 80 || it == 100)
-                        //{
-
-
-                        //    drawingImageSourceTemp = new DrawingImage(imageDrawings);
-
-                        //    double destWidth2 = (int)drawingImageSourceTemp.Width;
-                        //    double destHeight2 = (int)drawingImageSourceTemp.Height;
-
-                        //    //DrawingVisual visual2 = new DrawingVisual();
-                        //    context2 = visual2.RenderOpen();
-                        //    Rect rect2 = new Rect(0, 0, destWidth2, destHeight2);
-                        //    context2.DrawImage(drawingImageSourceTemp, rect2);
-                        //    context2.Close();
-
-                        //    {
-                        //        bitmapTemp = new RenderTargetBitmap((int)destWidth2, (int)destHeight2, 96, 96, PixelFormats.Pbgra32);
-                        //        bitmapTemp.Render(visual2);
-                        //        //bitmapTemp = RenderImage2(visual2, destWidth2, destHeight2);
-
-                        //        imageDrawings.Children.Clear();
-
-                        //        //ImageDrawing icon2 = new ImageDrawing();
-                        //        icon2.Rect = new Rect(0, 0, destWidth2, destHeight2);
-                        //        icon2.ImageSource = bitmapTemp;
-                        //        imageDrawings.Children.Add(icon2.Clone());
-
-                        //    }
-                        //    GC.Collect();
-                        //}
                     }
                 }
-            }
 
-            //creating drawingImage from the drawingImage group
-            DrawingImage drawingImageSource = new DrawingImage(imageDrawings);
+                //creating drawingImage from the drawingImage group
+                DrawingImage drawingImageSource = new DrawingImage(imageDrawings);
 
-            // Freeze the DrawingImage for performance benefits.
-            drawingImageSource.Freeze();
+                // Freeze the DrawingImage for performance benefits.
+                drawingImageSource.Freeze();
 
-            double destWidth = (int)drawingImageSource.Width;
-            double destHeight = (int)drawingImageSource.Height;
-
-
-            // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap
-            DrawingVisual visual = new DrawingVisual();
-            DrawingContext context = visual.RenderOpen();
-            Rect rect = new Rect(0, 0, destWidth, destHeight);
-            context.DrawImage(drawingImageSource, rect);
-            context.Close();
-
-            //render the drawingImage to a bitmap
-            RenderTargetBitmap bitmap = new RenderTargetBitmap((int)destWidth, (int)destHeight, 96, 96, PixelFormats.Pbgra32);
-            bitmap.Render(visual);
+                double destWidth = (int)drawingImageSource.Width;
+                double destHeight = (int)drawingImageSource.Height;
 
 
-            System.Windows.Controls.Image imageControl = new System.Windows.Controls.Image();
-            imageControl.Stretch = Stretch.None;
-            imageControl.Source = drawingImageSource;
+                // DrawingImage -> DrawingVisual -> Render -> (RenderTarget)Bitmap
+                DrawingVisual visual = new DrawingVisual();
+                DrawingContext context = visual.RenderOpen();
+                Rect rect = new Rect(0, 0, destWidth, destHeight);
+                context.DrawImage(drawingImageSource, rect);
+                context.Close();
 
-            //making a new image to pass to the preview window
-            System.Windows.Controls.Image passImage = new System.Windows.Controls.Image();
-            passImage.Source = imageControl.Source;
+                //render the drawingImage to a bitmap
+                RenderTargetBitmap bitmap = new RenderTargetBitmap((int)destWidth, (int)destHeight, 96, 96, PixelFormats.Pbgra32);
+                bitmap.Render(visual);
 
-            //show the preview window, passing the image
-            Preview previewWindow = new Preview(imageControl);
-            Nullable<bool> result2 = previewWindow.ShowDialog();
 
-            //save preview
-            if (result2 == true)
-            {
-                utilities.Save(bitmap);
+                System.Windows.Controls.Image imageControl = new System.Windows.Controls.Image();
+                imageControl.Stretch = Stretch.None;
+                imageControl.Source = drawingImageSource;
+
+                //making a new image to pass to the preview window
+                System.Windows.Controls.Image passImage = new System.Windows.Controls.Image();
+                passImage.Source = imageControl.Source;
+
+                //show the preview window, passing the image
+                Preview previewWindow = new Preview(imageControl);
+                Nullable<bool> result2 = previewWindow.ShowDialog();
+
+                //save preview
+                if (result2 == true)
+                {
+                    utilities.Save(bitmap);
+                }
             }
         }
 

@@ -137,6 +137,8 @@ namespace Flow_Stitch
                 System.Windows.Forms.MessageBox.Show("Error: Input a number between 2 and 256 for Number of colours.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else if (heightOfPattern < 1)
                 System.Windows.Forms.MessageBox.Show("Error: Input a value bigger than 0 for Height of pattern.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else if (heightOfPattern > 5000)
+                System.Windows.Forms.MessageBox.Show("Error: Input a value smaller than 5000 for Height of pattern.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
 

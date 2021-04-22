@@ -23,7 +23,7 @@ namespace Flow_Stitch
             float newSizePercentage = (float)heightOfPattern / (float)img.Height;
             newSizePercentage *= 100;
 
-            //???
+            
             upscalePercentage = 100 * ((float)img.Height / (float)heightOfPattern);
 
             //reduce colour palette
@@ -110,12 +110,25 @@ namespace Flow_Stitch
                 items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
             }
 
-            
+            System.Drawing.Bitmap newBitmap = null;
+            if (palette.Count() >= 2)
+            {
+                //changing the colours in the pattern to the DMC colours
+                System.Drawing.Bitmap requantizedImage2 = new System.Drawing.Bitmap(quantizer.ReduceColors(requantizedImage, palette)); //CHANGE BACK
+                newBitmap = new System.Drawing.Bitmap(requantizedImage2);
+            }
+            else
+            {
+                for (int i = 0; i < requantizedImage.Width; i++)
+                {
+                    for (int j = 0; j < requantizedImage.Height; j++)
+                    {
+                        requantizedImage.SetPixel(i, j, palette[0]);
+                    }
+                }
 
-            //changing the colours in the pattern to the DMC colours
-            System.Drawing.Bitmap requantizedImage2 = new System.Drawing.Bitmap(quantizer.ReduceColors(requantizedImage, palette)); //CHANGE BACK
-            System.Drawing.Bitmap newBitmap = new System.Drawing.Bitmap(requantizedImage2);
-
+                newBitmap = requantizedImage;
+            }
             //putting it back into the image and the writable bitmap
             wBitmap = utilities.BitmapToImageSource(newBitmap);
             image.Source = wBitmap;
