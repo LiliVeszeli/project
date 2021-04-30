@@ -11,6 +11,7 @@
 
     <Window.Resources>
         <DataTemplate DataType="{x:Type local:ListItemColour}">
+           
             <StackPanel Orientation="Horizontal" Height="43" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">
 
                 <Rectangle Width="32" Height="32">
@@ -33,6 +34,7 @@
                     </ContextMenu>
                 </StackPanel.ContextMenu>
             </StackPanel>
+         
         </DataTemplate>
     </Window.Resources>
 

@@ -927,5 +927,7 @@ namespace Flow_Stitch
             About aboutWindow = new About();
             aboutWindow.ShowDialog();
         }
+
+       
     }
 }
