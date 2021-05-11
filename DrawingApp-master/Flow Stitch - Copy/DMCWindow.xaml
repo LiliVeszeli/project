@@ -1,0 +1,34 @@
+﻿<Window x:Class="Flow_Stitch.DMCWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Flow_Stitch"
+        mc:Ignorable="d"
+        Title="DMC Colours" Height="450" Width="278.788">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type local:ListItemColour}">
+            <StackPanel Orientation="Horizontal" Height="43" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">
+
+                <Rectangle Width="32" Height="32">
+                    <Rectangle.Fill>
+                        <SolidColorBrush x:Name="brush" Color="{Binding color, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <StackPanel Orientation="Vertical">
+                    <Border BorderBrush="{x:Null}" Height="17">
+                        <TextBlock Text="{Binding Number, UpdateSourceTrigger=PropertyChanged}"  TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    </Border>
+                    <Border BorderBrush="{x:Null}" Height="17">
+                        <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"  TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+
+
+    <Grid>
+        <ListBox ItemsSource="{Binding DMCColoursList}" Margin="0,0,0.2,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible" Name="listBox"/>
+    </Grid>
+</Window>

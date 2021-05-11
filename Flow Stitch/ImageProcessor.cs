@@ -116,6 +116,27 @@ namespace Flow_Stitch
                 //changing the colours in the pattern to the DMC colours
                 System.Drawing.Bitmap requantizedImage2 = new System.Drawing.Bitmap(quantizer.ReduceColors(requantizedImage, palette)); //CHANGE BACK
                 newBitmap = new System.Drawing.Bitmap(requantizedImage2);
+
+                wBitmap = utilities.BitmapToImageSource(newBitmap);
+
+                //getting the RGB colours in the pattern
+                myPalette = new BitmapPalette(wBitmap, 256);
+
+
+                //DMC closestColor = new DMC();
+                utilities.ClosestDMC(ref DMCColors, ref DMCitems, ref myPalette);
+
+                items.Clear();
+
+                //remaking palette based on the colours found in the pattern to make sure that if a colour was erased,
+                //then it is removed from the palette
+                for (int i = 0; i < DMCitems.Count(); i++)
+                {
+                    if (!(myPalette.Colors[i].ToString().ToLower() == "#ffffffff"))
+                        items.Add(new ListItemColour() { Number = "  " + DMCitems[i].Floss, Name = "  " + DMCitems[i].Description, color = System.Windows.Media.Color.FromRgb((byte)DMCitems[i].Red, (byte)DMCitems[i].Green, (byte)DMCitems[i].Blue) });
+                }
+
+               
             }
             else
             {

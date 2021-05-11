@@ -366,8 +366,8 @@ namespace Flow_Stitch
                     Bitmap newBitmap = new Bitmap(requantizedImage2);
 
                     //putting it back into the image and the writable bitmap
-                    wBitmap = BitmapToImageSource(newBitmap);
-                    image.Source = wBitmap;
+                   // wBitmap = BitmapToImageSource(newBitmap);
+                    //image.Source = wBitmap;
 
                     //store state of image
                     patternStatesAdd();

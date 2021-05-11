@@ -90,7 +90,7 @@ namespace Flow_Stitch
             }
 
             //only opening a picture if input is not empty/invalid and if OK was clicked
-            if (numberOfColours != 0 && heightOfPattern != 0 && result2 == true && numberOfColours <= 256 && numberOfColours >= 2 && heightOfPattern < 5000)
+            if (numberOfColours != 0 && heightOfPattern != 0 && result2 == true && numberOfColours <= 256 && numberOfColours >= 2 && heightOfPattern < 5000 && heightOfPattern > 0)
             {
                 //opening files
                 utilities.OpenFile(ref wBitmap, ref image);
@@ -533,8 +533,8 @@ namespace Flow_Stitch
                 // Freeze the DrawingImage for performance benefits.
                 drawingImageSource.Freeze();
 
-                double destWidth = (int)drawingImageSource.Width;
-                double destHeight = (int)drawingImageSource.Height;
+                double destWidth = (int)drawingImageSource.Width * 3;
+                double destHeight = (int)drawingImageSource.Height * 3;
 
                 if ((patternHeight > 50 || patternWidth > 50) && (patternHeight < 200 && patternWidth < 200))
                 {
@@ -589,8 +589,6 @@ namespace Flow_Stitch
         {
             if (wBitmap != null)
             {
-
-
                 // coordinates are now available in p.X and p.Y
                 var p = e.GetPosition(image);
 
@@ -771,8 +769,6 @@ namespace Flow_Stitch
 
                             if (patternHeight * patternWidth >= 2000)
                             {
-
-
                                 //pointer blending 
                                 LockBitmap lockBitmap = new LockBitmap(XStitch);
                                 lockBitmap.LockBits();

@@ -1,0 +1,25 @@
+﻿<Window x:Class="Flow_Stitch.Symbol"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Flow_Stitch"
+        mc:Ignorable="d"
+        Title="Pattern Symbols" Height="594" Width="874.4" WindowState="Maximized">
+    <Grid Margin="0,0,-2,1" Background="#FFD8FAFF">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="852*"/>
+            <ColumnDefinition Width="9*"/>
+            <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+        <Image x:Name="image" HorizontalAlignment="Center" Height="Auto" Margin="20,20,20,40" VerticalAlignment="Top" Width="Auto" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor">
+            <Image.Effect>
+                <DropShadowEffect BlurRadius="10" 
+                           ShadowDepth="0" 
+                           Color="Black"/>
+            </Image.Effect>
+        </Image>
+        <Button x:Name="Savebutton" Content="Save" Margin="0,0,17.8,16" Background="#FFEFD3FF" Click="Savebutton_Click" FontSize="14" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="76" Height="24"/>
+
+    </Grid>
+</Window>
